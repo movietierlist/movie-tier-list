@@ -4,6 +4,7 @@
 <head>
 
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Movie Tier List</title>
@@ -27,14 +28,69 @@
 <main>
 
 
-<button id="addMovie">
-    + Add Movie
-</button>
+<div class="top-buttons">
 
 
-<button id="addTier">
-    + Add Tier
-</button>
+    <button id="addMovie">
+        + Add Movie
+    </button>
+
+
+    <button id="addTier">
+        + Add Tier
+    </button>
+
+
+    <button id="settingsButton">
+        ⚙ Settings
+    </button>
+
+
+</div>
+
+
+
+
+<div id="settingsPanel" class="settings-panel hidden">
+
+
+    <h3>Card Layout</h3>
+
+
+    <label>
+
+        <input 
+        type="radio"
+        name="cardStyle"
+        value="title"
+        checked>
+
+        Poster + Title
+
+    </label>
+
+
+
+    <br>
+
+
+
+    <label>
+
+        <input 
+        type="radio"
+        name="cardStyle"
+        value="poster">
+
+        Poster Only
+
+    </label>
+
+
+
+</div>
+
+
 
 
 
@@ -42,16 +98,25 @@
 
 
 
+
+
 <section class="movie-bank">
 
-    <h2>🎬 Movie Bank</h2>
+
+    <h2>Movie Bank</h2>
+
 
     <div id="movieBank" class="movies"></div>
+
 
 </section>
 
 
+
+
+
 </main>
+
 
 
 
