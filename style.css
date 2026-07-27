@@ -487,3 +487,71 @@ button {
 
 
 }
+
+
+/* Device specific behaviour */
+
+
+/* Desktop / laptop */
+
+body[data-device="desktop"] .movie-menu,
+body[data-device="desktop"] .tier-menu {
+
+    opacity: 0;
+
+    transition: opacity 0.2s;
+
+}
+
+
+
+body[data-device="desktop"] .movie-card:hover .movie-menu,
+body[data-device="desktop"] .tier:hover .tier-menu {
+
+    opacity: 1;
+
+}
+
+
+
+
+
+/* Tablet / iPad */
+
+
+body[data-device="tablet"] .movie-menu,
+body[data-device="tablet"] .tier-menu {
+
+    opacity: 1;
+
+    width: 36px;
+
+    height: 36px;
+
+}
+
+
+
+
+
+/* Mobile / iPhone */
+
+
+body[data-device="mobile"] .movie-menu,
+body[data-device="mobile"] .tier-menu {
+
+    opacity: 1;
+
+    width: 38px;
+
+    height: 38px;
+
+}
+
+
+
+body[data-device="mobile"] .movie-card {
+
+    min-width: 85px;
+
+}
