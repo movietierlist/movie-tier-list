@@ -203,7 +203,7 @@ function createTier(tier) {
             </h2>
 
 
-            <button class="tier-menu">
+            <button class="tier-menu" onclick="console.log('HTML tier clicked')">
                 ⋮
             </button>
 
