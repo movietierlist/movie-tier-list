@@ -10,6 +10,10 @@ const movieBank = document.getElementById("movieBank");
 let activeMenu = null;
 
 
+/* -----------------------------
+   MENU SYSTEM
+----------------------------- */
+
 function closeMenus() {
 
     if (activeMenu) {
@@ -21,7 +25,6 @@ function closeMenus() {
     }
 
 }
-
 
 
 document.addEventListener("click", function(event) {
@@ -38,7 +41,63 @@ document.addEventListener("click", function(event) {
 
 });
 
-// Device detection
+
+function showMenu(button, items) {
+
+    closeMenus();
+
+
+    const menu = document.createElement("div");
+
+    menu.className = "context-menu";
+
+
+    items.forEach(item => {
+
+        const option = document.createElement("button");
+
+        option.textContent = item.label;
+
+
+        option.onclick = function(event) {
+
+            event.stopPropagation();
+
+            closeMenus();
+
+            item.action();
+
+        };
+
+
+        menu.appendChild(option);
+
+    });
+
+
+    document.body.appendChild(menu);
+
+
+    const rect = button.getBoundingClientRect();
+
+
+    menu.style.top =
+        rect.bottom + window.scrollY + "px";
+
+
+    menu.style.left =
+        rect.left + window.scrollX - 100 + "px";
+
+
+    activeMenu = menu;
+
+}
+
+
+
+/* -----------------------------
+   DEVICE DETECTION
+----------------------------- */
 
 function detectDevice() {
 
@@ -54,9 +113,7 @@ function detectDevice() {
         window.innerWidth;
 
 
-
     let device;
-
 
 
     if (hasHover) {
@@ -78,18 +135,12 @@ function detectDevice() {
     }
 
 
-
     document.body.dataset.device = device;
-
-
-    console.log("Device mode:", device);
 
 }
 
 
-
 detectDevice();
-
 
 
 window.addEventListener(
@@ -99,74 +150,90 @@ window.addEventListener(
 
 
 
-let data = JSON.parse(localStorage.getItem("movieClub")) || {
+/* -----------------------------
+   DATA
+----------------------------- */
+
+let data =
+    JSON.parse(
+        localStorage.getItem("movieClub")
+    )
+    ||
+    {
+
+        settings: {
+
+            cardStyle: "title"
+
+        },
 
 
-    settings: {
+        tiers: [
 
+            {
+                id: 1,
+                name: "S",
+                emoji: "",
+                colour: "s",
+                order: 0
+            },
+
+            {
+                id: 2,
+                name: "A",
+                emoji: "",
+                colour: "a",
+                order: 1
+            },
+
+            {
+                id: 3,
+                name: "B",
+                emoji: "",
+                colour: "b",
+                order: 2
+            },
+
+            {
+                id: 4,
+                name: "C",
+                emoji: "",
+                colour: "c",
+                order: 3
+            },
+
+            {
+                id: 5,
+                name: "D",
+                emoji: "",
+                colour: "d",
+                order: 4
+            },
+
+            {
+                id: 6,
+                name: "F",
+                emoji: "",
+                colour: "f",
+                order: 5
+            }
+
+        ],
+
+
+        movies: []
+
+    };
+
+
+
+if (!data.settings) {
+
+    data.settings = {
         cardStyle: "title"
+    };
 
-    },
-
-
-    tiers: [
-
-        {
-            id: 1,
-            name: "S",
-            emoji: "",
-            colour: "s",
-            order: 0
-        },
-
-        {
-            id: 2,
-            name: "A",
-            emoji: "",
-            colour: "a",
-            order: 1
-        },
-
-        {
-            id: 3,
-            name: "B",
-            emoji: "",
-            colour: "b",
-            order: 2
-        },
-
-        {
-            id: 4,
-            name: "C",
-            emoji: "",
-            colour: "c",
-            order: 3
-        },
-
-        {
-            id: 5,
-            name: "D",
-            emoji: "",
-            colour: "d",
-            order: 4
-        },
-
-        {
-            id: 6,
-            name: "F",
-            emoji: "",
-            colour: "f",
-            order: 5
-        }
-
-    ],
-
-
-    movies: []
-
-};
-
-
+}
 
 
 
@@ -180,8 +247,9 @@ function save() {
 }
 
 
-
-
+/* -----------------------------
+   TIER CREATION
+----------------------------- */
 
 function createTier(tier) {
 
@@ -203,40 +271,36 @@ function createTier(tier) {
             </h2>
 
 
-            <button class="tier-menu" onclick="console.log('HTML tier clicked')">
+            <button class="tier-menu">
                 ⋮
             </button>
 
         </div>
 
 
-
-        <div 
-        class="movies"
-        data-tier="${tier.id}">
+        <div
+            class="movies"
+            data-tier="${tier.id}">
         </div>
 
     `;
 
 
 
-    const menu =
+    const menuButton =
         section.querySelector(".tier-menu");
 
 
+    menuButton.onclick = function(event) {
 
-menu.onclick = function(event) {
+        event.stopPropagation();
 
-    console.log("Tier menu clicked");
-    
-    event.stopPropagation();
+        openTierMenu(
+            tier,
+            this
+        );
 
-    openTierMenu(
-        tier,
-        this
-    );
-
-};
+    };
 
 
 
@@ -244,8 +308,10 @@ menu.onclick = function(event) {
         section.querySelector(".movies");
 
 
-
-    setupDropZone(movieArea, tier.id);
+    setupDropZone(
+        movieArea,
+        tier.id
+    );
 
 
 
@@ -270,6 +336,7 @@ function openTierMenu(tier, button) {
                 label: "Rename Tier",
 
                 action: function() {
+
 
                     const name =
                         prompt(
@@ -297,6 +364,7 @@ function openTierMenu(tier, button) {
                 label: "Change Colour",
 
                 action: function() {
+
 
                     const colour =
                         prompt(
@@ -326,10 +394,15 @@ function openTierMenu(tier, button) {
                 action: function() {
 
 
-                    if(confirm("Delete tier? Movies return to Movie Bank.")) {
+                    if(
+                        confirm(
+                            "Delete tier? Movies return to Movie Bank."
+                        )
+                    ) {
 
 
                         data.movies.forEach(movie => {
+
 
                             if(movie.tier === tier.id) {
 
@@ -337,13 +410,16 @@ function openTierMenu(tier, button) {
 
                             }
 
+
                         });
+
 
 
                         data.tiers =
                             data.tiers.filter(
                                 t => t.id !== tier.id
                             );
+
 
 
                         save();
@@ -361,13 +437,15 @@ function openTierMenu(tier, button) {
 
     );
 
-
 }
 
 
 
 
 
+/* -----------------------------
+   DRAG AND DROP
+----------------------------- */
 
 
 function setupDropZone(area, tierID) {
@@ -412,72 +490,20 @@ function setupDropZone(area, tierID) {
 
             }
 
-
         }
     );
 
 }
 
 
-function showMenu(button, items) {
-
-
-    closeMenus();
-
-
-    const menu = document.createElement("div");
-
-    menu.className = "context-menu";
-
-
-    items.forEach(item => {
-
-
-        const option = document.createElement("button");
-
-
-        option.textContent = item.label;
-
-
-        option.onclick = function(event) {
-
-            event.stopPropagation();
-
-            closeMenus();
-
-            item.action();
-
-        };
-
-
-        menu.appendChild(option);
-
-
-    });
 
 
 
-    document.body.appendChild(menu);
 
 
-
-    const rect =
-        button.getBoundingClientRect();
-
-
-
-    menu.style.top =
-        rect.bottom + window.scrollY + "px";
-
-
-    menu.style.left =
-        rect.left + window.scrollX - 100 + "px";
-
-
-
-    activeMenu = menu;
-
-}
+/* -----------------------------
+   MOVIE CREATION
+----------------------------- */
 
 
 function createMovie(movie) {
@@ -487,10 +513,8 @@ function createMovie(movie) {
         document.createElement("div");
 
 
-
     card.className =
         "movie-card";
-
 
 
     card.draggable = true;
@@ -517,11 +541,16 @@ function createMovie(movie) {
 
 
 
-    if(data.settings.cardStyle === "poster") {
+    if(
+        data.settings.cardStyle === "poster"
+    ) {
 
-        card.classList.add("poster-only");
+        card.classList.add(
+            "poster-only"
+        );
 
     }
+
 
 
 
@@ -530,10 +559,12 @@ function createMovie(movie) {
         "dragstart",
         event => {
 
+
             event.dataTransfer.setData(
                 "id",
                 movie.id
             );
+
 
         }
     );
@@ -542,21 +573,24 @@ function createMovie(movie) {
 
 
 
-   card.querySelector(".movie-menu")
-.onclick = function(event) {
+    const menuButton =
+        card.querySelector(".movie-menu");
 
 
-    event.stopPropagation();
+
+    menuButton.onclick = function(event) {
 
 
-    openMovieMenu(
-        movie,
-        this
-    );
+        event.stopPropagation();
 
 
-};
+        openMovieMenu(
+            movie,
+            this
+        );
 
+
+    };
 
 
 
@@ -568,11 +602,14 @@ function createMovie(movie) {
 
 
 
+
 function openMovieMenu(movie, button) {
 
 
     showMenu(
+
         button,
+
         [
 
             {
@@ -597,6 +634,7 @@ function openMovieMenu(movie, button) {
                         render();
 
                     }
+
 
                 }
 
@@ -624,19 +662,17 @@ function openMovieMenu(movie, button) {
 
             }
 
-
         ]
+
     );
 
 
 }
 
 
-   
-
-
-
-
+/* -----------------------------
+   RENDER
+----------------------------- */
 
 
 function render() {
@@ -658,6 +694,7 @@ function render() {
 
 
 
+
     data.movies.forEach(movie => {
 
 
@@ -669,9 +706,9 @@ function render() {
 
 
             location =
-            document.querySelector(
-                `[data-tier="${movie.tier}"]`
-            );
+                document.querySelector(
+                    `[data-tier="${movie.tier}"]`
+                );
 
 
         }
@@ -682,6 +719,7 @@ function render() {
 
 
         }
+
 
 
 
@@ -703,6 +741,11 @@ function render() {
 
 
 
+
+
+/* -----------------------------
+   ADD MOVIE
+----------------------------- */
 
 
 addMovieButton.onclick = function() {
@@ -737,11 +780,17 @@ addMovieButton.onclick = function() {
 
     render();
 
+
 };
 
 
 
 
+
+
+/* -----------------------------
+   ADD TIER
+----------------------------- */
 
 
 addTierButton.onclick = function() {
@@ -778,11 +827,17 @@ addTierButton.onclick = function() {
 
     render();
 
+
 };
 
 
 
 
+
+
+/* -----------------------------
+   SETTINGS
+----------------------------- */
 
 
 settingsButton.onclick = function() {
@@ -807,6 +862,7 @@ document
 .forEach(option => {
 
 
+
     option.checked =
         option.value === data.settings.cardStyle;
 
@@ -817,6 +873,7 @@ document
 
         data.settings.cardStyle =
             option.value;
+
 
 
         save();
@@ -831,6 +888,12 @@ document
 
 
 
+
+
+
+/* -----------------------------
+   START
+----------------------------- */
 
 
 render();
