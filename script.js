@@ -7,6 +7,37 @@ const settingsPanel = document.getElementById("settingsPanel");
 const tierContainer = document.getElementById("tierContainer");
 const movieBank = document.getElementById("movieBank");
 
+let activeMenu = null;
+
+
+function closeMenus() {
+
+    if (activeMenu) {
+
+        activeMenu.remove();
+
+        activeMenu = null;
+
+    }
+
+}
+
+
+
+document.addEventListener("click", function(event) {
+
+    if (
+        !event.target.closest(".context-menu") &&
+        !event.target.closest(".movie-menu") &&
+        !event.target.closest(".tier-menu")
+    ) {
+
+        closeMenus();
+
+    }
+
+});
+
 // Device detection
 
 function detectDevice() {
@@ -194,11 +225,121 @@ function createTier(tier) {
 
 
 
-    menu.onclick = function() {
+menu.onclick = function(event) {
 
-        openTierMenu(tier);
+    event.stopPropagation();
 
-    };
+    openTierMenu(
+        tier,
+        this
+    );
+
+};
+
+
+    showMenu(
+
+        button,
+
+        [
+
+            {
+                label:"Rename Tier",
+
+                action:function(){
+
+                    const name =
+                        prompt(
+                            "Tier name:",
+                            tier.name
+                        );
+
+
+                    if(name){
+
+                        tier.name = name;
+
+                        save();
+
+                        render();
+
+                    }
+
+                }
+
+            },
+
+
+            {
+                label:"Change Colour",
+
+                action:function(){
+
+                    const colour =
+                        prompt(
+                            "Colour code:",
+                            tier.colour
+                        );
+
+
+                    if(colour){
+
+                        tier.colour = colour;
+
+                        save();
+
+                        render();
+
+                    }
+
+                }
+
+            },
+
+
+            {
+                label:"Delete Tier",
+
+                action:function(){
+
+
+                    if(confirm("Delete tier? Movies return to Movie Bank.")){
+
+
+                        data.movies.forEach(movie=>{
+
+                            if(movie.tier === tier.id){
+
+                                movie.tier = null;
+
+                            }
+
+                        });
+
+
+
+                        data.tiers =
+                            data.tiers.filter(
+                                t=>t.id !== tier.id
+                            );
+
+
+                        save();
+
+                        render();
+
+
+                    }
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
 
 
 
@@ -375,7 +516,65 @@ function setupDropZone(area, tierID) {
 }
 
 
+function showMenu(button, items) {
 
+
+    closeMenus();
+
+
+    const menu = document.createElement("div");
+
+    menu.className = "context-menu";
+
+
+    items.forEach(item => {
+
+
+        const option = document.createElement("button");
+
+
+        option.textContent = item.label;
+
+
+        option.onclick = function(event) {
+
+            event.stopPropagation();
+
+            closeMenus();
+
+            item.action();
+
+        };
+
+
+        menu.appendChild(option);
+
+
+    });
+
+
+
+    document.body.appendChild(menu);
+
+
+
+    const rect =
+        button.getBoundingClientRect();
+
+
+
+    menu.style.top =
+        rect.bottom + window.scrollY + "px";
+
+
+    menu.style.left =
+        rect.left + window.scrollX - 100 + "px";
+
+
+
+    activeMenu = menu;
+
+}
 
 
 function createMovie(movie) {
@@ -440,8 +639,20 @@ function createMovie(movie) {
 
 
 
-    card.querySelector(".movie-menu")
-        .onclick = function(event) {
+   card.querySelector(".movie-menu")
+.onclick = function(event) {
+
+
+    event.stopPropagation();
+
+
+    openMovieMenu(
+        movie,
+        this
+    );
+
+
+};
 
 
             event.stopPropagation();
@@ -461,7 +672,68 @@ function createMovie(movie) {
 
 
 
-function openMovieMenu(movie) {
+function openMovieMenu(movie, button) {
+
+
+    showMenu(
+        button,
+        [
+
+            {
+                label: "Edit Movie",
+
+                action: function() {
+
+
+                    const name =
+                        prompt(
+                            "Movie name:",
+                            movie.title
+                        );
+
+
+                    if(name) {
+
+                        movie.title = name;
+
+                        save();
+
+                        render();
+
+                    }
+
+                }
+
+            },
+
+
+            {
+                label: "Delete Movie",
+
+                action: function() {
+
+
+                    data.movies =
+                        data.movies.filter(
+                            m => m.id !== movie.id
+                        );
+
+
+                    save();
+
+                    render();
+
+
+                }
+
+            }
+
+
+        ]
+    );
+
+
+}
 
 
     const choice =
