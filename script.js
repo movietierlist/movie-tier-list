@@ -227,6 +227,8 @@ function createTier(tier) {
 
 menu.onclick = function(event) {
 
+    console.log("Tier menu clicked");
+    
     event.stopPropagation();
 
     openTierMenu(
