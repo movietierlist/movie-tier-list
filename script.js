@@ -655,13 +655,6 @@ function createMovie(movie) {
 };
 
 
-            event.stopPropagation();
-
-
-            openMovieMenu(movie);
-
-        };
-
 
 
     return card;
@@ -736,56 +729,7 @@ function openMovieMenu(movie, button) {
 }
 
 
-    const choice =
-        prompt(
-            "1 - Edit movie\n" +
-            "2 - Delete movie"
-        );
-
-
-
-    if(choice === "1") {
-
-
-        const name =
-            prompt(
-                "Movie name:",
-                movie.title
-            );
-
-
-        if(name) {
-
-            movie.title = name;
-
-            save();
-
-            render();
-
-        }
-
-    }
-
-
-
-
-
-    if(choice === "2") {
-
-
-        data.movies =
-            data.movies.filter(
-                m => m.id !== movie.id
-            );
-
-
-        save();
-
-        render();
-
-    }
-
-}
+   
 
 
 
