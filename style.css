@@ -2,7 +2,11 @@
 
     box-sizing: border-box;
 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
 
 }
 
@@ -50,6 +54,24 @@ main {
 
 
 
+
+/* Top buttons */
+
+
+.top-buttons {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+}
+
+
+
 button {
 
     cursor: pointer;
@@ -58,14 +80,9 @@ button {
 
 
 
-#addMovie,
-#addTier {
+.top-buttons button {
 
-    display: block;
-
-    margin: 10px auto;
-
-    padding: 12px 20px;
+    padding: 12px 18px;
 
     border: none;
 
@@ -73,7 +90,7 @@ button {
 
     color: white;
 
-    font-size: 16px;
+    font-size: 15px;
 
 }
 
@@ -95,14 +112,54 @@ button {
 
 
 
-/* Tier sections */
+#settingsButton {
+
+    background: #475569;
+
+}
+
+
+
+
+
+/* Settings */
+
+
+.settings-panel {
+
+    background: #1f2937;
+
+    padding: 15px;
+
+    margin: 15px auto;
+
+    border-radius: 12px;
+
+    max-width: 300px;
+
+}
+
+
+
+.hidden {
+
+    display: none;
+
+}
+
+
+
+
+
+
+/* Tiers */
 
 
 .tier {
 
     margin: 15px 0;
 
-    padding: 10px;
+    padding: 12px;
 
     border-radius: 15px;
 
@@ -124,7 +181,7 @@ button {
 
 .tier-title h2 {
 
-    margin: 5px;
+    margin: 5px 0;
 
 }
 
@@ -150,12 +207,16 @@ button {
 
 
 
+
+
+/* Tier colours */
+
+
 .s {
 
     background: #7f1d1d;
 
 }
-
 
 
 .a {
@@ -165,13 +226,11 @@ button {
 }
 
 
-
 .b {
 
     background: #854d0e;
 
 }
-
 
 
 .c {
@@ -181,7 +240,6 @@ button {
 }
 
 
-
 .d {
 
     background: #1e40af;
@@ -189,12 +247,13 @@ button {
 }
 
 
-
 .f {
 
     background: #374151;
 
 }
+
+
 
 
 
@@ -209,11 +268,15 @@ button {
 
     overflow-x: auto;
 
-    min-height: 120px;
+    min-height: 125px;
 
     padding: 10px;
 
 }
+
+
+
+
 
 
 
@@ -224,11 +287,11 @@ button {
 
     position: relative;
 
+    min-width: 95px;
+
     background: #111827;
 
     border-radius: 10px;
-
-    min-width: 90px;
 
     overflow: hidden;
 
@@ -246,9 +309,10 @@ button {
 
 
 
+
 .poster {
 
-    height: 120px;
+    height: 125px;
 
     display: flex;
 
@@ -256,23 +320,106 @@ button {
 
     align-items: center;
 
-    font-size: 35px;
-
     background: #334155;
 
+    font-size: 35px;
+
 }
+
+
 
 
 
 .movie-title {
 
-    font-size: 13px;
-
     padding: 6px;
 
     text-align: center;
 
+    font-size: 13px;
+
 }
+
+
+
+
+/* Movie menu */
+
+
+.movie-menu {
+
+    position: absolute;
+
+    top: 6px;
+
+    right: 6px;
+
+    width: 28px;
+
+    height: 28px;
+
+    border-radius: 50%;
+
+    border: none;
+
+    background: #0009;
+
+    color: white;
+
+    font-size: 18px;
+
+    opacity: 0;
+
+    transition: opacity 0.2s;
+
+}
+
+
+
+.movie-card:hover .movie-menu {
+
+    opacity: 1;
+
+}
+
+
+
+/* Always visible on touch devices */
+
+
+@media (hover: none) {
+
+
+    .movie-menu {
+
+        opacity: 1;
+
+    }
+
+}
+
+
+
+
+
+/* Poster only mode */
+
+
+.poster-only .movie-title {
+
+    display: none;
+
+}
+
+
+
+.poster-only {
+
+    min-width: 95px;
+
+}
+
+
 
 
 
@@ -283,9 +430,9 @@ button {
 
     margin-top: 40px;
 
-    background: #1f2937;
-
     padding: 15px;
+
+    background: #1f2937;
 
     border-radius: 15px;
 
@@ -301,7 +448,11 @@ button {
 
 
 
-/* Mobile adjustments */
+
+
+
+
+/* Mobile */
 
 
 @media(max-width:600px) {
@@ -323,7 +474,14 @@ button {
 
     .poster {
 
-        height: 100px;
+        height: 105px;
+
+    }
+
+
+    .movie-title {
+
+        font-size: 12px;
 
     }
 
