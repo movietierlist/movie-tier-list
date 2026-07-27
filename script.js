@@ -7,6 +7,65 @@ const settingsPanel = document.getElementById("settingsPanel");
 const tierContainer = document.getElementById("tierContainer");
 const movieBank = document.getElementById("movieBank");
 
+// Device detection
+
+function detectDevice() {
+
+    const hasHover =
+        window.matchMedia("(hover: hover)").matches;
+
+
+    const hasTouch =
+        "ontouchstart" in window;
+
+
+    const width =
+        window.innerWidth;
+
+
+
+    let device;
+
+
+
+    if (hasHover) {
+
+        device = "desktop";
+
+    }
+
+    else if (hasTouch && width >= 768) {
+
+        device = "tablet";
+
+    }
+
+    else {
+
+        device = "mobile";
+
+    }
+
+
+
+    document.body.dataset.device = device;
+
+
+    console.log("Device mode:", device);
+
+}
+
+
+
+detectDevice();
+
+
+
+window.addEventListener(
+    "resize",
+    detectDevice
+);
+
 
 
 let data = JSON.parse(localStorage.getItem("movieClub")) || {
