@@ -1,112 +1,196 @@
 const addButton = document.getElementById("addMovie");
+
 const tierContainer = document.getElementById("tierContainer");
 
-
-const tiers = [
-    {
-        name: "S",
-        emoji: "⭐",
-        colour: "s"
-    },
-    {
-        name: "A",
-        emoji: "🔥",
-        colour: "a"
-    },
-    {
-        name: "B",
-        emoji: "👍",
-        colour: "b"
-    },
-    {
-        name: "C",
-        emoji: "🙂",
-        colour: "c"
-    },
-    {
-        name: "D",
-        emoji: "😐",
-        colour: "d"
-    },
-    {
-        name: "F",
-        emoji: "💀",
-        colour: "f"
-    }
-];
+const movieBank = document.getElementById("movieBank");
 
 
-let movies = JSON.parse(localStorage.getItem("movies")) || [];
+
+let data = JSON.parse(localStorage.getItem("movieClub")) || {
 
 
-function saveMovies() {
-    localStorage.setItem("movies", JSON.stringify(movies));
+    tiers: [
+
+        {
+            id: 1,
+            name: "S",
+            emoji: "⭐",
+            colour: "s",
+            order: 0
+        },
+
+        {
+            id: 2,
+            name: "A",
+            emoji: "🔥",
+            colour: "a",
+            order: 1
+        },
+
+        {
+            id: 3,
+            name: "B",
+            emoji: "👍",
+            colour: "b",
+            order: 2
+        },
+
+        {
+            id: 4,
+            name: "C",
+            emoji: "🙂",
+            colour: "c",
+            order: 3
+        },
+
+        {
+            id: 5,
+            name: "D",
+            emoji: "😐",
+            colour: "d",
+            order: 4
+        },
+
+        {
+            id: 6,
+            name: "F",
+            emoji: "💀",
+            colour: "f",
+            order: 5
+        }
+
+    ],
+
+
+
+    movies: []
+
+};
+
+
+
+
+function save() {
+
+    localStorage.setItem(
+        "movieClub",
+        JSON.stringify(data)
+    );
+
 }
+
 
 
 
 function createTier(tier) {
 
+
     const section = document.createElement("section");
 
-    section.className = `tier ${tier.colour}`;
+
+    section.className =
+        `tier ${tier.colour}`;
+
 
 
     section.innerHTML = `
-        <div class="tier-header">
-            <h2>${tier.name} ${tier.emoji}</h2>
+
+        <h2>
+            ${tier.name} ${tier.emoji}
+        </h2>
+
+
+        <div 
+        class="movies"
+        data-tier="${tier.id}">
         </div>
 
-        <div class="movies" data-tier="${tier.name}"></div>
     `;
 
 
-    const movieArea = section.querySelector(".movies");
+
+    const area =
+        section.querySelector(".movies");
 
 
-    movieArea.addEventListener("dragover", e => {
-        e.preventDefault();
-    });
 
+    setupDropZone(area, tier.id);
 
-    movieArea.addEventListener("drop", e => {
-
-        const dragged =
-            document.querySelector(".dragging");
-
-
-        if (!dragged) return;
-
-
-        const movie = movies.find(
-            m => m.id == dragged.dataset.id
-        );
-
-
-        movie.tier = tier.name;
-
-        saveMovies();
-
-        renderMovies();
-
-    });
 
 
     tierContainer.appendChild(section);
+
+
 }
 
 
 
-function createMovieCard(movie) {
 
 
-    const card = document.createElement("div");
+function setupDropZone(area, tierID) {
 
-    card.className = "movie-card";
+
+    area.addEventListener(
+        "dragover",
+        e => e.preventDefault()
+    );
+
+
+
+    area.addEventListener(
+        "drop",
+        e => {
+
+
+            const id =
+                e.dataTransfer.getData("id");
+
+
+
+            const movie =
+                data.movies.find(
+                    m => m.id == id
+                );
+
+
+
+            if(movie){
+
+                movie.tier = tierID;
+
+                save();
+
+                render();
+
+            }
+
+
+        }
+    );
+
+
+}
+
+
+
+
+function createMovie(movie){
+
+
+    const card =
+        document.createElement("div");
+
+
+    card.className =
+        "movie-card";
+
 
     card.draggable = true;
 
-    card.dataset.id = movie.id;
+
+    card.dataset.id =
+        movie.id;
+
 
 
     card.innerHTML = `
@@ -114,6 +198,7 @@ function createMovieCard(movie) {
         <div class="poster">
             🎬
         </div>
+
 
         <div class="movie-title">
             ${movie.title}
@@ -124,93 +209,77 @@ function createMovieCard(movie) {
             ⋮
         </button>
 
-
-        <div class="menu hidden">
-
-            <button class="edit">
-                Edit
-            </button>
-
-            <button class="delete">
-                Delete
-            </button>
-
-        </div>
-
     `;
 
-
-
-    const menuButton =
-        card.querySelector(".menu-button");
-
-
-    const menu =
-        card.querySelector(".menu");
-
-
-
-    menuButton.onclick = () => {
-
-        menu.classList.toggle("hidden");
-
-    };
-
-
-
-    card.querySelector(".edit").onclick = () => {
-
-        const updated =
-            prompt(
-                "Movie name:",
-                movie.title
-            );
-
-
-        if (updated) {
-
-            movie.title = updated;
-
-            saveMovies();
-
-            renderMovies();
-
-        }
-
-    };
-
-
-
-    card.querySelector(".delete").onclick = () => {
-
-        movies =
-            movies.filter(
-                m => m.id !== movie.id
-            );
-
-
-        saveMovies();
-
-        renderMovies();
-
-    };
 
 
 
     card.addEventListener(
         "dragstart",
-        () => {
-            card.classList.add("dragging");
+        e => {
+
+            e.dataTransfer.setData(
+                "id",
+                movie.id
+            );
+
         }
     );
 
 
-    card.addEventListener(
-        "dragend",
-        () => {
-            card.classList.remove("dragging");
+
+
+    card.querySelector(
+        ".menu-button"
+    ).onclick = () => {
+
+
+        const choice =
+            prompt(
+                "Type:\n1 = Edit\n2 = Delete"
+            );
+
+
+        if(choice === "1"){
+
+            const name =
+                prompt(
+                    "Movie name:",
+                    movie.title
+                );
+
+
+            if(name){
+
+                movie.title=name;
+
+                save();
+
+                render();
+
+            }
+
         }
-    );
+
+
+
+        if(choice === "2"){
+
+
+            data.movies =
+                data.movies.filter(
+                    m => m.id !== movie.id
+                );
+
+
+            save();
+
+            render();
+
+        }
+
+
+    };
 
 
 
@@ -220,36 +289,62 @@ function createMovieCard(movie) {
 
 
 
-function renderMovies() {
 
 
-    document.querySelectorAll(".movies")
-        .forEach(area => {
-            area.innerHTML = "";
-        });
+function render(){
+
+
+    tierContainer.innerHTML="";
+
+
+    movieBank.innerHTML="";
 
 
 
-    movies.forEach(movie => {
+    data.tiers
+        .sort(
+            (a,b)=>a.order-b.order
+        )
+        .forEach(createTier);
 
 
-        const tier =
+
+
+    data.movies.forEach(movie=>{
+
+
+        let container;
+
+
+
+        if(movie.tier){
+
+            container =
             document.querySelector(
                 `[data-tier="${movie.tier}"]`
             );
 
+        }
+        else{
 
-        if (tier) {
-
-            tier.appendChild(
-                createMovieCard(movie)
-            );
+            container =
+            movieBank;
 
         }
 
+
+
+
+        container.appendChild(
+            createMovie(movie)
+        );
+
+
     });
 
+
 }
+
 
 
 
@@ -263,33 +358,34 @@ addButton.onclick = () => {
         );
 
 
-    if (!title) return;
+
+    if(!title) return;
 
 
 
-    movies.push({
+    data.movies.push({
 
-        id: Date.now(),
+        id:Date.now(),
 
-        title: title,
+        title:title,
 
-        tier: "C",
+        poster:"",
 
-        poster: ""
+        tier:null,
+
+        order:0
 
     });
 
 
-    saveMovies();
 
-    renderMovies();
+    save();
+
+    render();
 
 };
 
 
 
 
-tiers.forEach(createTier);
-
-
-renderMovies();
+render();
