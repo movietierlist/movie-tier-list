@@ -237,111 +237,6 @@ menu.onclick = function(event) {
 };
 
 
-    showMenu(
-
-        button,
-
-        [
-
-            {
-                label:"Rename Tier",
-
-                action:function(){
-
-                    const name =
-                        prompt(
-                            "Tier name:",
-                            tier.name
-                        );
-
-
-                    if(name){
-
-                        tier.name = name;
-
-                        save();
-
-                        render();
-
-                    }
-
-                }
-
-            },
-
-
-            {
-                label:"Change Colour",
-
-                action:function(){
-
-                    const colour =
-                        prompt(
-                            "Colour code:",
-                            tier.colour
-                        );
-
-
-                    if(colour){
-
-                        tier.colour = colour;
-
-                        save();
-
-                        render();
-
-                    }
-
-                }
-
-            },
-
-
-            {
-                label:"Delete Tier",
-
-                action:function(){
-
-
-                    if(confirm("Delete tier? Movies return to Movie Bank.")){
-
-
-                        data.movies.forEach(movie=>{
-
-                            if(movie.tier === tier.id){
-
-                                movie.tier = null;
-
-                            }
-
-                        });
-
-
-
-                        data.tiers =
-                            data.tiers.filter(
-                                t=>t.id !== tier.id
-                            );
-
-
-                        save();
-
-                        render();
-
-
-                    }
-
-                }
-
-            }
-
-        ]
-
-    );
-
-}
-
-
 
     const movieArea =
         section.querySelector(".movies");
@@ -360,104 +255,110 @@ menu.onclick = function(event) {
 
 
 
-function openTierMenu(tier) {
+function openTierMenu(tier, button) {
 
 
-    const choice = prompt(
-        "1 - Rename tier\n" +
-        "2 - Change colour\n" +
-        "3 - Delete tier"
-    );
+    showMenu(
+
+        button,
+
+        [
+
+            {
+                label: "Rename Tier",
+
+                action: function() {
+
+                    const name =
+                        prompt(
+                            "Tier name:",
+                            tier.name
+                        );
 
 
+                    if(name) {
 
-    if(choice === "1") {
+                        tier.name = name;
 
+                        save();
 
-        const name =
-            prompt(
-                "Tier name:",
-                tier.name
-            );
+                        render();
 
-
-        if(name) {
-
-            tier.name = name;
-
-            save();
-
-            render();
-
-        }
-
-    }
-
-
-
-
-    if(choice === "2") {
-
-
-        const colour =
-            prompt(
-                "Colour:\n\n" +
-                "s = Red\n" +
-                "a = Orange\n" +
-                "b = Yellow\n" +
-                "c = Green\n" +
-                "d = Blue\n" +
-                "f = Grey"
-            );
-
-
-        if(colour) {
-
-            tier.colour = colour;
-
-            save();
-
-            render();
-
-        }
-
-    }
-
-
-
-
-    if(choice === "3") {
-
-
-        if(confirm("Delete tier? Movies return to Movie Bank.")) {
-
-
-            data.movies.forEach(movie => {
-
-                if(movie.tier === tier.id) {
-
-                    movie.tier = null;
+                    }
 
                 }
 
-            });
+            },
 
 
+            {
+                label: "Change Colour",
 
-            data.tiers =
-                data.tiers.filter(
-                    t => t.id !== tier.id
-                );
+                action: function() {
+
+                    const colour =
+                        prompt(
+                            "Colour code:",
+                            tier.colour
+                        );
 
 
+                    if(colour) {
 
-            save();
+                        tier.colour = colour;
 
-            render();
+                        save();
 
-        }
+                        render();
 
-    }
+                    }
+
+                }
+
+            },
+
+
+            {
+                label: "Delete Tier",
+
+                action: function() {
+
+
+                    if(confirm("Delete tier? Movies return to Movie Bank.")) {
+
+
+                        data.movies.forEach(movie => {
+
+                            if(movie.tier === tier.id) {
+
+                                movie.tier = null;
+
+                            }
+
+                        });
+
+
+                        data.tiers =
+                            data.tiers.filter(
+                                t => t.id !== tier.id
+                            );
+
+
+                        save();
+
+                        render();
+
+
+                    }
+
+                }
+
+            }
+
+        ]
+
+    );
+
 
 }
 
