@@ -9,12 +9,53 @@ let data = JSON.parse(localStorage.getItem("movieClub")) || {
 
     tiers: [
 
-        {id:1,name:"S",emoji:"⭐",colour:"s",order:0},
-        {id:2,name:"A",emoji:"🔥",colour:"a",order:1},
-        {id:3,name:"B",emoji:"👍",colour:"b",order:2},
-        {id:4,name:"C",emoji:"🙂",colour:"c",order:3},
-        {id:5,name:"D",emoji:"😐",colour:"d",order:4},
-        {id:6,name:"F",emoji:"💀",colour:"f",order:5}
+        {
+            id: 1,
+            name: "S",
+            emoji: "⭐",
+            colour: "s",
+            order: 0
+        },
+
+        {
+            id: 2,
+            name: "A",
+            emoji: "🔥",
+            colour: "a",
+            order: 1
+        },
+
+        {
+            id: 3,
+            name: "B",
+            emoji: "👍",
+            colour: "b",
+            order: 2
+        },
+
+        {
+            id: 4,
+            name: "C",
+            emoji: "🙂",
+            colour: "c",
+            order: 3
+        },
+
+        {
+            id: 5,
+            name: "D",
+            emoji: "😐",
+            colour: "d",
+            order: 4
+        },
+
+        {
+            id: 6,
+            name: "F",
+            emoji: "💀",
+            colour: "f",
+            order: 5
+        }
 
     ],
 
@@ -24,7 +65,7 @@ let data = JSON.parse(localStorage.getItem("movieClub")) || {
 
 
 
-function save(){
+function save() {
 
     localStorage.setItem(
         "movieClub",
@@ -36,15 +77,12 @@ function save(){
 
 
 
-function createTier(tier){
+function createTier(tier) {
 
 
-    const section =
-        document.createElement("section");
+    const section = document.createElement("section");
 
-
-    section.className =
-        `tier ${tier.colour}`;
+    section.className = "tier " + tier.colour;
 
 
     section.innerHTML = `
@@ -55,7 +93,6 @@ function createTier(tier){
                 ${tier.name} ${tier.emoji}
             </h2>
 
-
             <button class="tier-menu">
                 ⋮
             </button>
@@ -63,76 +100,39 @@ function createTier(tier){
         </div>
 
 
-        <div 
-        class="movies"
-        data-tier="${tier.id}">
-        </div>
+        <div class="movies" data-tier="${tier.id}"></div>
 
     `;
 
 
 
-    const menu =
-        section.querySelector(".tier-menu");
+    const menu = section.querySelector(".tier-menu");
 
 
+    menu.onclick = function() {
 
-    menu.onclick = () => {
 
-
-        const choice =
-        prompt(
-`Tier options:
-
-1 - Rename tier
-2 - Change colour
-3 - Delete tier`
+        const choice = prompt(
+            "Tier options:\n\n" +
+            "1 - Rename tier\n" +
+            "2 - Change colour\n" +
+            "3 - Delete tier"
         );
 
 
 
-        if(choice==="1"){
+        if (choice === "1") {
 
-            const name =
-            prompt(
+
+            const newName = prompt(
                 "New tier name:",
                 tier.name
             );
 
 
-            if(name){
+            if (newName) {
 
-                tier.name=name;
-
-                save();
-
-                render();
-
-            }
-
-        }
-
-
-
-        if(choice==="2"){
-
-
-            const colour =
-            prompt(
-"Choose colour:
-
-s = Red
-a = Orange
-b = Yellow
-c = Green
-d = Blue
-f = Grey"
-            );
-
-
-            if(colour){
-
-                tier.colour=colour;
+                tier.name = newName;
 
                 save();
 
@@ -144,33 +144,61 @@ f = Grey"
 
 
 
+        if (choice === "2") {
 
-        if(choice==="3"){
 
-
-            const confirmDelete =
-            confirm(
-            "Delete this tier? Movies will return to Movie Bank."
+            const newColour = prompt(
+                "Choose colour:\n\n" +
+                "s = Red\n" +
+                "a = Orange\n" +
+                "b = Yellow\n" +
+                "c = Green\n" +
+                "d = Blue\n" +
+                "f = Grey"
             );
 
 
-            if(confirmDelete){
+            if (newColour) {
+
+                tier.colour = newColour;
+
+                save();
+
+                render();
+
+            }
+
+        }
 
 
-                data.movies.forEach(movie=>{
 
-                    if(movie.tier===tier.id){
+        if (choice === "3") {
 
-                        movie.tier=null;
+
+            const confirmed = confirm(
+                "Delete this tier? Movies will return to Movie Bank."
+            );
+
+
+            if (confirmed) {
+
+
+                data.movies.forEach(function(movie) {
+
+                    if (movie.tier === tier.id) {
+
+                        movie.tier = null;
 
                     }
 
                 });
 
 
-                data.tiers =
-                data.tiers.filter(
-                    t=>t.id!==tier.id
+
+                data.tiers = data.tiers.filter(
+                    function(t) {
+                        return t.id !== tier.id;
+                    }
                 );
 
 
@@ -182,17 +210,14 @@ f = Grey"
 
         }
 
-
     };
 
 
 
-    const area =
-    section.querySelector(".movies");
+    const area = section.querySelector(".movies");
 
 
-
-    setupDrop(area,tier.id);
+    setupDrop(area, tier.id);
 
 
 
@@ -203,34 +228,40 @@ f = Grey"
 
 
 
-function setupDrop(area,tierID){
+
+function setupDrop(area, tierID) {
 
 
     area.addEventListener(
         "dragover",
-        e=>e.preventDefault()
+        function(event) {
+
+            event.preventDefault();
+
+        }
     );
 
 
 
     area.addEventListener(
         "drop",
-        e=>{
+        function(event) {
 
 
-            const id =
-            e.dataTransfer.getData("id");
+            const id = event.dataTransfer.getData("id");
 
 
-            const movie =
-            data.movies.find(
-                m=>m.id==id
+            const movie = data.movies.find(
+                function(m) {
+                    return m.id == id;
+                }
             );
 
 
-            if(movie){
 
-                movie.tier=tierID;
+            if (movie) {
+
+                movie.tier = tierID;
 
                 save();
 
@@ -241,26 +272,24 @@ function setupDrop(area,tierID){
         }
     );
 
-
 }
 
 
 
 
-function createMovie(movie){
+function createMovie(movie) {
 
 
-    const card =
-    document.createElement("div");
+    const card = document.createElement("div");
 
 
-    card.className="movie-card";
+    card.className = "movie-card";
 
-    card.draggable=true;
+    card.draggable = true;
 
 
 
-    card.innerHTML=`
+    card.innerHTML = `
 
         <div class="poster">
             🎬
@@ -276,9 +305,9 @@ function createMovie(movie){
 
     card.addEventListener(
         "dragstart",
-        e=>{
+        function(event) {
 
-            e.dataTransfer.setData(
+            event.dataTransfer.setData(
                 "id",
                 movie.id
             );
@@ -295,54 +324,74 @@ function createMovie(movie){
 
 
 
-function render(){
+
+function render() {
 
 
-    tierContainer.innerHTML="";
+    tierContainer.innerHTML = "";
 
-    movieBank.innerHTML="";
-
-
-
-    data.tiers
-    .sort(
-        (a,b)=>a.order-b.order
-    )
-    .forEach(createTier);
+    movieBank.innerHTML = "";
 
 
 
+    data.tiers.sort(
+        function(a, b) {
 
-    data.movies.forEach(movie=>{
-
-
-        let location;
-
-
-
-        if(movie.tier){
-
-            location =
-            document.querySelector(
-            `[data-tier="${movie.tier}"]`
-            );
+            return a.order - b.order;
 
         }
+    );
 
-        else{
 
-            location=movieBank;
+
+    data.tiers.forEach(
+        function(tier) {
+
+            createTier(tier);
 
         }
+    );
 
 
 
-        location.appendChild(
-            createMovie(movie)
-        );
+    data.movies.forEach(
+        function(movie) {
 
 
-    });
+            let location;
+
+
+
+            if (movie.tier) {
+
+
+                location =
+                document.querySelector(
+                    `[data-tier="${movie.tier}"]`
+                );
+
+
+            } else {
+
+
+                location = movieBank;
+
+
+            }
+
+
+
+            if (location) {
+
+                location.appendChild(
+                    createMovie(movie)
+                );
+
+            }
+
+
+        }
+    );
 
 
 }
@@ -350,30 +399,31 @@ function render(){
 
 
 
-addButton.onclick=()=>{
+
+addButton.onclick = function() {
 
 
-    const title =
-    prompt(
+    const title = prompt(
         "Movie name:"
     );
 
 
-    if(!title)return;
+    if (!title) return;
 
 
 
     data.movies.push({
 
-        id:Date.now(),
+        id: Date.now(),
 
-        title:title,
+        title: title,
 
-        tier:null,
+        poster: "",
 
-        poster:""
+        tier: null
 
     });
+
 
 
     save();
@@ -386,30 +436,29 @@ addButton.onclick=()=>{
 
 
 
-addTierButton.onclick=()=>{
+addTierButton.onclick = function() {
 
 
-    const name =
-    prompt(
+    const name = prompt(
         "Tier name:"
     );
 
 
-    if(!name)return;
+    if (!name) return;
 
 
 
     data.tiers.push({
 
-        id:Date.now(),
+        id: Date.now(),
 
-        name:name,
+        name: name,
 
-        emoji:"🎬",
+        emoji: "🎬",
 
-        colour:"c",
+        colour: "c",
 
-        order:data.tiers.length
+        order: data.tiers.length
 
     });
 
@@ -420,6 +469,7 @@ addTierButton.onclick=()=>{
     render();
 
 };
+
 
 
 
