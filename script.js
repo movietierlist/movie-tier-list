@@ -15,11 +15,63 @@ function createMovieCard(movie) {
     const card = document.createElement("div");
 
     card.className = "movie-card";
-    card.textContent = movie.title;
-
     card.draggable = true;
-
     card.dataset.id = movie.id;
+
+
+    const title = document.createElement("span");
+    title.textContent = movie.title;
+
+
+    const editButton = document.createElement("button");
+    editButton.textContent = "✏️";
+    editButton.className = "edit-button";
+
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "✕";
+    deleteButton.className = "delete-button";
+
+
+    editButton.onclick = () => {
+
+        const newTitle = prompt(
+            "Edit movie name:",
+            movie.title
+        );
+
+        if (newTitle) {
+            movie.title = newTitle;
+            saveMovies();
+            renderMovies();
+        }
+
+    };
+
+
+    deleteButton.onclick = () => {
+
+        const confirmDelete = confirm(
+            `Delete "${movie.title}"?`
+        );
+
+        if (confirmDelete) {
+
+            movies = movies.filter(
+                m => m.id !== movie.id
+            );
+
+            saveMovies();
+            renderMovies();
+
+        }
+
+    };
+
+
+    card.appendChild(title);
+    card.appendChild(editButton);
+    card.appendChild(deleteButton);
 
 
     card.addEventListener("dragstart", () => {
@@ -33,7 +85,9 @@ function createMovieCard(movie) {
 
 
     return card;
+
 }
+
 
 
 function renderMovies() {
@@ -49,8 +103,11 @@ function renderMovies() {
             `[data-tier="${movie.tier}"]`
         );
 
+
         if (tier) {
-            tier.appendChild(createMovieCard(movie));
+            tier.appendChild(
+                createMovieCard(movie)
+            );
         }
 
     });
@@ -58,21 +115,34 @@ function renderMovies() {
 }
 
 
+
 addButton.addEventListener("click", () => {
 
-    const title = prompt("Movie name:");
+    const title = prompt(
+        "Movie name:"
+    );
+
 
     if (!title) return;
 
 
     const movie = {
+
         id: Date.now(),
+
         title: title,
-        tier: "C"
+
+        tier: "C",
+
+        poster: "",
+
+        notes: ""
+
     };
 
 
     movies.push(movie);
+
 
     saveMovies();
 
@@ -85,36 +155,44 @@ addButton.addEventListener("click", () => {
 tiers.forEach(tier => {
 
 
-    tier.addEventListener("dragover", event => {
-        event.preventDefault();
-    });
+    tier.addEventListener(
+        "dragover",
+        event => {
+            event.preventDefault();
+        }
+    );
 
 
-    tier.addEventListener("drop", event => {
-
-        event.preventDefault();
-
-
-        const dragged =
-            document.querySelector(".dragging");
+    tier.addEventListener(
+        "drop",
+        event => {
 
 
-        if (!dragged) return;
+            event.preventDefault();
 
 
-        const movie = movies.find(
-            m => m.id == dragged.dataset.id
-        );
+            const dragged =
+                document.querySelector(".dragging");
 
 
-        movie.tier = tier.dataset.tier;
+            if (!dragged) return;
 
 
-        saveMovies();
+            const movie = movies.find(
+                m => m.id == dragged.dataset.id
+            );
 
-        renderMovies();
 
-    });
+            movie.tier =
+                tier.dataset.tier;
+
+
+            saveMovies();
+
+            renderMovies();
+
+        }
+    );
 
 });
 
