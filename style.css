@@ -16,9 +16,9 @@ body {
 
     margin: 0;
 
-    background: #0f172a;
+    background: #121212;
 
-    color: white;
+    color: #f3f4f6;
 
 }
 
@@ -157,11 +157,15 @@ button {
 
 .tier {
 
-    margin: 15px 0;
+    display: flex;
 
-    padding: 12px;
+    margin: 12px 0;
 
-    border-radius: 15px;
+    background: #181818;
+
+    border-radius: 10px;
+
+    overflow: hidden;
 
 }
 
@@ -169,11 +173,19 @@ button {
 
 .tier-title {
 
+    width: 110px;
+
+    min-width: 110px;
+
     display: flex;
 
-    justify-content: space-between;
+    flex-direction: column;
+
+    justify-content: center;
 
     align-items: center;
+
+    position: relative;
 
 }
 
@@ -181,30 +193,36 @@ button {
 
 .tier-title h2 {
 
-    margin: 5px 0;
+    margin: 0;
+
+    font-size: 42px;
+
+    font-weight: 700;
 
 }
 
 
-
 .tier-menu {
 
-    background: #0008;
+    position: absolute;
 
-    color: white;
+    top: 8px;
+
+    right: 8px;
+
+    width: 30px;
+
+    height: 30px;
 
     border: none;
 
     border-radius: 50%;
 
-    width: 32px;
+    background: rgba(0,0,0,.4);
 
-    height: 32px;
-
-    font-size: 20px;
+    color: white;
 
 }
-
 
 
 
@@ -262,18 +280,23 @@ button {
 
 .movies {
 
+    flex: 1;
+
     display: flex;
+
+    flex-wrap: wrap;
 
     gap: 10px;
 
-    overflow-x: auto;
+    align-items: flex-start;
 
-    min-height: 125px;
+    min-height: 120px;
 
     padding: 10px;
 
-}
+    background: #111111;
 
+}
 
 
 
@@ -287,19 +310,25 @@ button {
 
     position: relative;
 
-    min-width: 95px;
+    width: 95px;
 
-    background: #111827;
+    background: #202020;
 
-    border-radius: 10px;
+    border-radius: 6px;
 
     overflow: hidden;
 
     cursor: grab;
 
+    transition: transform .15s;
+
 }
 
+.movie-card:hover {
 
+    transform: scale(1.04);
+
+}
 
 .movie-card:active {
 
