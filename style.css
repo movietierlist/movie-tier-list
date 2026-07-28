@@ -1,10 +1,21 @@
 /* ==================================
+   MOVIE TIER LIST APP
+   CSS VERSION 2.0
+
+   PART 1/4
+================================== */
+
+
+/* ==================================
    FONT
 ================================== */
+
 
 @import url(
 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
 );
+
+
 
 
 
@@ -40,6 +51,8 @@ body {
 
 
 
+
+
 header {
 
     text-align: center;
@@ -50,13 +63,19 @@ header {
 
 
 
+
+
 header h1 {
 
     margin: 0;
 
     font-size: 32px;
 
+    font-weight: 700;
+
 }
+
+
 
 
 
@@ -74,6 +93,8 @@ main {
 
 
 
+
+
 /* ==================================
    BUTTONS
 ================================== */
@@ -85,7 +106,11 @@ button {
 
     border: none;
 
+    font-family: inherit;
+
 }
+
+
 
 
 
@@ -105,6 +130,8 @@ button {
 
 
 
+
+
 .top-buttons button {
 
     padding: 12px 18px;
@@ -113,51 +140,107 @@ button {
 
     color: white;
 
+    font-size: 15px;
+
     font-weight: 600;
 
-    transition: 0.15s;
+    transition:
+
+        transform 0.15s,
+
+        opacity 0.15s;
 
 }
+
+
 
 
 
 .top-buttons button:hover {
 
-    transform: translateY(-2px);
+    transform:
 
-    opacity: 0.9;
+        translateY(-2px);
+
+    opacity:
+
+        0.9;
 
 }
+
+
 
 
 
 #addMovie {
 
-    background: #2563eb;
+    background:
+
+        #2563eb;
 
 }
+
+
 
 
 
 #addMultipleMovies {
 
-    background: #7c3aed;
+    background:
+
+        #7c3aed;
 
 }
+
+
 
 
 
 #addTier {
 
-    background: #374151;
+    background:
+
+        #374151;
 
 }
 
 
 
+
+
 #settingsButton {
 
-    background: #475569;
+    background:
+
+        #475569;
+
+}
+
+
+
+
+
+button:active {
+
+    transform:
+
+        scale(0.96);
+
+}
+
+
+
+
+
+button:focus-visible {
+
+    outline:
+
+        2px solid #60a5fa;
+
+    outline-offset:
+
+        2px;
 
 }
 
@@ -174,25 +257,53 @@ button {
 
 .settings-panel {
 
-    background: #111827;
+    background:
 
-    padding: 18px;
+        #111827;
 
-    border-radius: 15px;
+    padding:
 
-    max-width: 320px;
+        18px;
 
-    margin: 20px auto;
+    border-radius:
+
+        15px;
+
+    max-width:
+
+        320px;
+
+    margin:
+
+        20px auto;
 
 }
+
+
+
+
+
+.settings-panel h3 {
+
+    margin-top:
+
+        0;
+
+}
+
+
 
 
 
 .hidden {
 
-    display: none !important;
+    display:
+
+        none !important;
 
 }
+
+
 
 
 
@@ -205,13 +316,21 @@ button {
 
 #tierContainer {
 
-    display: flex;
+    display:
 
-    flex-direction: column;
+        flex;
 
-    gap: 12px;
+    flex-direction:
+
+        column;
+
+    gap:
+
+        12px;
 
 }
+
+
 
 
 
@@ -224,57 +343,114 @@ button {
 
 .tier {
 
-    display: flex;
+    display:
 
-    min-height: 130px;
+        flex;
 
-    background: #111827;
+    min-height:
 
-    border-radius: 12px;
+        130px;
 
-    overflow: hidden;
+    background:
+
+        #050505;
+
+    border-radius:
+
+        12px;
+
+    overflow:
+
+        hidden;
 
     transition:
+
         transform 0.2s,
+
         opacity 0.2s;
 
 }
 
 
 
+
+
 .tier.dragging {
 
-    opacity: 0.5;
+    opacity:
+
+        0.5;
 
 }
 
 
 
+
+
+.tier:hover {
+
+    filter:
+
+        brightness(1.05);
+
+}
+
+
+
+
+
+
+
+/* ==================================
+   TIER LABEL + GRAB HANDLE
+================================== */
 
 
 .tier-label {
 
-    width: 90px;
+    width:
 
-    flex-shrink: 0;
+        90px;
 
-    display: flex;
+    flex-shrink:
 
-    justify-content: center;
+        0;
 
-    align-items: center;
+    position:
+
+        relative;
+
+    display:
+
+        flex;
+
+    justify-content:
+
+        center;
+
+    align-items:
+
+        center;
 
 }
+
+
 
 
 
 .tier-label h2 {
 
-    margin: 0;
+    margin:
 
-    font-size: 34px;
+        0;
 
-    font-weight: 800;
+    font-size:
+
+        34px;
+
+    font-weight:
+
+        800;
 
 }
 
@@ -282,15 +458,79 @@ button {
 
 
 
+
+
+/* Grab handle */
+
+.tier-grab {
+
+    position:
+
+        absolute;
+
+    left:
+
+        8px;
+
+    top:
+
+        50%;
+
+    transform:
+
+        translateY(-50%);
+
+    font-size:
+
+        18px;
+
+    opacity:
+
+        0.8;
+
+    cursor:
+
+        grab;
+
+    user-select:
+
+        none;
+
+}
+
+
+
+
+
+.tier-grab:active {
+
+    cursor:
+
+        grabbing;
+
+}
+/* ==================================
+   TIER CONTENT AREA
+================================== */
+
+
 .tier-content {
 
-    flex: 1;
+    flex:
 
-    position: relative;
+        1;
 
-    background: #050505;
+    position:
 
-    padding: 10px;
+        relative;
+
+    background:
+
+        #050505;
+
+    padding:
+
+        10px;
 
 }
 
@@ -300,35 +540,69 @@ button {
 
 .tier-menu {
 
-    position: absolute;
+    position:
 
-    top: 8px;
+        absolute;
 
-    right: 8px;
+    top:
 
-    width: 32px;
+        8px;
 
-    height: 32px;
+    right:
 
-    border-radius: 50%;
+        8px;
 
-    background: rgba(255,255,255,0.15);
+    width:
 
-    color:white;
+        32px;
 
-    font-size:18px;
+    height:
 
-    opacity:0;
+        32px;
+
+    border-radius:
+
+        50%;
+
+    background:
+
+        rgba(255,255,255,0.15);
+
+    color:
+
+        white;
+
+    font-size:
+
+        18px;
+
+    opacity:
+
+        0;
+
+    transition:
+
+        opacity 0.15s;
 
 }
+
+
 
 
 
 .tier:hover .tier-menu {
 
-    opacity:1;
+    opacity:
+
+        1;
 
 }
+
+
+
+
+
+
 
 /* ==================================
    MOVIE ROWS
@@ -337,23 +611,70 @@ button {
 
 .movies {
 
-    display: flex;
+    display:
 
-    flex-direction: row;
+        flex;
 
-    justify-content: flex-start;
+    flex-direction:
 
-    gap: 12px;
+        row;
 
-    min-height: 110px;
+    justify-content:
 
-    align-items: center;
+        flex-start;
 
-    overflow-x: auto;
+    align-items:
 
-    padding: 10px;
+        center;
+
+    gap:
+
+        12px;
+
+    min-height:
+
+        110px;
+
+    padding:
+
+        10px;
+
+    overflow-x:
+
+        auto;
 
 }
+
+
+
+
+
+.movies::-webkit-scrollbar {
+
+    height:
+
+        8px;
+
+}
+
+
+
+
+
+.movies::-webkit-scrollbar-thumb {
+
+    background:
+
+        #374151;
+
+    border-radius:
+
+        10px;
+
+}
+
+
+
 
 
 .movies:empty {
@@ -362,45 +683,33 @@ button {
 
         2px dashed rgba(255,255,255,0.15);
 
-    border-radius: 10px;
+    border-radius:
+
+        10px;
 
 }
+
+
 
 
 
 .movies:empty::after {
 
     content:
+
         "Drop movies here";
 
     color:
+
         rgba(255,255,255,0.35);
 
     margin:
+
         auto;
 
     font-size:
+
         14px;
-
-}
-
-
-
-.movies::-webkit-scrollbar {
-
-    height: 8px;
-
-}
-
-
-
-.movies::-webkit-scrollbar-thumb {
-
-    background:
-        #374151;
-
-    border-radius:
-        10px;
 
 }
 
@@ -417,11 +726,17 @@ button {
 
 .movie-card {
 
-    position: relative;
+    position:
 
-    width: 105px;
+        relative;
 
-    flex-shrink: 0;
+    width:
+
+        105px;
+
+    flex-shrink:
+
+        0;
 
     background:
 
@@ -442,24 +757,35 @@ button {
     transition:
 
         transform 0.15s,
+
         opacity 0.15s;
 
 }
 
 
 
+
+
 .movie-card:hover {
 
     transform:
+
         translateY(-4px);
 
+    box-shadow:
+
+        0 8px 20px rgba(0,0,0,0.35);
+
 }
+
+
 
 
 
 .movie-card.dragging {
 
     opacity:
+
         0.5;
 
 }
@@ -543,7 +869,7 @@ button {
 
 
 /* ==================================
-   MOVIE MENU BUTTON
+   MOVIE MENU
 ================================== */
 
 
@@ -597,6 +923,8 @@ button {
 
 
 
+
+
 .movie-card:hover .movie-menu {
 
     opacity:
@@ -609,6 +937,27 @@ button {
 
 
 
+
+
+/* ==================================
+   TOUCH DEVICES
+================================== */
+
+
+@media (hover:none) {
+
+
+    .movie-menu,
+    .tier-menu {
+
+        opacity:
+
+            1;
+
+    }
+
+
+}
 /* ==================================
    CONTEXT MENUS
 ================================== */
@@ -707,43 +1056,6 @@ button {
 
 
 
-
-/* ==================================
-   MOVIE BANK
-================================== */
-
-
-.movie-bank {
-
-    margin-top:
-
-        35px;
-
-    background:
-
-        #111827;
-
-    padding:
-
-        18px;
-
-    border-radius:
-
-        18px;
-
-}
-
-
-
-
-
-.movie-bank h2 {
-
-    margin-top:
-
-        0;
-
-}
 
 /* ==================================
    MODAL
@@ -912,7 +1224,6 @@ button {
 
 
 
-
 /* ==================================
    INPUTS
 ================================== */
@@ -993,7 +1304,42 @@ button {
 
 
 
+/* ==================================
+   MOVIE BANK
+================================== */
 
+
+.movie-bank {
+
+    margin-top:
+
+        35px;
+
+    background:
+
+        #111827;
+
+    padding:
+
+        18px;
+
+    border-radius:
+
+        18px;
+
+}
+
+
+
+
+
+.movie-bank h2 {
+
+    margin-top:
+
+        0;
+
+}
 /* ==================================
    BUTTON POLISH
 ================================== */
@@ -1006,6 +1352,8 @@ button:active {
         scale(0.96);
 
 }
+
+
 
 
 
@@ -1027,9 +1375,8 @@ button:focus-visible {
 
 
 
-
 /* ==================================
-   SCROLLBAR
+   SCROLLBARS
 ================================== */
 
 
@@ -1095,29 +1442,34 @@ button:focus-visible {
 
 
 
-
-
 /* ==================================
-   TOUCH DEVICES
+   GLOBAL POLISH
 ================================== */
 
 
-@media (hover:none) {
+html {
 
+    scroll-behavior:
 
-    .movie-menu,
-    .tier-menu {
-
-        opacity:
-
-            1;
-
-    }
-
+        smooth;
 
 }
 
 
+
+
+
+::selection {
+
+    background:
+
+        #2563eb;
+
+    color:
+
+        white;
+
+}
 
 
 
@@ -1140,6 +1492,8 @@ button:focus-visible {
             12px;
 
     }
+
+
 
 
 
@@ -1215,6 +1569,18 @@ button:focus-visible {
 
 
 
+    .grab-handle {
+
+        font-size:
+
+            16px;
+
+    }
+
+
+
+
+
     .movie-card {
 
         width:
@@ -1280,17 +1646,40 @@ button:focus-visible {
 
 
 
-
 /* ==================================
-   SMALL POLISH
+   COLOUR INPUT
 ================================== */
 
 
-html {
+input[type="color"] {
 
-    scroll-behavior:
+    cursor:
 
-        smooth;
+        pointer;
+
+}
+
+
+
+
+
+/* ==================================
+   DESKTOP HOVER BEHAVIOUR
+================================== */
+
+
+@media (hover:hover) {
+
+
+    .movie-card:hover .movie-menu,
+    .tier:hover .tier-menu {
+
+        opacity:
+
+            1;
+
+    }
+
 
 }
 
@@ -1298,21 +1687,61 @@ html {
 
 
 
-::selection {
+/* ==================================
+   DRAG FEEDBACK
+================================== */
 
-    background:
 
-        #2563eb;
+.tier.dragging,
+.movie-card.dragging {
 
-    color:
+    opacity:
 
-        white;
+        0.5;
 
 }
 
 
+
+
+
+
+
+/* ==================================
+   PREVENT ACCIDENTAL TIER DRAGGING
+================================== */
+
+
+.tier {
+
+    user-select:
+
+        none;
+
+}
+
+
+
+
+
+.movies,
+.movie-card {
+
+    user-select:
+
+        none;
+
+}
+
+
+
+
+
+.tier-content,
 .movies {
-    direction: ltr !important;
-    flex-direction: row !important;
-    justify-content: flex-start !important;
+
+    touch-action:
+
+        manipulation;
+
 }
