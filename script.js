@@ -35,8 +35,18 @@ function openModal(title, content, confirmText, action) {
 
     modalOverlay.classList.remove("hidden");
 
-}
 
+    const input =
+        modalContent.querySelector("input");
+
+
+    if(input) {
+
+        input.focus();
+
+    }
+
+}
 
 
 function closeModal() {
@@ -76,6 +86,39 @@ modalConfirm.onclick = function() {
     closeModal();
 
 };
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+
+        if(
+            modalOverlay.classList.contains("hidden")
+        ) {
+
+            return;
+
+        }
+
+
+
+        if(event.key === "Escape") {
+
+            closeModal();
+
+        }
+
+
+
+        if(event.key === "Enter") {
+
+            modalConfirm.click();
+
+        }
+
+
+    }
+);
 
 let activeMenu = null;
 
