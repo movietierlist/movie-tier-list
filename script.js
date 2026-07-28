@@ -1,54 +1,73 @@
-/* =============================
-   MOVIE CLUB SCRIPT
-   Part 1/3
-============================= */
+/* ==================================
+   MOVIE TIER LIST APP
+   Version 1.0 Feature Update
+   Part 1/4
+================================== */
 
 
-/* =============================
-   DOM ELEMENTS
-============================= */
+/* ==================================
+   DOM REFERENCES
+================================== */
+
 
 const addMovieButton =
     document.getElementById("addMovie");
 
+
+const addMultipleMoviesButton =
+    document.getElementById("addMultipleMovies");
+
+
 const addTierButton =
     document.getElementById("addTier");
+
 
 const settingsButton =
     document.getElementById("settingsButton");
 
+
 const settingsPanel =
     document.getElementById("settingsPanel");
 
+
 const tierContainer =
     document.getElementById("tierContainer");
+
 
 const movieBank =
     document.getElementById("movieBank");
 
 
 
-/* =============================
+
+/* ==================================
    MODAL SYSTEM
-============================= */
+================================== */
+
 
 const modalOverlay =
     document.getElementById("modalOverlay");
 
+
 const modalTitle =
     document.getElementById("modalTitle");
+
 
 const modalContent =
     document.getElementById("modalContent");
 
+
 const modalCancel =
     document.getElementById("modalCancel");
+
 
 const modalConfirm =
     document.getElementById("modalConfirm");
 
 
+
 let modalAction = null;
+
 
 
 
@@ -81,17 +100,24 @@ function openModal(
     );
 
 
+
     const input =
-        modalContent.querySelector("input");
+        modalContent.querySelector(
+            "input, textarea"
+        );
 
 
     if(input) {
 
-        input.focus();
+        setTimeout(
+            () => input.focus(),
+            50
+        );
 
     }
 
 }
+
 
 
 
@@ -114,12 +140,16 @@ function closeModal() {
 
 
 
+
+
 modalCancel.onclick =
 function() {
 
     closeModal();
 
 };
+
+
 
 
 
@@ -137,6 +167,9 @@ function() {
     closeModal();
 
 };
+
+
+
 
 
 
@@ -167,7 +200,16 @@ document.addEventListener(
 
         if(event.key === "Enter") {
 
-            modalConfirm.click();
+
+            if(
+                event.target.tagName !==
+                "TEXTAREA"
+            ) {
+
+                modalConfirm.click();
+
+            }
+
 
         }
 
@@ -178,12 +220,14 @@ document.addEventListener(
 
 
 
-/* =============================
-   CONTEXT MENUS
-============================= */
+
+/* ==================================
+   MENU SYSTEM
+================================== */
 
 
 let activeMenu = null;
+
 
 
 
@@ -234,7 +278,10 @@ document.addEventListener(
 
 
 
-function showMenu(button, items) {
+function showMenu(
+    button,
+    items
+) {
 
 
     closeMenus();
@@ -252,43 +299,45 @@ function showMenu(button, items) {
 
 
 
-    items.forEach(item => {
+    items.forEach(
+        item => {
 
 
-        const option =
-            document.createElement(
-                "button"
+            const option =
+                document.createElement(
+                    "button"
+                );
+
+
+            option.textContent =
+                item.label;
+
+
+
+            option.onclick =
+            function(event) {
+
+
+                event.stopPropagation();
+
+
+                closeMenus();
+
+
+                item.action();
+
+
+            };
+
+
+
+            menu.appendChild(
+                option
             );
 
 
-        option.textContent =
-            item.label;
-
-
-
-        option.onclick =
-        function(event) {
-
-
-            event.stopPropagation();
-
-
-            closeMenus();
-
-
-            item.action();
-
-
-        };
-
-
-
-        menu.appendChild(
-            option
-        );
-
-
-    });
+        }
+    );
 
 
 
@@ -303,28 +352,33 @@ function showMenu(button, items) {
 
 
 
-    const menuWidth =
-        170;
+    const width =
+        180;
 
 
 
     let left =
-        rect.left + window.scrollX;
+        rect.left +
+        window.scrollX;
 
 
 
     if(
-        left + menuWidth >
+        left + width >
         window.innerWidth - 10
     ) {
 
         left =
             window.innerWidth -
-            menuWidth -
+            width -
             10;
 
     }
 
+
+
+    menu.style.left =
+        left + "px";
 
 
     menu.style.top =
@@ -334,25 +388,14 @@ function showMenu(button, items) {
 
 
 
-    menu.style.left =
-        left +
-        "px";
-
-
-
     activeMenu =
         menu;
 
 }
 
-
-
-
-
-
-/* =============================
+/* ==================================
    DEVICE DETECTION
-============================= */
+================================== */
 
 
 function detectDevice() {
@@ -379,25 +422,20 @@ function detectDevice() {
 
     if(hasHover) {
 
-        device =
-            "desktop";
+        device = "desktop";
 
     }
-
     else if(
         hasTouch &&
         width >= 768
     ) {
 
-        device =
-            "tablet";
+        device = "tablet";
 
     }
-
     else {
 
-        device =
-            "mobile";
+        device = "mobile";
 
     }
 
@@ -423,9 +461,25 @@ window.addEventListener(
 
 
 
-/* =============================
-   DATA
-============================= */
+/* ==================================
+   DATA SYSTEM
+================================== */
+
+
+
+const defaultColours = [
+
+    "#ef4444",
+    "#f97316",
+    "#eab308",
+    "#22c55e",
+    "#3b82f6",
+    "#8b5cf6",
+    "#6b7280"
+
+];
+
+
 
 
 let data =
@@ -448,53 +502,54 @@ let data =
 
         tiers: [
 
+
             {
                 id: 1,
                 name: "S",
-                emoji: "",
-                colour: "s",
+                colour: "#ef4444",
                 order: 0
             },
+
 
             {
                 id: 2,
                 name: "A",
-                emoji: "",
-                colour: "a",
+                colour: "#f97316",
                 order: 1
             },
+
 
             {
                 id: 3,
                 name: "B",
-                emoji: "",
-                colour: "b",
+                colour: "#eab308",
                 order: 2
             },
+
 
             {
                 id: 4,
                 name: "C",
-                emoji: "",
-                colour: "c",
+                colour: "#22c55e",
                 order: 3
             },
+
 
             {
                 id: 5,
                 name: "D",
-                emoji: "",
-                colour: "d",
+                colour: "#3b82f6",
                 order: 4
             },
+
 
             {
                 id: 6,
                 name: "F",
-                emoji: "",
-                colour: "f",
+                colour: "#6b7280",
                 order: 5
             }
+
 
         ],
 
@@ -506,18 +561,6 @@ let data =
 
 
 
-if(!data.settings) {
-
-    data.settings = {
-
-        cardStyle:
-            "title"
-
-    };
-
-}
-
-
 
 function save() {
 
@@ -527,22 +570,47 @@ function save() {
         JSON.stringify(data)
     );
 
+
 }
 
-/* =============================
+
+
+
+
+
+/* ==================================
    TIER CREATION
-============================= */
+================================== */
+
 
 
 function createTier(tier) {
 
 
     const section =
-        document.createElement("section");
+        document.createElement(
+            "section"
+        );
+
 
 
     section.className =
-        "tier " + tier.colour;
+        "tier";
+
+
+
+    section.draggable =
+        true;
+
+
+
+    section.style.background =
+        tier.colour;
+
+
+
+    section.dataset.tier =
+        tier.id;
 
 
 
@@ -550,8 +618,9 @@ function createTier(tier) {
 
         <div class="tier-title">
 
+
             <h2>
-                ${tier.name}${tier.emoji ? " " + tier.emoji : ""}
+                ${tier.name}
             </h2>
 
 
@@ -559,8 +628,8 @@ function createTier(tier) {
                 ⋮
             </button>
 
-        </div>
 
+        </div>
 
 
         <div
@@ -568,7 +637,15 @@ function createTier(tier) {
             data-tier="${tier.id}">
         </div>
 
+
     `;
+
+
+
+    setupTierDragging(
+        section,
+        tier
+    );
 
 
 
@@ -596,6 +673,7 @@ function createTier(tier) {
 
 
 
+
     const movieArea =
         section.querySelector(
             ".movies"
@@ -614,10 +692,162 @@ function createTier(tier) {
         section
     );
 
+
 }
 
 
 
+
+
+
+/* ==================================
+   TIER DRAGGING
+================================== */
+
+
+
+let draggedTier = null;
+
+
+
+
+function setupTierDragging(
+    element,
+    tier
+) {
+
+
+    element.addEventListener(
+        "dragstart",
+        function() {
+
+
+            draggedTier =
+                tier;
+
+
+            element.classList.add(
+                "dragging"
+            );
+
+
+        }
+    );
+
+
+
+    element.addEventListener(
+        "dragend",
+        function() {
+
+
+            element.classList.remove(
+                "dragging"
+            );
+
+
+            draggedTier =
+                null;
+
+
+        }
+    );
+
+
+
+    element.addEventListener(
+        "dragover",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+        }
+    );
+
+
+
+    element.addEventListener(
+        "drop",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+
+            if(
+                !draggedTier ||
+                draggedTier.id === tier.id
+            ) {
+
+                return;
+
+            }
+
+
+
+            const tiers =
+                data.tiers;
+
+
+
+            const from =
+                tiers.indexOf(
+                    draggedTier
+                );
+
+
+            const to =
+                tiers.indexOf(
+                    tier
+                );
+
+
+
+            tiers.splice(
+                from,
+                1
+            );
+
+
+            tiers.splice(
+                to,
+                0,
+                draggedTier
+            );
+
+
+
+            tiers.forEach(
+                (t,index) => {
+
+                    t.order =
+                        index;
+
+                }
+            );
+
+
+
+            save();
+
+            render();
+
+
+        }
+    );
+
+}
+
+
+
+
+
+/* ==================================
+   TIER MENU
+================================== */
 
 
 function openTierMenu(
@@ -635,10 +865,12 @@ function openTierMenu(
 
             {
 
-                label: "Rename Tier",
+                label:
+                "Rename Tier",
 
 
-                action: function() {
+                action:
+                function() {
 
 
                     openModal(
@@ -647,12 +879,12 @@ function openTierMenu(
 
                         `
                         <input
-                            id="tierNameInput"
-                            value="${tier.name}"
-                        >
+                        id="tierNameInput"
+                        value="${tier.name}">
                         `,
 
-                        "Rename",
+
+                        "Save",
 
 
                         function() {
@@ -670,6 +902,7 @@ function openTierMenu(
 
                             if(name) {
 
+
                                 tier.name =
                                     name;
 
@@ -678,10 +911,12 @@ function openTierMenu(
 
                                 render();
 
+
                             }
 
 
                         }
+
 
                     );
 
@@ -695,11 +930,12 @@ function openTierMenu(
 
             {
 
+                label:
+                "Change Colour",
 
-                label: "Change Colour",
 
-
-                action: function() {
+                action:
+                function() {
 
 
                     openModal(
@@ -708,40 +944,30 @@ function openTierMenu(
 
                         `
                         <input
-                            id="tierColourInput"
-                            value="${tier.colour}"
-                            placeholder="Colour code"
-                        >
+                        type="color"
+                        id="tierColourInput"
+                        value="${tier.colour}">
                         `,
 
 
-                        "Change",
+                        "Save",
 
 
                         function() {
 
 
-                            const colour =
+                            tier.colour =
                                 document
                                 .getElementById(
                                     "tierColourInput"
                                 )
-                                .value
-                                .trim();
+                                .value;
 
 
 
-                            if(colour) {
+                            save();
 
-                                tier.colour =
-                                    colour;
-
-
-                                save();
-
-                                render();
-
-                            }
+                            render();
 
 
                         }
@@ -755,14 +981,14 @@ function openTierMenu(
             },
 
 
-
             {
 
+                label:
+                "Delete Tier",
 
-                label: "Delete Tier",
 
-
-                action: function() {
+                action:
+                function() {
 
 
                     openModal(
@@ -793,6 +1019,9 @@ function openTierMenu(
 
                                         movie.tier =
                                             null;
+
+                                        movie.order =
+                                            0;
 
                                     }
 
@@ -833,83 +1062,9 @@ function openTierMenu(
 
 }
 
-
-
-
-
-
-/* =============================
-   DRAG AND DROP
-============================= */
-
-
-function setupDropZone(
-    area,
-    tierID
-) {
-
-
-    area.addEventListener(
-        "dragover",
-        event => {
-
-
-            event.preventDefault();
-
-
-        }
-    );
-
-
-
-    area.addEventListener(
-        "drop",
-        event => {
-
-
-            const id =
-                event.dataTransfer.getData(
-                    "id"
-                );
-
-
-
-            const movie =
-                data.movies.find(
-                    m =>
-                    m.id == id
-                );
-
-
-
-            if(movie) {
-
-
-                movie.tier =
-                    tierID;
-
-
-                save();
-
-                render();
-
-
-            }
-
-
-        }
-    );
-
-}
-
-
-
-
-
-
-/* =============================
+/* ==================================
    MOVIE CREATION
-============================= */
+================================== */
 
 
 function createMovie(movie) {
@@ -932,8 +1087,12 @@ function createMovie(movie) {
 
 
 
-    card.innerHTML = `
+    card.dataset.movie =
+        movie.id;
 
+
+
+    card.innerHTML = `
 
         <div class="poster">
             🎬
@@ -954,37 +1113,23 @@ function createMovie(movie) {
 
 
 
-
     if(
         data.settings.cardStyle === "poster"
     ) {
 
-
         card.classList.add(
             "poster-only"
         );
-
 
     }
 
 
 
 
-
-    card.addEventListener(
-        "dragstart",
-        event => {
-
-
-            event.dataTransfer.setData(
-                "id",
-                movie.id
-            );
-
-
-        }
+    setupMovieDragging(
+        card,
+        movie
     );
-
 
 
 
@@ -1021,6 +1166,261 @@ function createMovie(movie) {
 
 
 
+
+
+/* ==================================
+   MOVIE DRAGGING + ORDERING
+================================== */
+
+
+let draggedMovie = null;
+
+
+
+
+function setupMovieDragging(
+    element,
+    movie
+) {
+
+
+    element.addEventListener(
+        "dragstart",
+        function(event) {
+
+
+            draggedMovie =
+                movie;
+
+
+
+            event.dataTransfer.setData(
+                "id",
+                movie.id
+            );
+
+
+            element.classList.add(
+                "dragging"
+            );
+
+
+        }
+    );
+
+
+
+    element.addEventListener(
+        "dragend",
+        function() {
+
+
+            element.classList.remove(
+                "dragging"
+            );
+
+
+            draggedMovie =
+                null;
+
+
+        }
+    );
+
+
+
+    element.addEventListener(
+        "dragover",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+        }
+    );
+
+
+
+    element.addEventListener(
+        "drop",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+
+            if(
+                !draggedMovie ||
+                draggedMovie.id === movie.id
+            ) {
+
+                return;
+
+            }
+
+
+
+            moveMovie(
+                draggedMovie,
+                movie
+            );
+
+
+        }
+    );
+
+}
+
+
+
+
+
+function moveMovie(
+    movingMovie,
+    targetMovie
+) {
+
+
+    const targetTier =
+        targetMovie.tier;
+
+
+
+    movingMovie.tier =
+        targetTier;
+
+
+
+    const moviesInTier =
+        data.movies.filter(
+            movie =>
+            movie.tier === targetTier &&
+            movie.id !== movingMovie.id
+        );
+
+
+
+    const targetIndex =
+        moviesInTier.findIndex(
+            movie =>
+            movie.id === targetMovie.id
+        );
+
+
+
+    moviesInTier.splice(
+        targetIndex,
+        0,
+        movingMovie
+    );
+
+
+
+    moviesInTier.forEach(
+        (movie,index) => {
+
+            movie.order =
+                index;
+
+        }
+    );
+
+
+
+    save();
+
+    render();
+
+
+}
+
+
+
+
+
+
+/* ==================================
+   DROP ZONES
+================================== */
+
+
+function setupDropZone(
+    area,
+    tierID
+) {
+
+
+    area.addEventListener(
+        "dragover",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+        }
+    );
+
+
+
+    area.addEventListener(
+        "drop",
+        function(event) {
+
+
+            event.preventDefault();
+
+
+
+            if(!draggedMovie) {
+
+                return;
+
+            }
+
+
+
+            draggedMovie.tier =
+                tierID;
+
+
+
+            const tierMovies =
+                data.movies.filter(
+                    movie =>
+                    movie.tier === tierID
+                );
+
+
+
+            draggedMovie.order =
+                tierMovies.length;
+
+
+
+            save();
+
+            render();
+
+
+        }
+    );
+
+}
+
+
+
+
+
+
+/* ==================================
+   MOVIE MENU
+================================== */
+
+
+
 function openMovieMenu(
     movie,
     button
@@ -1037,10 +1437,12 @@ function openMovieMenu(
             {
 
 
-                label: "Edit Movie",
+                label:
+                "Edit Movie",
 
 
-                action: function() {
+                action:
+                function() {
 
 
                     openModal(
@@ -1049,9 +1451,8 @@ function openMovieMenu(
 
                         `
                         <input
-                            id="movieNameInput"
-                            value="${movie.title}"
-                        >
+                        id="movieNameInput"
+                        value="${movie.title}">
                         `,
 
 
@@ -1102,10 +1503,43 @@ function openMovieMenu(
             {
 
 
-                label: "Delete Movie",
+                label:
+                "Move To Movie Bank",
 
 
-                action: function() {
+                action:
+                function() {
+
+
+                    movie.tier =
+                        null;
+
+
+                    movie.order =
+                        0;
+
+
+                    save();
+
+                    render();
+
+
+                }
+
+
+            },
+
+
+
+            {
+
+
+                label:
+                "Delete Movie",
+
+
+                action:
+                function() {
 
 
                     openModal(
@@ -1114,7 +1548,7 @@ function openMovieMenu(
 
                         `
                         <p>
-                        Delete this movie?
+                        Delete ${movie.title}?
                         </p>
                         `,
 
@@ -1140,7 +1574,6 @@ function openMovieMenu(
 
                         }
 
-
                     );
 
 
@@ -1157,10 +1590,9 @@ function openMovieMenu(
 
 }
 
-
-/* =============================
-   RENDER
-============================= */
+/* ==================================
+   RENDER SYSTEM
+================================== */
 
 
 function render() {
@@ -1185,48 +1617,53 @@ function render() {
 
 
 
-    data.movies.forEach(
-        movie => {
+    data.movies
+        .sort(
+            (a,b) =>
+            a.order - b.order
+        )
+        .forEach(
+            movie => {
 
 
-            let location;
+                let location;
 
 
 
-            if(movie.tier) {
+                if(movie.tier) {
 
 
-                location =
-                    document.querySelector(
-                        `[data-tier="${movie.tier}"]`
+                    location =
+                        document.querySelector(
+                            `[data-tier="${movie.tier}"]`
+                        );
+
+
+                }
+                else {
+
+
+                    location =
+                        movieBank;
+
+
+                }
+
+
+
+                if(location) {
+
+
+                    location.appendChild(
+                        createMovie(movie)
                     );
 
 
-            }
-            else {
-
-
-                location =
-                    movieBank;
+                }
 
 
             }
-
-
-
-            if(location) {
-
-
-                location.appendChild(
-                    createMovie(movie)
-                );
-
-
-            }
-
-
-        }
-    );
+        );
 
 
 }
@@ -1237,9 +1674,9 @@ function render() {
 
 
 
-/* =============================
-   ADD MOVIE
-============================= */
+/* ==================================
+   ADD SINGLE MOVIE
+================================== */
 
 
 addMovieButton.onclick =
@@ -1252,9 +1689,8 @@ function() {
 
         `
         <input
-            id="movieNameInput"
-            placeholder="Movie name"
-        >
+        id="movieNameInput"
+        placeholder="Movie name">
         `,
 
 
@@ -1274,7 +1710,11 @@ function() {
 
 
 
-            if(!title) return;
+            if(!title) {
+
+                return;
+
+            }
 
 
 
@@ -1283,14 +1723,17 @@ function() {
                 id:
                     Date.now(),
 
+
                 title:
                     title,
+
 
                 tier:
                     null,
 
-                poster:
-                    ""
+
+                order:
+                    0
 
             });
 
@@ -1314,9 +1757,107 @@ function() {
 
 
 
-/* =============================
+
+/* ==================================
+   ADD MULTIPLE MOVIES
+================================== */
+
+
+addMultipleMoviesButton.onclick =
+function() {
+
+
+    openModal(
+
+        "Add Multiple Movies",
+
+        `
+        <textarea
+        id="multipleMovieInput"
+        placeholder="Enter movie names separated by new lines or commas"></textarea>
+        `,
+
+
+        "Add Movies",
+
+
+        function() {
+
+
+            const text =
+                document
+                .getElementById(
+                    "multipleMovieInput"
+                )
+                .value;
+
+
+
+            const titles =
+                text
+                .split(/[\n,]+/)
+                .map(
+                    title =>
+                    title.trim()
+                )
+                .filter(
+                    title =>
+                    title
+                );
+
+
+
+            titles.forEach(
+                title => {
+
+
+                    data.movies.push({
+
+                        id:
+                            Date.now() +
+                            Math.random(),
+
+
+                        title:
+                            title,
+
+
+                        tier:
+                            null,
+
+
+                        order:
+                            0
+
+                    });
+
+
+                }
+            );
+
+
+
+            save();
+
+            render();
+
+
+        }
+
+    );
+
+
+};
+
+
+
+
+
+
+
+/* ==================================
    ADD TIER
-============================= */
+================================== */
 
 
 addTierButton.onclick =
@@ -1329,13 +1870,22 @@ function() {
 
         `
         <input
-            id="tierNameInput"
-            placeholder="Tier name"
-        >
+        id="tierNameInput"
+        placeholder="Tier name">
+
+
+        <br><br>
+
+
+        <input
+        type="color"
+        id="tierColourInput"
+        value="#6b7280">
+
         `,
 
 
-        "Add",
+        "Add Tier",
 
 
         function() {
@@ -1351,7 +1901,20 @@ function() {
 
 
 
-            if(!name) return;
+            const colour =
+                document
+                .getElementById(
+                    "tierColourInput"
+                )
+                .value;
+
+
+
+            if(!name) {
+
+                return;
+
+            }
 
 
 
@@ -1360,14 +1923,14 @@ function() {
                 id:
                     Date.now(),
 
+
                 name:
                     name,
 
-                emoji:
-                    "",
 
                 colour:
-                    "c",
+                    colour,
+
 
                 order:
                     data.tiers.length
@@ -1395,9 +1958,9 @@ function() {
 
 
 
-/* =============================
+/* ==================================
    SETTINGS
-============================= */
+================================== */
 
 
 settingsButton.onclick =
@@ -1455,9 +2018,10 @@ document
 
 
 
-/* =============================
-   START APP
-============================= */
+
+/* ==================================
+   START APPLICATION
+================================== */
 
 
 render();
