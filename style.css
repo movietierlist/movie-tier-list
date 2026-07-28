@@ -1,20 +1,18 @@
-
 /* ==================================
-   FONT IMPORT
+   MOVIE TIER LIST APP
+   Version 1.0 RC CSS
 ================================== */
-
-
-@import url(
-    'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
-);
-
-
-
 
 
 /* ==================================
    GLOBAL
 ================================== */
+
+
+@import url(
+'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
+);
+
 
 
 * {
@@ -44,6 +42,30 @@ body {
 
 
 
+button {
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+}
+
+
+
+.hidden {
+
+    display: none !important;
+
+}
+
+
+
+
+/* ==================================
+   HEADER
+================================== */
+
+
 header {
 
     text-align: center;
@@ -60,10 +82,17 @@ header h1 {
 
     font-size: 32px;
 
-    font-weight: 700;
+    font-weight: 800;
 
 }
 
+
+
+
+
+/* ==================================
+   MAIN
+================================== */
 
 
 main {
@@ -85,16 +114,6 @@ main {
 ================================== */
 
 
-button {
-
-    cursor: pointer;
-
-    font-family: inherit;
-
-}
-
-
-
 .top-buttons {
 
     display: flex;
@@ -105,7 +124,7 @@ button {
 
     flex-wrap: wrap;
 
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 
 }
 
@@ -115,19 +134,19 @@ button {
 
     border: none;
 
-    padding: 12px 18px;
-
     border-radius: 12px;
+
+    padding: 12px 18px;
 
     color: white;
 
     font-size: 15px;
 
-    font-weight: 600;
+    font-weight: 700;
 
     transition:
-        transform 0.15s,
-        opacity 0.15s;
+        transform .15s,
+        opacity .15s;
 
 }
 
@@ -137,7 +156,7 @@ button {
 
     transform: translateY(-2px);
 
-    opacity: 0.9;
+    opacity: .9;
 
 }
 
@@ -175,6 +194,16 @@ button {
 
 
 
+button:active {
+
+    transform: scale(.96);
+
+}
+
+
+
+
+
 
 
 /* ==================================
@@ -184,15 +213,15 @@ button {
 
 .settings-panel {
 
+    max-width: 350px;
+
+    margin: 20px auto;
+
     background: #111827;
 
     padding: 18px;
 
     border-radius: 15px;
-
-    max-width: 320px;
-
-    margin: 20px auto;
 
 }
 
@@ -206,8 +235,10 @@ button {
 
 
 
+
+
 /* ==================================
-   TIERS
+   TIER CONTAINER
 ================================== */
 
 
@@ -217,38 +248,13 @@ button {
 
     flex-direction: column;
 
-    gap: 15px;
+    gap: 12px;
 
 }
 
 
 
-.tier {
 
-    display: flex;
-
-    align-items: stretch;
-
-    min-height: 150px;
-
-    border-radius: 14px;
-
-    overflow: hidden;
-
-    background: #050505;
-
-    transition:
-        transform 0.2s,
-        opacity 0.2s;
-
-}
-
-
-.tier.dragging {
-
-    opacity: 0.5;
-
-}
 
 
 /* ==================================
@@ -256,11 +262,44 @@ button {
 ================================== */
 
 
+.tier {
+
+    display: flex;
+
+    min-height: 130px;
+
+    background: #111111;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    border: 1px solid #222;
+
+    transition:
+        transform .2s,
+        opacity .2s;
+
+}
+
+
+
+.tier.dragging {
+
+    opacity: .5;
+
+}
+
+
+
+
+
+/* LEFT LABEL */
+
+
 .tier-label {
 
-    width: 90px;
-
-    min-width: 90px;
+    background: var(--tier-color);
 
     display: flex;
 
@@ -268,7 +307,13 @@ button {
 
     align-items: center;
 
-    background: var(--tier-colour);
+    padding: 15px;
+
+    min-width: 70px;
+
+    max-width: 200px;
+
+    word-break: break-word;
 
 }
 
@@ -278,23 +323,30 @@ button {
 
     margin: 0;
 
-    font-size: 32px;
+    font-size: 24px;
 
     font-weight: 800;
 
+    text-align: center;
+
 }
 
+
+
+
+/* RIGHT CONTENT */
 
 
 .tier-content {
 
     flex: 1;
 
-    background: #050505;
-
     position: relative;
 
+    padding: 10px;
+
 }
+
 
 
 
@@ -302,21 +354,14 @@ button {
 
     position: absolute;
 
-    top: 8px;
-
     right: 8px;
 
-    z-index: 5;
+    top: 8px;
 
 }
 
 
 
-.movies {
-
-    min-height: 130px;
-
-}
 
 
 .tier-menu {
@@ -329,14 +374,13 @@ button {
 
     border: none;
 
-    background: rgba(0,0,0,0.45);
+    background: rgba(255,255,255,.12);
 
     color: white;
 
     font-size: 20px;
 
 }
-
 
 
 
@@ -352,33 +396,39 @@ button {
 
     gap: 12px;
 
-    padding: 10px;
-
-    min-height: 130px;
-
-    overflow-x: auto;
+    min-height: 110px;
 
     align-items: center;
 
-}
+    overflow-x: auto;
 
-
-
-.movies::-webkit-scrollbar {
-
-    height: 8px;
+    padding: 8px;
 
 }
 
 
 
-.movies::-webkit-scrollbar-thumb {
+.movies:empty::after {
 
-    background: #374151;
+    content:
 
-    border-radius: 10px;
+    "Drop movies here";
+
+    margin: auto;
+
+    color:
+
+    rgba(255,255,255,.3);
+
+    font-size: 14px;
 
 }
+
+
+
+
+
+
 
 /* ==================================
    MOVIE CARDS
@@ -391,7 +441,9 @@ button {
 
     min-width: 100px;
 
-    background: #111827;
+    max-width: 120px;
+
+    background: #1f2937;
 
     border-radius: 12px;
 
@@ -400,8 +452,9 @@ button {
     cursor: grab;
 
     transition:
-        transform 0.15s,
-        opacity 0.15s;
+
+        transform .15s,
+        box-shadow .15s;
 
 }
 
@@ -409,7 +462,11 @@ button {
 
 .movie-card:hover {
 
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+
+    box-shadow:
+
+    0 10px 25px rgba(0,0,0,.4);
 
 }
 
@@ -417,7 +474,7 @@ button {
 
 .movie-card.dragging {
 
-    opacity: 0.5;
+    opacity: .5;
 
 }
 
@@ -427,17 +484,15 @@ button {
 
     height: 130px;
 
-    width: 100%;
-
     display: flex;
 
     justify-content: center;
 
     align-items: center;
 
-    background: #1f2937;
-
     font-size: 40px;
+
+    background: #374151;
 
 }
 
@@ -447,21 +502,21 @@ button {
 
     padding: 8px;
 
-    text-align: center;
-
     font-size: 13px;
 
-    font-weight: 600;
+    text-align: center;
 
-    word-break: break-word;
+    font-weight: 600;
 
 }
 
 
 
+
+
 .poster-only .movie-title {
 
-    display: none;
+    display:none;
 
 }
 
@@ -470,37 +525,33 @@ button {
 
 
 /* ==================================
-   MOVIE / TIER BUTTONS
+   MENUS
 ================================== */
 
 
 .movie-menu {
 
-    position: absolute;
+    position:absolute;
 
-    top: 6px;
+    top:6px;
 
-    right: 6px;
+    right:6px;
 
-    width: 30px;
+    width:30px;
 
-    height: 30px;
+    height:30px;
 
-    border-radius: 50%;
+    border:none;
 
-    border: none;
+    border-radius:50%;
 
     background:
-        rgba(0,0,0,0.65);
 
-    color: white;
+    rgba(0,0,0,.65);
 
-    font-size: 18px;
+    color:white;
 
-    opacity: 0;
-
-    transition:
-        opacity 0.2s;
+    opacity:0;
 
 }
 
@@ -508,7 +559,7 @@ button {
 
 .movie-card:hover .movie-menu {
 
-    opacity: 1;
+    opacity:1;
 
 }
 
@@ -516,10 +567,7 @@ button {
 
 .tier-menu {
 
-    opacity: 0;
-
-    transition:
-        opacity 0.2s;
+    opacity:0;
 
 }
 
@@ -527,7 +575,7 @@ button {
 
 .tier:hover .tier-menu {
 
-    opacity: 1;
+    opacity:1;
 
 }
 
@@ -535,18 +583,14 @@ button {
 
 
 
-/* Touch devices */
-
 @media (hover:none) {
-
 
     .movie-menu,
     .tier-menu {
 
-        opacity: 1;
+        opacity:1;
 
     }
-
 
 }
 
@@ -556,32 +600,27 @@ button {
 
 
 /* ==================================
-   CONTEXT MENUS
+   CONTEXT MENU
 ================================== */
 
 
 .context-menu {
 
-    position: absolute;
+    position:absolute;
 
-    z-index: 9999;
+    z-index:9999;
 
-    background: #111827;
+    background:#111827;
 
-    border-radius: 12px;
+    border-radius:12px;
 
-    padding: 6px;
+    padding:6px;
 
-    min-width: 180px;
+    min-width:180px;
 
     box-shadow:
-        0 15px 35px rgba(0,0,0,0.45);
 
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 4px;
+    0 20px 40px rgba(0,0,0,.5);
 
 }
 
@@ -589,19 +628,19 @@ button {
 
 .context-menu button {
 
-    background: transparent;
+    width:100%;
 
-    color: white;
+    background:none;
 
-    border: none;
+    color:white;
 
-    padding: 11px 14px;
+    border:none;
 
-    border-radius: 8px;
+    text-align:left;
 
-    text-align: left;
+    padding:12px;
 
-    font-size: 14px;
+    border-radius:8px;
 
 }
 
@@ -609,9 +648,10 @@ button {
 
 .context-menu button:hover {
 
-    background: #374151;
+    background:#374151;
 
 }
+
 
 
 
@@ -625,20 +665,21 @@ button {
 
 .modal-overlay {
 
-    position: fixed;
+    position:fixed;
 
-    inset: 0;
+    inset:0;
 
     background:
-        rgba(0,0,0,0.65);
 
-    display: flex;
+    rgba(0,0,0,.7);
 
-    justify-content: center;
+    display:flex;
 
-    align-items: center;
+    justify-content:center;
 
-    z-index: 10000;
+    align-items:center;
+
+    z-index:10000;
 
 }
 
@@ -646,16 +687,13 @@ button {
 
 .modal {
 
-    background: #111827;
+    background:#111827;
 
-    width: min(90%, 450px);
+    width:min(90%,450px);
 
-    padding: 25px;
+    padding:25px;
 
-    border-radius: 18px;
-
-    box-shadow:
-        0 20px 50px rgba(0,0,0,0.5);
+    border-radius:18px;
 
 }
 
@@ -663,7 +701,7 @@ button {
 
 .modal h2 {
 
-    margin-top: 0;
+    margin-top:0;
 
 }
 
@@ -671,7 +709,36 @@ button {
 
 #modalContent {
 
-    margin: 20px 0;
+    margin:20px 0;
+
+}
+
+
+
+.modal input,
+.modal textarea {
+
+    width:100%;
+
+    padding:12px;
+
+    background:#1f2937;
+
+    border:none;
+
+    border-radius:10px;
+
+    color:white;
+
+    font-size:16px;
+
+}
+
+
+
+.modal textarea {
+
+    min-height:150px;
 
 }
 
@@ -679,11 +746,11 @@ button {
 
 .modal-buttons {
 
-    display: flex;
+    display:flex;
 
-    justify-content: flex-end;
+    justify-content:flex-end;
 
-    gap: 10px;
+    gap:10px;
 
 }
 
@@ -691,13 +758,13 @@ button {
 
 .modal-buttons button {
 
-    border: none;
+    padding:10px 18px;
 
-    padding: 10px 18px;
+    border:none;
 
-    border-radius: 10px;
+    border-radius:10px;
 
-    font-weight: 600;
+    font-weight:700;
 
 }
 
@@ -705,9 +772,9 @@ button {
 
 #modalCancel {
 
-    background: #374151;
+    background:#374151;
 
-    color: white;
+    color:white;
 
 }
 
@@ -715,63 +782,11 @@ button {
 
 #modalConfirm {
 
-    background: #2563eb;
+    background:#2563eb;
 
-    color: white;
-
-}
-
-
-
-
-
-
-/* ==================================
-   INPUTS
-================================== */
-
-
-.modal input,
-.modal textarea {
-
-    width: 100%;
-
-    padding: 12px;
-
-    border-radius: 10px;
-
-    border: none;
-
-    outline: none;
-
-    background: #1f2937;
-
-    color: white;
-
-    font-size: 16px;
+    color:white;
 
 }
-
-
-
-.modal textarea {
-
-    min-height: 160px;
-
-    resize: vertical;
-
-}
-
-
-
-.modal input[type="color"] {
-
-    height: 45px;
-
-    padding: 4px;
-
-}
-
 
 
 
@@ -784,13 +799,13 @@ button {
 
 .movie-bank {
 
-    margin-top: 35px;
+    margin-top:35px;
 
-    background: #111827;
+    background:#111827;
 
-    padding: 18px;
+    padding:18px;
 
-    border-radius: 18px;
+    border-radius:18px;
 
 }
 
@@ -798,7 +813,7 @@ button {
 
 .movie-bank h2 {
 
-    margin-top: 0;
+    margin-top:0;
 
 }
 
@@ -806,9 +821,8 @@ button {
 
 
 
-
 /* ==================================
-   RESPONSIVE
+   MOBILE
 ================================== */
 
 
@@ -817,23 +831,7 @@ button {
 
     main {
 
-        padding: 12px;
-
-    }
-
-
-
-    header h1 {
-
-        font-size: 26px;
-
-    }
-
-
-
-    .top-buttons {
-
-        gap: 8px;
+        padding:12px;
 
     }
 
@@ -841,7 +839,23 @@ button {
 
     .top-buttons button {
 
-        width: 100%;
+        width:100%;
+
+    }
+
+
+
+    header h1 {
+
+        font-size:26px;
+
+    }
+
+
+
+    .tier-label {
+
+        min-width:60px;
 
     }
 
@@ -849,301 +863,9 @@ button {
 
     .movie-card {
 
-        min-width: 85px;
+        min-width:85px;
 
     }
 
-
-
-    .poster {
-
-        height: 110px;
-
-    }
-
-
-
-    .tier-title h2 {
-
-        font-size: 21px;
-
-    }
-
-
-}
-
-
-
-/* ==================================
-   GLOBAL POLISH
-================================== */
-
-
-html {
-
-    scroll-behaviour: smooth;
-
-}
-
-
-
-::selection {
-
-    background: #2563eb;
-
-    color: white;
-
-}
-
-
-
-
-/* ==================================
-   BUTTON POLISH
-================================== */
-
-
-button:active {
-
-    transform: scale(0.96);
-
-}
-
-
-
-button:focus-visible {
-
-    outline:
-
-        2px solid #60a5fa;
-
-    outline-offset:
-
-        2px;
-
-}
-
-
-
-
-
-/* ==================================
-   EMPTY DROP AREAS
-================================== */
-
-
-.movies:empty {
-
-    border:
-
-        2px dashed rgba(255,255,255,0.15);
-
-    border-radius:
-
-        12px;
-
-}
-
-
-
-.movies:empty::after {
-
-    content:
-
-        "Drop movies here";
-
-    color:
-
-        rgba(255,255,255,0.35);
-
-    margin:
-
-        auto;
-
-    font-size:
-
-        14px;
-
-}
-
-
-
-
-
-/* ==================================
-   DRAG FEEDBACK
-================================== */
-
-
-.tier:hover {
-
-    filter:
-
-        brightness(1.05);
-
-}
-
-
-
-.movie-card:hover {
-
-    box-shadow:
-
-        0 8px 20px rgba(0,0,0,0.35);
-
-}
-
-
-
-
-
-/* ==================================
-   SCROLLBAR
-================================== */
-
-
-* {
-
-    scrollbar-width:
-
-        thin;
-
-    scrollbar-color:
-
-        #374151 transparent;
-
-}
-
-
-
-::-webkit-scrollbar {
-
-    width:
-
-        8px;
-
-    height:
-
-        8px;
-
-}
-
-
-
-::-webkit-scrollbar-track {
-
-    background:
-
-        transparent;
-
-}
-
-
-
-::-webkit-scrollbar-thumb {
-
-    background:
-
-        #374151;
-
-    border-radius:
-
-        10px;
-
-}
-
-
-
-
-
-/* ==================================
-   COLOUR INPUT
-================================== */
-
-
-input[type="color"] {
-
-    cursor:
-
-        pointer;
-
-}
-
-
-
-
-
-/* ==================================
-   DESKTOP MENU BEHAVIOUR
-================================== */
-
-
-@media (hover:hover) {
-
-
-    .movie-card:hover .movie-menu,
-    .tier:hover .tier-menu {
-
-        opacity:
-
-            1;
-
-    }
-
-
-}
-
-
-
-
-
-/* ==================================
-   SMALL SCREEN IMPROVEMENTS
-================================== */
-
-
-@media(max-width:450px) {
-
-
-    .modal {
-
-        padding:
-
-            18px;
-
-    }
-
-
-
-    .modal-buttons {
-
-        flex-direction:
-
-            column;
-
-    }
-
-
-
-    .modal-buttons button {
-
-        width:
-
-            100%;
-
-    }
-
-
-
-}
-
-
-/* ==================================
-   VISIBILITY HELPERS
-================================== */
-
-.hidden {
-
-    display: none !important;
 
 }
