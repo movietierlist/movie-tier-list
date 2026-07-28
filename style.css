@@ -225,22 +225,23 @@ button {
 
 .tier {
 
+    display: flex;
+
+    align-items: stretch;
+
     min-height: 150px;
 
     border-radius: 14px;
 
-    padding: 12px;
+    overflow: hidden;
 
-    display: flex;
-
-    flex-direction: column;
+    background: #050505;
 
     transition:
         transform 0.2s,
         opacity 0.2s;
 
 }
-
 
 
 .tier.dragging {
@@ -250,29 +251,72 @@ button {
 }
 
 
+/* ==================================
+   TIERMAKER STYLE TIERS
+================================== */
 
-.tier-title {
+
+.tier-label {
+
+    width: 90px;
+
+    min-width: 90px;
 
     display: flex;
 
-    justify-content: space-between;
+    justify-content: center;
 
     align-items: center;
 
-    margin-bottom: 5px;
+    background: var(--tier-colour);
 
 }
 
 
 
-.tier-title h2 {
+.tier-label h2 {
 
     margin: 0;
 
-    font-size: 24px;
+    font-size: 32px;
+
+    font-weight: 800;
 
 }
 
+
+
+.tier-content {
+
+    flex: 1;
+
+    background: #050505;
+
+    position: relative;
+
+}
+
+
+
+.tier-controls {
+
+    position: absolute;
+
+    top: 8px;
+
+    right: 8px;
+
+    z-index: 5;
+
+}
+
+
+
+.movies {
+
+    min-height: 130px;
+
+}
 
 
 .tier-menu {
