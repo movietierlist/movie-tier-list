@@ -86,7 +86,7 @@ function showMenu(button, items) {
 
 
     menu.style.left =
-        rect.left + window.scrollX - 100 + "px";
+    rect.right - 170 + window.scrollX + "px";
 
 
     activeMenu = menu;
