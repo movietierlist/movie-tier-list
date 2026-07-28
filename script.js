@@ -591,15 +591,21 @@ function createTier(tier) {
 
 
 
-    section.innerHTML = `
+  section.innerHTML = `
 
-        <div class="tier-label">
+<div 
 
-            <h2>
-                ${tier.name}
-            </h2>
+class="tier-label"
 
-        </div>
+style="background:${tier.colour}">
+
+    <h2>
+
+        ${tier.name}
+
+    </h2>
+
+</div>
 
 
         <div class="tier-content">
