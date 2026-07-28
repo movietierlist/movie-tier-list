@@ -7,6 +7,76 @@ const settingsPanel = document.getElementById("settingsPanel");
 const tierContainer = document.getElementById("tierContainer");
 const movieBank = document.getElementById("movieBank");
 
+const modalOverlay = document.getElementById("modalOverlay");
+const modalTitle = document.getElementById("modalTitle");
+const modalContent = document.getElementById("modalContent");
+const modalCancel = document.getElementById("modalCancel");
+const modalConfirm = document.getElementById("modalConfirm");
+
+
+let modalAction = null;
+
+
+
+function openModal(title, content, confirmText, action) {
+
+
+    modalTitle.textContent = title;
+
+
+    modalContent.innerHTML = content;
+
+
+    modalConfirm.textContent = confirmText || "Save";
+
+
+    modalAction = action;
+
+
+    modalOverlay.classList.remove("hidden");
+
+}
+
+
+
+function closeModal() {
+
+
+    modalOverlay.classList.add("hidden");
+
+
+    modalContent.innerHTML = "";
+
+
+    modalAction = null;
+
+
+}
+
+
+
+modalCancel.onclick = function() {
+
+    closeModal();
+
+};
+
+
+
+modalConfirm.onclick = function() {
+
+
+    if(modalAction) {
+
+        modalAction();
+
+    }
+
+
+    closeModal();
+
+};
+
 let activeMenu = null;
 
 
@@ -897,3 +967,17 @@ document
 
 
 render();
+
+
+openModal(
+    "Test Modal",
+    `
+    <p>Hello Movie Club</p>
+    `,
+    "OK",
+    function(){
+
+        console.log("Modal works");
+
+    }
+);
