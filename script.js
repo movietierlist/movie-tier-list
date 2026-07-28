@@ -821,38 +821,58 @@ function render() {
 addMovieButton.onclick = function() {
 
 
-    const title =
-        prompt(
-            "Movie name:"
-        );
+    openModal(
+
+        "Add Movie",
+
+        `
+        <input 
+            id="movieNameInput"
+            placeholder="Movie name"
+        >
+        `,
+
+        "Add",
+
+        function() {
+
+
+            const title =
+                document.getElementById(
+                    "movieNameInput"
+                ).value.trim();
 
 
 
-    if(!title) return;
+            if(!title) return;
 
 
 
-    data.movies.push({
+            data.movies.push({
 
-        id: Date.now(),
+                id: Date.now(),
 
-        title: title,
+                title: title,
 
-        tier: null,
+                tier: null,
 
-        poster: ""
+                poster: ""
 
-    });
+            });
 
 
 
-    save();
+            save();
 
-    render();
+            render();
+
+
+        }
+
+    );
 
 
 };
-
 
 
 
@@ -969,15 +989,3 @@ document
 render();
 
 
-openModal(
-    "Test Modal",
-    `
-    <p>Hello Movie Club</p>
-    `,
-    "OK",
-    function(){
-
-        console.log("Modal works");
-
-    }
-);
