@@ -28,94 +28,115 @@
 <main>
 
 
-<div class="top-buttons">
+    <!-- TOP CONTROLS -->
+
+    <div class="top-buttons">
 
 
-    <button id="addMovie">
-        + Add Movie
-    </button>
+        <button id="addMovie">
+            + Add Movie
+        </button>
 
 
-    <button id="addMultipleMovies">
-        + Add Multiple Movies
-    </button>
+        <button id="addMultipleMovies">
+            + Bulk Import
+        </button>
 
 
-    <button id="addTier">
-        + Add Tier
-    </button>
+        <button id="addTier">
+            + Add Tier
+        </button>
 
 
-    <button id="settingsButton">
-        ⚙ Settings
-    </button>
+        <button id="settingsButton">
+            ⚙ Settings
+        </button>
 
 
-</div>
-
-
-
-
-<div id="settingsPanel" class="settings-panel hidden">
-
-
-    <h3>Card Layout</h3>
-
-
-    <label>
-
-        <input 
-        type="radio"
-        name="cardStyle"
-        value="title"
-        checked>
-
-        Poster + Title
-
-    </label>
-
-
-
-    <br>
-
-
-
-    <label>
-
-        <input 
-        type="radio"
-        name="cardStyle"
-        value="poster">
-
-        Poster Only
-
-    </label>
-
-
-
-</div>
+    </div>
 
 
 
 
 
-<div id="tierContainer"></div>
+    <!-- SETTINGS PANEL -->
+
+
+    <div 
+        id="settingsPanel"
+        class="settings-panel hidden">
+
+
+        <h3>
+            Card Layout
+        </h3>
+
+
+
+        <label>
+
+            <input
+                type="radio"
+                name="cardStyle"
+                value="title"
+                checked>
+
+            Poster + Title
+
+        </label>
+
+
+
+        <br>
+
+
+
+        <label>
+
+            <input
+                type="radio"
+                name="cardStyle"
+                value="poster">
+
+            Poster Only
+
+        </label>
+
+
+    </div>
 
 
 
 
 
-<section class="movie-bank">
+    <!-- TIERS -->
 
 
-    <h2>Movie Bank</h2>
+    <div id="tierContainer"></div>
 
 
-    <div id="movieBank" class="movies"></div>
 
 
-</section>
 
+    <!-- MOVIE BANK -->
+
+
+    <section class="movie-bank">
+
+
+        <h2>
+            Movie Bank
+        </h2>
+
+
+        <div 
+            id="movieBank"
+            class="movies">
+
+        </div>
+
+
+    </section>
 
 
 
@@ -124,35 +145,60 @@
 
 
 
-    <!-- your existing app HTML -->
 
 
-    <div id="modalOverlay" class="modal-overlay hidden">
+<!-- MODAL -->
 
-        <div class="modal">
 
-            <h2 id="modalTitle"></h2>
+<div 
+    id="modalOverlay"
+    class="modal-overlay hidden">
 
-            <div id="modalContent"></div>
 
-            <div class="modal-buttons">
+    <div class="modal">
 
-                <button id="modalCancel">
-                    Cancel
-                </button>
 
-                <button id="modalConfirm">
-                    Save
-                </button>
+        <h2 id="modalTitle"></h2>
 
-            </div>
+
+
+        <div id="modalContent"></div>
+
+
+
+        <div class="modal-buttons">
+
+
+            <button id="modalCancel">
+
+                Cancel
+
+            </button>
+
+
+
+            <button id="modalConfirm">
+
+                Save
+
+            </button>
+
 
         </div>
 
+
     </div>
 
+
+</div>
+
+
+
+
+
 <script src="script.js"></script>
-    
+
+
 </body>
 
 </html>
