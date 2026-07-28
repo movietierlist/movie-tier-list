@@ -603,31 +603,30 @@ function createTier(tier) {
         true;
 
 
-
-    section.style.background =
-        tier.colour;
-
-
-
     section.dataset.tier =
         tier.id;
 
 
 
-    section.innerHTML = `
+  section.innerHTML = `
 
-        <div class="tier-title">
+    <div class="tier-label">
+
+        <h2>
+            ${tier.name}
+        </h2>
+
+    </div>
 
 
-            <h2>
-                ${tier.name}
-            </h2>
+    <div class="tier-content">
 
+
+        <div class="tier-controls">
 
             <button class="tier-menu">
                 ⋮
             </button>
-
 
         </div>
 
@@ -638,7 +637,9 @@ function createTier(tier) {
         </div>
 
 
-    `;
+    </div>
+
+`;
 
 
 
