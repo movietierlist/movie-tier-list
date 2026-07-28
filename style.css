@@ -1,18 +1,16 @@
 /* ==================================
-   MOVIE TIER LIST APP
-   Version 1.0 RC CSS
+   FONT
 ================================== */
-
-
-/* ==================================
-   GLOBAL
-================================== */
-
 
 @import url(
 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
 );
 
+
+
+/* ==================================
+   GLOBAL
+================================== */
 
 
 * {
@@ -42,30 +40,6 @@ body {
 
 
 
-button {
-
-    font-family: inherit;
-
-    cursor: pointer;
-
-}
-
-
-
-.hidden {
-
-    display: none !important;
-
-}
-
-
-
-
-/* ==================================
-   HEADER
-================================== */
-
-
 header {
 
     text-align: center;
@@ -82,17 +56,8 @@ header h1 {
 
     font-size: 32px;
 
-    font-weight: 800;
-
 }
 
-
-
-
-
-/* ==================================
-   MAIN
-================================== */
 
 
 main {
@@ -114,6 +79,16 @@ main {
 ================================== */
 
 
+button {
+
+    cursor: pointer;
+
+    border: none;
+
+}
+
+
+
 .top-buttons {
 
     display: flex;
@@ -124,7 +99,7 @@ main {
 
     flex-wrap: wrap;
 
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 
 }
 
@@ -132,21 +107,15 @@ main {
 
 .top-buttons button {
 
-    border: none;
+    padding: 12px 18px;
 
     border-radius: 12px;
 
-    padding: 12px 18px;
-
     color: white;
 
-    font-size: 15px;
+    font-weight: 600;
 
-    font-weight: 700;
-
-    transition:
-        transform .15s,
-        opacity .15s;
+    transition: 0.15s;
 
 }
 
@@ -156,7 +125,7 @@ main {
 
     transform: translateY(-2px);
 
-    opacity: .9;
+    opacity: 0.9;
 
 }
 
@@ -194,14 +163,6 @@ main {
 
 
 
-button:active {
-
-    transform: scale(.96);
-
-}
-
-
-
 
 
 
@@ -213,23 +174,23 @@ button:active {
 
 .settings-panel {
 
-    max-width: 350px;
-
-    margin: 20px auto;
-
     background: #111827;
 
     padding: 18px;
 
     border-radius: 15px;
 
+    max-width: 320px;
+
+    margin: 20px auto;
+
 }
 
 
 
-.settings-panel h3 {
+.hidden {
 
-    margin-top: 0;
+    display: none;
 
 }
 
@@ -256,7 +217,6 @@ button:active {
 
 
 
-
 /* ==================================
    TIERMAKER STYLE TIERS
 ================================== */
@@ -268,17 +228,15 @@ button:active {
 
     min-height: 130px;
 
-    background: #111111;
+    background: #111827;
 
     border-radius: 12px;
 
     overflow: hidden;
 
-    border: 1px solid #222;
-
     transition:
-        transform .2s,
-        opacity .2s;
+        transform 0.2s,
+        opacity 0.2s;
 
 }
 
@@ -286,7 +244,7 @@ button:active {
 
 .tier.dragging {
 
-    opacity: .5;
+    opacity: 0.5;
 
 }
 
@@ -294,26 +252,17 @@ button:active {
 
 
 
-/* LEFT LABEL */
-
-
 .tier-label {
 
-    background: var(--tier-color);
+    width: 90px;
+
+    flex-shrink: 0;
 
     display: flex;
 
     justify-content: center;
 
     align-items: center;
-
-    padding: 15px;
-
-    min-width: 70px;
-
-    max-width: 200px;
-
-    word-break: break-word;
 
 }
 
@@ -323,18 +272,14 @@ button:active {
 
     margin: 0;
 
-    font-size: 24px;
+    font-size: 34px;
 
     font-weight: 800;
-
-    text-align: center;
 
 }
 
 
 
-
-/* RIGHT CONTENT */
 
 
 .tier-content {
@@ -343,20 +288,9 @@ button:active {
 
     position: relative;
 
+    background: #050505;
+
     padding: 10px;
-
-}
-
-
-
-
-.tier-controls {
-
-    position: absolute;
-
-    right: 8px;
-
-    top: 8px;
 
 }
 
@@ -366,24 +300,35 @@ button:active {
 
 .tier-menu {
 
-    width: 34px;
+    position: absolute;
 
-    height: 34px;
+    top: 8px;
+
+    right: 8px;
+
+    width: 32px;
+
+    height: 32px;
 
     border-radius: 50%;
 
-    border: none;
+    background: rgba(255,255,255,0.15);
 
-    background: rgba(255,255,255,.12);
+    color:white;
 
-    color: white;
+    font-size:18px;
 
-    font-size: 20px;
+    opacity:0;
 
 }
 
 
 
+.tier:hover .tier-menu {
+
+    opacity:1;
+
+}
 
 /* ==================================
    MOVIE ROWS
@@ -402,7 +347,19 @@ button:active {
 
     overflow-x: auto;
 
-    padding: 8px;
+    padding: 10px;
+
+}
+
+
+
+.movies:empty {
+
+    border:
+
+        2px dashed rgba(255,255,255,0.15);
+
+    border-radius: 10px;
 
 }
 
@@ -411,16 +368,36 @@ button:active {
 .movies:empty::after {
 
     content:
-
-    "Drop movies here";
-
-    margin: auto;
+        "Drop movies here";
 
     color:
+        rgba(255,255,255,0.35);
 
-    rgba(255,255,255,.3);
+    margin:
+        auto;
 
-    font-size: 14px;
+    font-size:
+        14px;
+
+}
+
+
+
+.movies::-webkit-scrollbar {
+
+    height: 8px;
+
+}
+
+
+
+.movies::-webkit-scrollbar-thumb {
+
+    background:
+        #374151;
+
+    border-radius:
+        10px;
 
 }
 
@@ -439,22 +416,30 @@ button:active {
 
     position: relative;
 
-    min-width: 100px;
+    width: 105px;
 
-    max-width: 120px;
+    flex-shrink: 0;
 
-    background: #1f2937;
+    background:
 
-    border-radius: 12px;
+        #1f2937;
 
-    overflow: hidden;
+    border-radius:
 
-    cursor: grab;
+        12px;
+
+    overflow:
+
+        hidden;
+
+    cursor:
+
+        grab;
 
     transition:
 
-        transform .15s,
-        box-shadow .15s;
+        transform 0.15s,
+        opacity 0.15s;
 
 }
 
@@ -462,11 +447,8 @@ button:active {
 
 .movie-card:hover {
 
-    transform: translateY(-4px);
-
-    box-shadow:
-
-    0 10px 25px rgba(0,0,0,.4);
+    transform:
+        translateY(-4px);
 
 }
 
@@ -474,39 +456,68 @@ button:active {
 
 .movie-card.dragging {
 
-    opacity: .5;
+    opacity:
+        0.5;
 
 }
+
+
 
 
 
 .poster {
 
-    height: 130px;
+    height:
 
-    display: flex;
+        130px;
 
-    justify-content: center;
+    display:
 
-    align-items: center;
+        flex;
 
-    font-size: 40px;
+    justify-content:
 
-    background: #374151;
+        center;
+
+    align-items:
+
+        center;
+
+    background:
+
+        #374151;
+
+    font-size:
+
+        40px;
 
 }
 
 
 
+
+
 .movie-title {
 
-    padding: 8px;
+    padding:
 
-    font-size: 13px;
+        8px;
 
-    text-align: center;
+    text-align:
 
-    font-weight: 600;
+        center;
+
+    font-size:
+
+        13px;
+
+    font-weight:
+
+        600;
+
+    word-break:
+
+        break-word;
 
 }
 
@@ -516,7 +527,9 @@ button:active {
 
 .poster-only .movie-title {
 
-    display:none;
+    display:
+
+        none;
 
 }
 
@@ -524,34 +537,58 @@ button:active {
 
 
 
+
+
 /* ==================================
-   MENUS
+   MOVIE MENU BUTTON
 ================================== */
 
 
 .movie-menu {
 
-    position:absolute;
+    position:
 
-    top:6px;
+        absolute;
 
-    right:6px;
+    top:
 
-    width:30px;
+        6px;
 
-    height:30px;
+    right:
 
-    border:none;
+        6px;
 
-    border-radius:50%;
+    width:
+
+        30px;
+
+    height:
+
+        30px;
+
+    border-radius:
+
+        50%;
 
     background:
 
-    rgba(0,0,0,.65);
+        rgba(0,0,0,0.65);
 
-    color:white;
+    color:
 
-    opacity:0;
+        white;
+
+    font-size:
+
+        18px;
+
+    opacity:
+
+        0;
+
+    transition:
+
+        opacity 0.15s;
 
 }
 
@@ -559,234 +596,110 @@ button:active {
 
 .movie-card:hover .movie-menu {
 
-    opacity:1;
+    opacity:
+
+        1;
 
 }
-
-
-
-.tier-menu {
-
-    opacity:0;
-
-}
-
-
-
-.tier:hover .tier-menu {
-
-    opacity:1;
-
-}
-
-
-
-
-
-@media (hover:none) {
-
-    .movie-menu,
-    .tier-menu {
-
-        opacity:1;
-
-    }
-
-}
-
 
 
 
 
 
 /* ==================================
-   CONTEXT MENU
+   CONTEXT MENUS
 ================================== */
 
 
 .context-menu {
 
-    position:absolute;
+    position:
 
-    z-index:9999;
+        absolute;
 
-    background:#111827;
+    z-index:
 
-    border-radius:12px;
+        9999;
 
-    padding:6px;
+    background:
 
-    min-width:180px;
+        #111827;
+
+    padding:
+
+        6px;
+
+    border-radius:
+
+        12px;
+
+    min-width:
+
+        180px;
+
+    display:
+
+        flex;
+
+    flex-direction:
+
+        column;
+
+    gap:
+
+        4px;
 
     box-shadow:
 
-    0 20px 40px rgba(0,0,0,.5);
+        0 15px 35px rgba(0,0,0,0.5);
 
 }
+
+
 
 
 
 .context-menu button {
 
-    width:100%;
+    background:
 
-    background:none;
+        transparent;
 
-    color:white;
+    color:
 
-    border:none;
+        white;
 
-    text-align:left;
+    text-align:
 
-    padding:12px;
+        left;
 
-    border-radius:8px;
+    padding:
+
+        11px 14px;
+
+    border-radius:
+
+        8px;
+
+    font-size:
+
+        14px;
 
 }
+
+
 
 
 
 .context-menu button:hover {
 
-    background:#374151;
-
-}
-
-
-
-
-
-
-
-/* ==================================
-   MODAL
-================================== */
-
-
-.modal-overlay {
-
-    position:fixed;
-
-    inset:0;
-
     background:
 
-    rgba(0,0,0,.7);
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    z-index:10000;
+        #374151;
 
 }
 
 
-
-.modal {
-
-    background:#111827;
-
-    width:min(90%,450px);
-
-    padding:25px;
-
-    border-radius:18px;
-
-}
-
-
-
-.modal h2 {
-
-    margin-top:0;
-
-}
-
-
-
-#modalContent {
-
-    margin:20px 0;
-
-}
-
-
-
-.modal input,
-.modal textarea {
-
-    width:100%;
-
-    padding:12px;
-
-    background:#1f2937;
-
-    border:none;
-
-    border-radius:10px;
-
-    color:white;
-
-    font-size:16px;
-
-}
-
-
-
-.modal textarea {
-
-    min-height:150px;
-
-}
-
-
-
-.modal-buttons {
-
-    display:flex;
-
-    justify-content:flex-end;
-
-    gap:10px;
-
-}
-
-
-
-.modal-buttons button {
-
-    padding:10px 18px;
-
-    border:none;
-
-    border-radius:10px;
-
-    font-weight:700;
-
-}
-
-
-
-#modalCancel {
-
-    background:#374151;
-
-    color:white;
-
-}
-
-
-
-#modalConfirm {
-
-    background:#2563eb;
-
-    color:white;
-
-}
 
 
 
@@ -799,23 +712,411 @@ button:active {
 
 .movie-bank {
 
-    margin-top:35px;
+    margin-top:
 
-    background:#111827;
+        35px;
 
-    padding:18px;
+    background:
 
-    border-radius:18px;
+        #111827;
+
+    padding:
+
+        18px;
+
+    border-radius:
+
+        18px;
 
 }
+
+
 
 
 
 .movie-bank h2 {
 
-    margin-top:0;
+    margin-top:
+
+        0;
 
 }
+
+/* ==================================
+   MODAL
+================================== */
+
+
+.modal-overlay {
+
+    position:
+
+        fixed;
+
+    inset:
+
+        0;
+
+    background:
+
+        rgba(0,0,0,0.65);
+
+    display:
+
+        flex;
+
+    justify-content:
+
+        center;
+
+    align-items:
+
+        center;
+
+    z-index:
+
+        10000;
+
+}
+
+
+
+
+
+.modal {
+
+    width:
+
+        min(90%,450px);
+
+    background:
+
+        #111827;
+
+    padding:
+
+        25px;
+
+    border-radius:
+
+        18px;
+
+    box-shadow:
+
+        0 20px 50px rgba(0,0,0,0.6);
+
+}
+
+
+
+
+
+.modal h2 {
+
+    margin-top:
+
+        0;
+
+}
+
+
+
+
+
+#modalContent {
+
+    margin:
+
+        20px 0;
+
+}
+
+
+
+
+
+.modal-buttons {
+
+    display:
+
+        flex;
+
+    justify-content:
+
+        flex-end;
+
+    gap:
+
+        10px;
+
+}
+
+
+
+
+
+.modal-buttons button {
+
+    padding:
+
+        10px 18px;
+
+    border-radius:
+
+        10px;
+
+    font-weight:
+
+        600;
+
+}
+
+
+
+
+
+#modalCancel {
+
+    background:
+
+        #374151;
+
+    color:
+
+        white;
+
+}
+
+
+
+
+
+#modalConfirm {
+
+    background:
+
+        #2563eb;
+
+    color:
+
+        white;
+
+}
+
+
+
+
+
+
+
+
+/* ==================================
+   INPUTS
+================================== */
+
+
+.modal input,
+.modal textarea {
+
+    width:
+
+        100%;
+
+    padding:
+
+        12px;
+
+    border:
+
+        none;
+
+    outline:
+
+        none;
+
+    border-radius:
+
+        10px;
+
+    background:
+
+        #1f2937;
+
+    color:
+
+        white;
+
+    font-size:
+
+        16px;
+
+}
+
+
+
+
+
+.modal textarea {
+
+    min-height:
+
+        160px;
+
+    resize:
+
+        vertical;
+
+}
+
+
+
+
+
+.modal input[type="color"] {
+
+    height:
+
+        45px;
+
+    padding:
+
+        4px;
+
+}
+
+
+
+
+
+
+
+
+/* ==================================
+   BUTTON POLISH
+================================== */
+
+
+button:active {
+
+    transform:
+
+        scale(0.96);
+
+}
+
+
+
+button:focus-visible {
+
+    outline:
+
+        2px solid #60a5fa;
+
+    outline-offset:
+
+        2px;
+
+}
+
+
+
+
+
+
+
+
+/* ==================================
+   SCROLLBAR
+================================== */
+
+
+* {
+
+    scrollbar-width:
+
+        thin;
+
+    scrollbar-color:
+
+        #374151 transparent;
+
+}
+
+
+
+
+
+::-webkit-scrollbar {
+
+    width:
+
+        8px;
+
+    height:
+
+        8px;
+
+}
+
+
+
+
+
+::-webkit-scrollbar-track {
+
+    background:
+
+        transparent;
+
+}
+
+
+
+
+
+::-webkit-scrollbar-thumb {
+
+    background:
+
+        #374151;
+
+    border-radius:
+
+        10px;
+
+}
+
+
+
+
+
+
+
+
+
+/* ==================================
+   TOUCH DEVICES
+================================== */
+
+
+@media (hover:none) {
+
+
+    .movie-menu,
+    .tier-menu {
+
+        opacity:
+
+            1;
+
+    }
+
+
+}
+
+
+
+
 
 
 
@@ -831,15 +1132,9 @@ button:active {
 
     main {
 
-        padding:12px;
+        padding:
 
-    }
-
-
-
-    .top-buttons button {
-
-        width:100%;
+            12px;
 
     }
 
@@ -847,25 +1142,167 @@ button:active {
 
     header h1 {
 
-        font-size:26px;
+        font-size:
+
+            26px;
 
     }
+
+
+
+
+
+    .top-buttons {
+
+        flex-direction:
+
+            column;
+
+    }
+
+
+
+
+
+    .top-buttons button {
+
+        width:
+
+            100%;
+
+    }
+
+
+
+
+
+    .tier {
+
+        min-height:
+
+            110px;
+
+    }
+
+
 
 
 
     .tier-label {
 
-        min-width:60px;
+        width:
+
+            65px;
 
     }
+
+
+
+
+
+    .tier-label h2 {
+
+        font-size:
+
+            26px;
+
+    }
+
+
 
 
 
     .movie-card {
 
-        min-width:85px;
+        width:
+
+            85px;
 
     }
 
+
+
+
+
+    .poster {
+
+        height:
+
+            105px;
+
+    }
+
+
+
+
+
+    .modal {
+
+        padding:
+
+            18px;
+
+    }
+
+
+
+
+
+    .modal-buttons {
+
+        flex-direction:
+
+            column;
+
+    }
+
+
+
+
+
+    .modal-buttons button {
+
+        width:
+
+            100%;
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+/* ==================================
+   SMALL POLISH
+================================== */
+
+
+html {
+
+    scroll-behavior:
+
+        smooth;
+
+}
+
+
+
+
+
+::selection {
+
+    background:
+
+        #2563eb;
+
+    color:
+
+        white;
 
 }
