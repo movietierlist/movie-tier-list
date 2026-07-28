@@ -555,3 +555,57 @@ body[data-device="mobile"] .movie-card {
     min-width: 85px;
 
 }
+
+/* -----------------------------
+   Context Menu
+----------------------------- */
+
+.context-menu {
+
+    position: absolute;
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 170px;
+
+    background: #1f2937;
+
+    border: 1px solid #374151;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    z-index: 9999;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+
+}
+
+
+
+.context-menu button {
+
+    background: transparent;
+
+    color: white;
+
+    border: none;
+
+    text-align: left;
+
+    padding: 12px 16px;
+
+    font-size: 14px;
+
+}
+
+
+
+.context-menu button:hover {
+
+    background: #334155;
+
+}
