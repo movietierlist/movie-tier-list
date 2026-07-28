@@ -1309,3 +1309,10 @@ html {
         white;
 
 }
+
+
+.movies {
+    direction: ltr !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+}
