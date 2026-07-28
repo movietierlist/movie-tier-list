@@ -339,6 +339,10 @@ button {
 
     display: flex;
 
+    flex-direction: row;
+
+    justify-content: flex-start;
+
     gap: 12px;
 
     min-height: 110px;
@@ -350,7 +354,6 @@ button {
     padding: 10px;
 
 }
-
 
 
 .movies:empty {
