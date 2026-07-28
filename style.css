@@ -1,8 +1,28 @@
+
+/* ==================================
+   FONT IMPORT
+================================== */
+
+
+@import url(
+    'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
+);
+
+
+
+
+
+/* ==================================
+   GLOBAL
+================================== */
+
+
 * {
 
     box-sizing: border-box;
 
     font-family:
+        "Manrope",
         -apple-system,
         BlinkMacSystemFont,
         "Segoe UI",
@@ -16,9 +36,9 @@ body {
 
     margin: 0;
 
-    background: #121212;
+    background: #050505;
 
-    color: #f3f4f6;
+    color: white;
 
 }
 
@@ -28,7 +48,7 @@ header {
 
     text-align: center;
 
-    padding: 20px;
+    padding: 25px 15px;
 
 }
 
@@ -38,24 +58,41 @@ header h1 {
 
     margin: 0;
 
+    font-size: 32px;
+
+    font-weight: 700;
+
 }
 
 
 
 main {
 
-    max-width: 1200px;
+    max-width: 1300px;
 
     margin: auto;
 
-    padding: 15px;
+    padding: 20px;
 
 }
 
 
 
 
-/* Top buttons */
+
+/* ==================================
+   BUTTONS
+================================== */
+
+
+button {
+
+    cursor: pointer;
+
+    font-family: inherit;
+
+}
+
 
 
 .top-buttons {
@@ -64,17 +101,11 @@ main {
 
     justify-content: center;
 
-    gap: 10px;
+    gap: 12px;
 
     flex-wrap: wrap;
 
-}
-
-
-
-button {
-
-    cursor: pointer;
+    margin-bottom: 20px;
 
 }
 
@@ -82,15 +113,31 @@ button {
 
 .top-buttons button {
 
-    padding: 12px 18px;
-
     border: none;
 
-    border-radius: 10px;
+    padding: 12px 18px;
+
+    border-radius: 12px;
 
     color: white;
 
     font-size: 15px;
+
+    font-weight: 600;
+
+    transition:
+        transform 0.15s,
+        opacity 0.15s;
+
+}
+
+
+
+.top-buttons button:hover {
+
+    transform: translateY(-2px);
+
+    opacity: 0.9;
 
 }
 
@@ -99,6 +146,14 @@ button {
 #addMovie {
 
     background: #2563eb;
+
+}
+
+
+
+#addMultipleMovies {
+
+    background: #7c3aed;
 
 }
 
@@ -122,20 +177,30 @@ button {
 
 
 
-/* Settings */
+/* ==================================
+   SETTINGS
+================================== */
 
 
 .settings-panel {
 
-    background: #1f2937;
+    background: #111827;
 
-    padding: 15px;
+    padding: 18px;
 
-    margin: 15px auto;
+    border-radius: 15px;
 
-    border-radius: 12px;
+    max-width: 320px;
 
-    max-width: 300px;
+    margin: 20px auto;
+
+}
+
+
+
+.settings-panel h3 {
+
+    margin-top: 0;
 
 }
 
@@ -151,21 +216,46 @@ button {
 
 
 
+/* ==================================
+   TIERS
+================================== */
 
-/* Tiers */
+
+#tierContainer {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+}
+
 
 
 .tier {
 
+    min-height: 150px;
+
+    border-radius: 14px;
+
+    padding: 12px;
+
     display: flex;
 
-    margin: 12px 0;
+    flex-direction: column;
 
-    background: #181818;
+    transition:
+        transform 0.2s,
+        opacity 0.2s;
 
-    border-radius: 10px;
+}
 
-    overflow: hidden;
+
+
+.tier.dragging {
+
+    opacity: 0.5;
 
 }
 
@@ -173,19 +263,13 @@ button {
 
 .tier-title {
 
-    width: 110px;
-
-    min-width: 110px;
-
     display: flex;
 
-    flex-direction: column;
-
-    justify-content: center;
+    justify-content: space-between;
 
     align-items: center;
 
-    position: relative;
+    margin-bottom: 5px;
 
 }
 
@@ -195,79 +279,27 @@ button {
 
     margin: 0;
 
-    font-size: 42px;
-
-    font-weight: 700;
+    font-size: 24px;
 
 }
+
 
 
 .tier-menu {
 
-    position: absolute;
+    width: 34px;
 
-    top: 8px;
-
-    right: 8px;
-
-    width: 30px;
-
-    height: 30px;
-
-    border: none;
+    height: 34px;
 
     border-radius: 50%;
 
-    background: rgba(0,0,0,.4);
+    border: none;
+
+    background: rgba(0,0,0,0.45);
 
     color: white;
 
-}
-
-
-
-
-/* Tier colours */
-
-
-.s {
-
-    background: #7f1d1d;
-
-}
-
-
-.a {
-
-    background: #9a3412;
-
-}
-
-
-.b {
-
-    background: #854d0e;
-
-}
-
-
-.c {
-
-    background: #166534;
-
-}
-
-
-.d {
-
-    background: #1e40af;
-
-}
-
-
-.f {
-
-    background: #374151;
+    font-size: 20px;
 
 }
 
@@ -275,73 +307,93 @@ button {
 
 
 
-/* Movie rows */
+/* ==================================
+   MOVIE ROWS
+================================== */
 
 
 .movies {
 
-    flex: 1;
-
     display: flex;
 
-    flex-wrap: wrap;
-
-    gap: 10px;
-
-    align-items: flex-start;
-
-    min-height: 120px;
+    gap: 12px;
 
     padding: 10px;
 
-    background: #111111;
+    min-height: 130px;
+
+    overflow-x: auto;
+
+    align-items: center;
 
 }
 
 
 
+.movies::-webkit-scrollbar {
+
+    height: 8px;
+
+}
 
 
 
-/* Movie cards */
+.movies::-webkit-scrollbar-thumb {
+
+    background: #374151;
+
+    border-radius: 10px;
+
+}
+
+/* ==================================
+   MOVIE CARDS
+================================== */
 
 
 .movie-card {
 
     position: relative;
 
-    width: 95px;
+    min-width: 100px;
 
-    background: #202020;
+    background: #111827;
 
-    border-radius: 6px;
+    border-radius: 12px;
 
     overflow: hidden;
 
     cursor: grab;
 
-    transition: transform .15s;
+    transition:
+        transform 0.15s,
+        opacity 0.15s;
 
 }
+
+
 
 .movie-card:hover {
 
-    transform: scale(1.04);
+    transform: translateY(-3px);
 
 }
 
-.movie-card:active {
 
-    cursor: grabbing;
+
+.movie-card.dragging {
+
+    opacity: 0.5;
 
 }
-
 
 
 
 .poster {
 
-    height: 125px;
+    height: 130px;
+
+    width: 100%;
 
     display: flex;
 
@@ -349,30 +401,43 @@ button {
 
     align-items: center;
 
-    background: #334155;
+    background: #1f2937;
 
-    font-size: 35px;
+    font-size: 40px;
 
 }
-
-
 
 
 
 .movie-title {
 
-    padding: 6px;
+    padding: 8px;
 
     text-align: center;
 
     font-size: 13px;
+
+    font-weight: 600;
+
+    word-break: break-word;
+
+}
+
+
+
+.poster-only .movie-title {
+
+    display: none;
 
 }
 
 
 
 
-/* Movie menu */
+
+/* ==================================
+   MOVIE / TIER BUTTONS
+================================== */
 
 
 .movie-menu {
@@ -383,15 +448,16 @@ button {
 
     right: 6px;
 
-    width: 28px;
+    width: 30px;
 
-    height: 28px;
+    height: 30px;
 
     border-radius: 50%;
 
     border: none;
 
-    background: #0009;
+    background:
+        rgba(0,0,0,0.65);
 
     color: white;
 
@@ -399,7 +465,8 @@ button {
 
     opacity: 0;
 
-    transition: opacity 0.2s;
+    transition:
+        opacity 0.2s;
 
 }
 
@@ -413,38 +480,39 @@ button {
 
 
 
-/* Always visible on touch devices */
+.tier-menu {
+
+    opacity: 0;
+
+    transition:
+        opacity 0.2s;
+
+}
 
 
-@media (hover: none) {
+
+.tier:hover .tier-menu {
+
+    opacity: 1;
+
+}
 
 
-    .movie-menu {
+
+
+
+/* Touch devices */
+
+@media (hover:none) {
+
+
+    .movie-menu,
+    .tier-menu {
 
         opacity: 1;
 
     }
 
-}
-
-
-
-
-
-/* Poster only mode */
-
-
-.poster-only .movie-title {
-
-    display: none;
-
-}
-
-
-
-.poster-only {
-
-    min-width: 95px;
 
 }
 
@@ -452,18 +520,243 @@ button {
 
 
 
-/* Movie bank */
+
+/* ==================================
+   CONTEXT MENUS
+================================== */
+
+
+.context-menu {
+
+    position: absolute;
+
+    z-index: 9999;
+
+    background: #111827;
+
+    border-radius: 12px;
+
+    padding: 6px;
+
+    min-width: 180px;
+
+    box-shadow:
+        0 15px 35px rgba(0,0,0,0.45);
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+}
+
+
+
+.context-menu button {
+
+    background: transparent;
+
+    color: white;
+
+    border: none;
+
+    padding: 11px 14px;
+
+    border-radius: 8px;
+
+    text-align: left;
+
+    font-size: 14px;
+
+}
+
+
+
+.context-menu button:hover {
+
+    background: #374151;
+
+}
+
+
+
+
+
+
+/* ==================================
+   MODAL
+================================== */
+
+
+.modal-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,0.65);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 10000;
+
+}
+
+
+
+.modal {
+
+    background: #111827;
+
+    width: min(90%, 450px);
+
+    padding: 25px;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.5);
+
+}
+
+
+
+.modal h2 {
+
+    margin-top: 0;
+
+}
+
+
+
+#modalContent {
+
+    margin: 20px 0;
+
+}
+
+
+
+.modal-buttons {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+}
+
+
+
+.modal-buttons button {
+
+    border: none;
+
+    padding: 10px 18px;
+
+    border-radius: 10px;
+
+    font-weight: 600;
+
+}
+
+
+
+#modalCancel {
+
+    background: #374151;
+
+    color: white;
+
+}
+
+
+
+#modalConfirm {
+
+    background: #2563eb;
+
+    color: white;
+
+}
+
+
+
+
+
+
+/* ==================================
+   INPUTS
+================================== */
+
+
+.modal input,
+.modal textarea {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    outline: none;
+
+    background: #1f2937;
+
+    color: white;
+
+    font-size: 16px;
+
+}
+
+
+
+.modal textarea {
+
+    min-height: 160px;
+
+    resize: vertical;
+
+}
+
+
+
+.modal input[type="color"] {
+
+    height: 45px;
+
+    padding: 4px;
+
+}
+
+
+
+
+
+
+/* ==================================
+   MOVIE BANK
+================================== */
 
 
 .movie-bank {
 
-    margin-top: 40px;
+    margin-top: 35px;
 
-    padding: 15px;
+    background: #111827;
 
-    background: #1f2937;
+    padding: 18px;
 
-    border-radius: 15px;
+    border-radius: 18px;
 
 }
 
@@ -480,37 +773,65 @@ button {
 
 
 
+/* ==================================
+   RESPONSIVE
+================================== */
 
-/* Mobile */
 
-
-@media(max-width:600px) {
+@media(max-width:700px) {
 
 
     main {
 
-        padding: 10px;
+        padding: 12px;
 
     }
+
+
+
+    header h1 {
+
+        font-size: 26px;
+
+    }
+
+
+
+    .top-buttons {
+
+        gap: 8px;
+
+    }
+
+
+
+    .top-buttons button {
+
+        width: 100%;
+
+    }
+
 
 
     .movie-card {
 
-        min-width: 80px;
+        min-width: 85px;
 
     }
+
 
 
     .poster {
 
-        height: 105px;
+        height: 110px;
 
     }
 
 
-    .movie-title {
 
-        font-size: 12px;
+    .tier-title h2 {
+
+        font-size: 21px;
 
     }
 
@@ -518,255 +839,266 @@ button {
 }
 
 
-/* Device specific behaviour */
+
+/* ==================================
+   GLOBAL POLISH
+================================== */
 
 
-/* Desktop / laptop */
+html {
 
-body[data-device="desktop"] .movie-menu,
-body[data-device="desktop"] .tier-menu {
-
-    opacity: 0;
-
-    transition: opacity 0.2s;
+    scroll-behaviour: smooth;
 
 }
 
 
 
-body[data-device="desktop"] .movie-card:hover .movie-menu,
-body[data-device="desktop"] .tier:hover .tier-menu {
-
-    opacity: 1;
-
-}
-
-
-
-
-
-/* Tablet / iPad */
-
-
-body[data-device="tablet"] .movie-menu,
-body[data-device="tablet"] .tier-menu {
-
-    opacity: 1;
-
-    width: 36px;
-
-    height: 36px;
-
-}
-
-
-
-
-
-/* Mobile / iPhone */
-
-
-body[data-device="mobile"] .movie-menu,
-body[data-device="mobile"] .tier-menu {
-
-    opacity: 1;
-
-    width: 38px;
-
-    height: 38px;
-
-}
-
-
-
-body[data-device="mobile"] .movie-card {
-
-    min-width: 85px;
-
-}
-
-/* -----------------------------
-   Context Menu
------------------------------ */
-
-.context-menu {
-
-    position: absolute;
-
-    display: flex;
-
-    flex-direction: column;
-
-    min-width: 170px;
-
-    background: #1f2937;
-
-    border: 1px solid #374151;
-
-    border-radius: 12px;
-
-    overflow: hidden;
-
-    z-index: 9999;
-
-    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-
-}
-
-
-
-.context-menu button {
-
-    background: transparent;
-
-    color: white;
-
-    border: none;
-
-    text-align: left;
-
-    padding: 12px 16px;
-
-    font-size: 14px;
-
-}
-
-
-
-.context-menu button:hover {
-
-    background: #334155;
-
-}
-
-
-/* -----------------------------
-   MODAL SYSTEM
------------------------------ */
-
-.modal-overlay {
-
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(0,0,0,0.65);
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    z-index: 1000;
-
-}
-
-
-.modal-overlay.hidden {
-
-    display: none;
-
-}
-
-
-
-.modal {
-
-    width: 90%;
-
-    max-width: 420px;
-
-    background: #1c1c1c;
-
-    border: 1px solid #333;
-
-    border-radius: 10px;
-
-    padding: 24px;
-
-    color: white;
-
-}
-
-
-
-.modal h2 {
-
-    margin-top: 0;
-
-    font-size: 24px;
-
-    font-weight: 800;
-
-}
-
-
-
-#modalContent input {
-
-    width: 100%;
-
-    padding: 12px;
-
-    margin-top: 15px;
-
-    background: #111;
-
-    border: 1px solid #444;
-
-    border-radius: 6px;
-
-    color: white;
-
-    font-size: 16px;
-
-}
-
-
-
-.modal-buttons {
-
-    display: flex;
-
-    justify-content: flex-end;
-
-    gap: 10px;
-
-    margin-top: 20px;
-
-}
-
-
-
-.modal-buttons button {
-
-    padding: 10px 18px;
-
-    border: none;
-
-    border-radius: 6px;
-
-    font-weight: 700;
-
-}
-
-
-
-#modalCancel {
-
-    background: #333;
-
-    color: white;
-
-}
-
-
-
-#modalConfirm {
+::selection {
 
     background: #2563eb;
 
     color: white;
+
+}
+
+
+
+
+/* ==================================
+   BUTTON POLISH
+================================== */
+
+
+button:active {
+
+    transform: scale(0.96);
+
+}
+
+
+
+button:focus-visible {
+
+    outline:
+
+        2px solid #60a5fa;
+
+    outline-offset:
+
+        2px;
+
+}
+
+
+
+
+
+/* ==================================
+   EMPTY DROP AREAS
+================================== */
+
+
+.movies:empty {
+
+    border:
+
+        2px dashed rgba(255,255,255,0.15);
+
+    border-radius:
+
+        12px;
+
+}
+
+
+
+.movies:empty::after {
+
+    content:
+
+        "Drop movies here";
+
+    color:
+
+        rgba(255,255,255,0.35);
+
+    margin:
+
+        auto;
+
+    font-size:
+
+        14px;
+
+}
+
+
+
+
+
+/* ==================================
+   DRAG FEEDBACK
+================================== */
+
+
+.tier:hover {
+
+    filter:
+
+        brightness(1.05);
+
+}
+
+
+
+.movie-card:hover {
+
+    box-shadow:
+
+        0 8px 20px rgba(0,0,0,0.35);
+
+}
+
+
+
+
+
+/* ==================================
+   SCROLLBAR
+================================== */
+
+
+* {
+
+    scrollbar-width:
+
+        thin;
+
+    scrollbar-color:
+
+        #374151 transparent;
+
+}
+
+
+
+::-webkit-scrollbar {
+
+    width:
+
+        8px;
+
+    height:
+
+        8px;
+
+}
+
+
+
+::-webkit-scrollbar-track {
+
+    background:
+
+        transparent;
+
+}
+
+
+
+::-webkit-scrollbar-thumb {
+
+    background:
+
+        #374151;
+
+    border-radius:
+
+        10px;
+
+}
+
+
+
+
+
+/* ==================================
+   COLOUR INPUT
+================================== */
+
+
+input[type="color"] {
+
+    cursor:
+
+        pointer;
+
+}
+
+
+
+
+
+/* ==================================
+   DESKTOP MENU BEHAVIOUR
+================================== */
+
+
+@media (hover:hover) {
+
+
+    .movie-card:hover .movie-menu,
+    .tier:hover .tier-menu {
+
+        opacity:
+
+            1;
+
+    }
+
+
+}
+
+
+
+
+
+/* ==================================
+   SMALL SCREEN IMPROVEMENTS
+================================== */
+
+
+@media(max-width:450px) {
+
+
+    .modal {
+
+        padding:
+
+            18px;
+
+    }
+
+
+
+    .modal-buttons {
+
+        flex-direction:
+
+            column;
+
+    }
+
+
+
+    .modal-buttons button {
+
+        width:
+
+            100%;
+
+    }
+
+
 
 }
