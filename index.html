@@ -1,204 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Movie Tier List</title>
-
     <link rel="stylesheet" href="style.css">
-
 </head>
-
-
 <body>
-
-
 <header>
-
     <h1>🎬 Movie Tier List</h1>
-
 </header>
-
-
-
 <main>
-
-
     <!-- TOP CONTROLS -->
-
     <div class="top-buttons">
-
-
         <button id="addMovie">
             + Add Movie
         </button>
-
-
         <button id="addMultipleMovies">
             + Bulk Import
         </button>
-
-
         <button id="addTier">
             + Add Tier
         </button>
-
-
+        <button id="deleteMovies">
+            🗑 Delete Movies
+        </button>
         <button id="settingsButton">
             ⚙ Settings
         </button>
-
-
     </div>
-
-
-
-
-
     <!-- SETTINGS PANEL -->
-
-
     <div 
         id="settingsPanel"
         class="settings-panel hidden">
-
-
         <h3>
             Card Layout
         </h3>
-
-
-
         <label>
-
             <input
                 type="radio"
                 name="cardStyle"
                 value="title"
                 checked>
-
             Poster + Title
-
         </label>
-
-
-
         <br>
-
-
-
         <label>
-
             <input
                 type="radio"
                 name="cardStyle"
                 value="poster">
-
             Poster Only
-
         </label>
-
-
     </div>
-
-
-
-
-
     <!-- TIERS -->
-
-
     <div id="tierContainer"></div>
-
-
-
-
-
     <!-- MOVIE BANK -->
-
-
     <section class="movie-bank">
-
-
         <h2>
             Unranked
         </h2>
-
-
         <div 
             id="movieBank"
             class="movies">
-
         </div>
-
-
     </section>
-
-
-
-
 </main>
-
-
-
-
-
 <!-- MODAL -->
-
-
 <div 
     id="modalOverlay"
     class="modal-overlay hidden">
-
-
     <div class="modal">
-
-
         <h2 id="modalTitle"></h2>
-
-
-
         <div id="modalContent"></div>
-
-
-
         <div class="modal-buttons">
-
-
             <button id="modalCancel">
-
                 Cancel
-
             </button>
-
-
-
             <button id="modalConfirm">
-
                 Save
-
             </button>
-
-
         </div>
-
-
     </div>
-
-
 </div>
-
-
-
-
-
 <script src="script.js"></script>
-
-
 </body>
-
 </html>
