@@ -1,6 +1,6 @@
 /* ==================================
    MOVIE TIER LIST APP
-   Version 2.0 TierMaker Update
+   Version 2.1 TierMaker Clean Build
 
    SCRIPT PART 1/5
 ================================== */
@@ -12,47 +12,31 @@
 
 
 const addMovieButton =
-    document.getElementById(
-        "addMovie"
-    );
+    document.getElementById("addMovie");
 
 
 const addMultipleMoviesButton =
-    document.getElementById(
-        "addMultipleMovies"
-    );
+    document.getElementById("addMultipleMovies");
 
 
 const addTierButton =
-    document.getElementById(
-        "addTier"
-    );
+    document.getElementById("addTier");
 
 
 const settingsButton =
-    document.getElementById(
-        "settingsButton"
-    );
+    document.getElementById("settingsButton");
 
 
 const settingsPanel =
-    document.getElementById(
-        "settingsPanel"
-    );
+    document.getElementById("settingsPanel");
 
 
 const tierContainer =
-    document.getElementById(
-        "tierContainer"
-    );
+    document.getElementById("tierContainer");
 
 
 const movieBank =
-    document.getElementById(
-        "movieBank"
-    );
-
-
+    document.getElementById("movieBank");
 
 
 
@@ -62,38 +46,27 @@ const movieBank =
 
 
 const modalOverlay =
-    document.getElementById(
-        "modalOverlay"
-    );
+    document.getElementById("modalOverlay");
 
 
 const modalTitle =
-    document.getElementById(
-        "modalTitle"
-    );
+    document.getElementById("modalTitle");
 
 
 const modalContent =
-    document.getElementById(
-        "modalContent"
-    );
+    document.getElementById("modalContent");
 
 
 const modalCancel =
-    document.getElementById(
-        "modalCancel"
-    );
+    document.getElementById("modalCancel");
 
 
 const modalConfirm =
-    document.getElementById(
-        "modalConfirm"
-    );
+    document.getElementById("modalConfirm");
 
 
 
 let modalAction = null;
-
 
 
 
@@ -138,22 +111,14 @@ function openModal(
 
     if(input) {
 
-
         setTimeout(
-            () => {
-
-                input.focus();
-
-            },
+            () => input.focus(),
             50
         );
 
-
     }
 
-
 }
-
 
 
 
@@ -173,15 +138,13 @@ function closeModal() {
     modalAction =
         null;
 
-
 }
 
 
 
 
-
 modalCancel.onclick =
-function() {
+function(){
 
     closeModal();
 
@@ -191,12 +154,11 @@ function() {
 
 
 
-
 modalConfirm.onclick =
-function() {
+function(){
 
 
-    if(modalAction) {
+    if(modalAction){
 
         modalAction();
 
@@ -215,14 +177,14 @@ function() {
 
 document.addEventListener(
     "keydown",
-    function(event) {
+    function(event){
 
 
         if(
             modalOverlay.classList.contains(
                 "hidden"
             )
-        ) {
+        ){
 
             return;
 
@@ -230,7 +192,7 @@ document.addEventListener(
 
 
 
-        if(event.key === "Escape") {
+        if(event.key === "Escape"){
 
             closeModal();
 
@@ -241,7 +203,7 @@ document.addEventListener(
         if(
             event.key === "Enter" &&
             event.target.tagName !== "TEXTAREA"
-        ) {
+        ){
 
             modalConfirm.click();
 
@@ -256,9 +218,8 @@ document.addEventListener(
 
 
 
-
 /* ==================================
-   CONTEXT MENUS
+   CONTEXT MENU SYSTEM
 ================================== */
 
 
@@ -267,18 +228,14 @@ let activeMenu = null;
 
 
 
+function closeMenus(){
 
-function closeMenus() {
 
-
-    if(activeMenu) {
-
+    if(activeMenu){
 
         activeMenu.remove();
 
-
         activeMenu = null;
-
 
     }
 
@@ -288,29 +245,18 @@ function closeMenus() {
 
 
 
-
 document.addEventListener(
     "click",
-    function(event) {
+    function(event){
 
 
         if(
-            !event.target.closest(
-                ".context-menu"
-            )
-            &&
-            !event.target.closest(
-                ".movie-menu"
-            )
-            &&
-            !event.target.closest(
-                ".tier-menu"
-            )
-        ) {
-
+            !event.target.closest(".context-menu") &&
+            !event.target.closest(".movie-menu") &&
+            !event.target.closest(".tier-menu")
+        ){
 
             closeMenus();
-
 
         }
 
@@ -323,11 +269,10 @@ document.addEventListener(
 
 
 
-
 function showMenu(
     button,
     items
-) {
+){
 
 
     closeMenus();
@@ -335,10 +280,7 @@ function showMenu(
 
 
     const menu =
-        document.createElement(
-            "div"
-        );
-
+        document.createElement("div");
 
 
     menu.className =
@@ -351,9 +293,7 @@ function showMenu(
 
 
             const option =
-                document.createElement(
-                    "button"
-                );
+                document.createElement("button");
 
 
 
@@ -363,7 +303,7 @@ function showMenu(
 
 
             option.onclick =
-            function(event) {
+            function(event){
 
 
                 event.stopPropagation();
@@ -379,9 +319,7 @@ function showMenu(
 
 
 
-            menu.appendChild(
-                option
-            );
+            menu.appendChild(option);
 
 
         }
@@ -389,9 +327,7 @@ function showMenu(
 
 
 
-    document.body.appendChild(
-        menu
-    );
+    document.body.appendChild(menu);
 
 
 
@@ -400,35 +336,10 @@ function showMenu(
 
 
 
-    let left =
-        rect.left +
-        window.scrollX;
-
-
-
-    const width =
-        180;
-
-
-
-    if(
-        left + width >
-        window.innerWidth - 10
-    ) {
-
-
-        left =
-            window.innerWidth -
-            width -
-            10;
-
-
-    }
-
-
-
     menu.style.left =
-        left + "px";
+        rect.left +
+        window.scrollX +
+        "px";
 
 
 
@@ -444,11 +355,6 @@ function showMenu(
 
 
 }
-
-
-
-
-
 
 /* ==================================
    DATA SYSTEM
@@ -489,9 +395,7 @@ let data =
         },
 
 
-
         tiers: [
-
 
             {
                 id: 1,
@@ -500,14 +404,12 @@ let data =
                 order: 0
             },
 
-
             {
                 id: 2,
                 name: "A",
                 colour: "#f97316",
                 order: 1
             },
-
 
             {
                 id: 3,
@@ -516,14 +418,12 @@ let data =
                 order: 2
             },
 
-
             {
                 id: 4,
                 name: "C",
                 colour: "#22c55e",
                 order: 3
             },
-
 
             {
                 id: 5,
@@ -532,7 +432,6 @@ let data =
                 order: 4
             },
 
-
             {
                 id: 6,
                 name: "F",
@@ -540,9 +439,7 @@ let data =
                 order: 5
             }
 
-
         ],
-
 
 
         movies: []
@@ -555,30 +452,145 @@ let data =
 
 
 
-function save() {
-
+function save(){
 
     localStorage.setItem(
         "movieClub",
         JSON.stringify(data)
     );
 
-
 }
 
+
+
+
+
+
+
 /* ==================================
-   TIER SYSTEM
+   DATA CLEANUP
 ================================== */
 
 
+function cleanupData(){
 
-function createTier(tier) {
+
+    if(!data.settings){
+
+        data.settings = {
+
+            cardStyle:
+                "title"
+
+        };
+
+    }
+
+
+
+    if(!data.tiers){
+
+        data.tiers = [];
+
+    }
+
+
+
+    if(!data.movies){
+
+        data.movies = [];
+
+    }
+
+
+
+
+    data.tiers.forEach(
+        (tier,index)=>{
+
+
+            if(
+                tier.order === undefined
+            ){
+
+                tier.order =
+                    index;
+
+            }
+
+
+
+            if(!tier.colour){
+
+                tier.colour =
+                    "#6b7280";
+
+            }
+
+
+        }
+    );
+
+
+
+
+
+    data.movies.forEach(
+        movie=>{
+
+
+            if(
+                movie.order === undefined
+            ){
+
+                movie.order =
+                    0;
+
+            }
+
+
+
+            if(
+                movie.tier === undefined
+            ){
+
+                movie.tier =
+                    null;
+
+            }
+
+
+        }
+    );
+
+
+
+    save();
+
+
+}
+
+
+
+
+cleanupData();
+
+
+
+
+
+
+
+/* ==================================
+   TIER CREATION
+================================== */
+
+
+function createTier(tier){
 
 
     const section =
-        document.createElement(
-            "section"
-        );
+        document.createElement("section");
 
 
 
@@ -593,17 +605,19 @@ function createTier(tier) {
 
 
 
+
     section.innerHTML = `
 
 
-        <div 
+        <div
             class="tier-label"
             style="background:${tier.colour}"
         >
 
 
-            <button 
-                class="tier-grab"
+            <button
+                class="grab-handle"
+                draggable="true"
                 title="Drag to reorder tiers"
             >
                 ⠿
@@ -647,10 +661,12 @@ function createTier(tier) {
 
 
 
+
     setupTierDragging(
         section,
         tier
     );
+
 
 
 
@@ -663,7 +679,7 @@ function createTier(tier) {
 
 
     menuButton.onclick =
-    function(event) {
+    function(event){
 
 
         event.stopPropagation();
@@ -676,6 +692,7 @@ function createTier(tier) {
 
 
     };
+
 
 
 
@@ -695,6 +712,8 @@ function createTier(tier) {
 
 
 
+
+
     tierContainer.appendChild(
         section
     );
@@ -702,15 +721,8 @@ function createTier(tier) {
 
 }
 
-
-
-
-
-
-
-
 /* ==================================
-   TIER REORDERING
+   TIER DRAGGING SYSTEM
 ================================== */
 
 
@@ -720,31 +732,22 @@ let draggedTier = null;
 
 
 
-
 function setupTierDragging(
     element,
     tier
-) {
-
+){
 
 
     const grabHandle =
         element.querySelector(
-            ".tier-grab"
+            ".grab-handle"
         );
-
-
-
-    grabHandle.draggable =
-        true;
-
-
 
 
 
     grabHandle.addEventListener(
         "dragstart",
-        function(event) {
+        function(event){
 
 
             draggedTier =
@@ -769,15 +772,15 @@ function setupTierDragging(
 
 
 
-
     grabHandle.addEventListener(
         "dragend",
-        function() {
+        function(){
 
 
             element.classList.remove(
                 "dragging"
             );
+
 
 
             draggedTier =
@@ -792,13 +795,12 @@ function setupTierDragging(
 
 
 
-
     element.addEventListener(
         "dragover",
-        function(event) {
+        function(event){
 
 
-            if(!draggedTier) {
+            if(!draggedTier){
 
                 return;
 
@@ -817,10 +819,9 @@ function setupTierDragging(
 
 
 
-
     element.addEventListener(
         "drop",
-        function(event) {
+        function(event){
 
 
             event.preventDefault();
@@ -830,7 +831,7 @@ function setupTierDragging(
             if(
                 !draggedTier ||
                 draggedTier.id === tier.id
-            ) {
+            ){
 
                 return;
 
@@ -839,14 +840,16 @@ function setupTierDragging(
 
 
 
-            const tiers =
+
+            const newOrder =
                 [...data.tiers];
 
 
 
 
+
             const from =
-                tiers.findIndex(
+                newOrder.findIndex(
                     t =>
                     t.id === draggedTier.id
                 );
@@ -854,7 +857,7 @@ function setupTierDragging(
 
 
             const to =
-                tiers.findIndex(
+                newOrder.findIndex(
                     t =>
                     t.id === tier.id
                 );
@@ -863,14 +866,14 @@ function setupTierDragging(
 
 
 
-            tiers.splice(
+            newOrder.splice(
                 from,
                 1
             );
 
 
 
-            tiers.splice(
+            newOrder.splice(
                 to,
                 0,
                 draggedTier
@@ -880,13 +883,11 @@ function setupTierDragging(
 
 
 
-            tiers.forEach(
-                (t,index) => {
+            newOrder.forEach(
+                (tier,index)=>{
 
-
-                    t.order =
+                    tier.order =
                         index;
-
 
                 }
             );
@@ -894,12 +895,11 @@ function setupTierDragging(
 
 
             data.tiers =
-                tiers;
+                newOrder;
 
 
 
             save();
-
 
             render();
 
@@ -917,6 +917,7 @@ function setupTierDragging(
 
 
 
+
 /* ==================================
    TIER MENU
 ================================== */
@@ -925,7 +926,7 @@ function setupTierDragging(
 function openTierMenu(
     tier,
     button
-) {
+){
 
 
     showMenu(
@@ -944,8 +945,7 @@ function openTierMenu(
 
 
                 action:
-                function() {
-
+                function(){
 
 
                     openModal(
@@ -966,7 +966,7 @@ function openTierMenu(
 
 
 
-                        function() {
+                        function(){
 
 
                             const name =
@@ -979,7 +979,9 @@ function openTierMenu(
 
 
 
-                            if(name) {
+
+
+                            if(name){
 
 
                                 tier.name =
@@ -1021,12 +1023,13 @@ function openTierMenu(
 
 
                 action:
-                function() {
+                function(){
 
 
                     openModal(
 
                         "Change Colour",
+
 
 
                         `
@@ -1043,7 +1046,7 @@ function openTierMenu(
 
 
 
-                        function() {
+                        function(){
 
 
 
@@ -1059,6 +1062,7 @@ function openTierMenu(
                             save();
 
                             render();
+
 
 
                         }
@@ -1078,6 +1082,7 @@ function openTierMenu(
 
 
 
+
             {
 
 
@@ -1087,12 +1092,13 @@ function openTierMenu(
 
 
                 action:
-                function() {
+                function(){
 
 
                     openModal(
 
                         "Delete Tier",
+
 
 
                         `
@@ -1109,18 +1115,16 @@ function openTierMenu(
 
 
 
-                        function() {
-
+                        function(){
 
 
                             data.movies.forEach(
-                                movie => {
+                                movie=>{
 
 
                                     if(
                                         movie.tier === tier.id
-                                    ) {
-
+                                    ){
 
                                         movie.tier =
                                             null;
@@ -1129,12 +1133,12 @@ function openTierMenu(
                                         movie.order =
                                             0;
 
-
                                     }
 
 
                                 }
                             );
+
 
 
 
@@ -1179,14 +1183,11 @@ function openTierMenu(
 ================================== */
 
 
-
-function createMovie(movie) {
+function createMovie(movie){
 
 
     const card =
-        document.createElement(
-            "div"
-        );
+        document.createElement("div");
 
 
 
@@ -1206,6 +1207,7 @@ function createMovie(movie) {
 
 
 
+
     card.innerHTML = `
 
 
@@ -1217,13 +1219,11 @@ function createMovie(movie) {
 
 
 
-
         <div class="movie-title">
 
             ${movie.title}
 
         </div>
-
 
 
 
@@ -1239,15 +1239,14 @@ function createMovie(movie) {
 
 
 
+
     if(
         data.settings.cardStyle === "poster"
-    ) {
-
+    ){
 
         card.classList.add(
             "poster-only"
         );
-
 
     }
 
@@ -1273,7 +1272,7 @@ function createMovie(movie) {
 
 
     menuButton.onclick =
-    function(event) {
+    function(event){
 
 
         event.stopPropagation();
@@ -1314,17 +1313,15 @@ let draggedMovie = null;
 
 
 
-
-
 function setupMovieDragging(
     element,
     movie
-) {
+){
 
 
     element.addEventListener(
         "dragstart",
-        function(event) {
+        function(event){
 
 
             draggedMovie =
@@ -1342,7 +1339,6 @@ function setupMovieDragging(
                 "move";
 
 
-
         }
     );
 
@@ -1351,10 +1347,9 @@ function setupMovieDragging(
 
 
 
-
     element.addEventListener(
         "dragend",
-        function() {
+        function(){
 
 
             element.classList.remove(
@@ -1375,14 +1370,12 @@ function setupMovieDragging(
 
 
 
-
-
     element.addEventListener(
         "dragover",
-        function(event) {
+        function(event){
 
 
-            if(draggedMovie) {
+            if(draggedMovie){
 
                 event.preventDefault();
 
@@ -1397,25 +1390,25 @@ function setupMovieDragging(
 
 
 
-
     element.addEventListener(
         "drop",
-        function(event) {
+        function(event){
 
 
             event.preventDefault();
 
 
 
-
             if(
                 !draggedMovie ||
                 draggedMovie.id === movie.id
-            ) {
+            ){
 
                 return;
 
             }
+
+
 
 
 
@@ -1439,11 +1432,95 @@ function setupMovieDragging(
 
 
 
+/* ==================================
+   MOVIE ORDER NORMALISATION
+================================== */
+
+
+function normaliseMovieOrders(){
+
+
+    data.tiers.forEach(
+        tier=>{
+
+
+            const movies =
+                data.movies
+                .filter(
+                    movie =>
+                    movie.tier === tier.id
+                )
+                .sort(
+                    (a,b)=>
+                    a.order - b.order
+                );
+
+
+
+
+            movies.forEach(
+                (movie,index)=>{
+
+
+                    movie.order =
+                        index;
+
+
+                }
+            );
+
+
+        }
+    );
+
+
+
+
+
+    const bankMovies =
+        data.movies
+        .filter(
+            movie =>
+            movie.tier === null
+        )
+        .sort(
+            (a,b)=>
+            a.order - b.order
+        );
+
+
+
+    bankMovies.forEach(
+        (movie,index)=>{
+
+
+            movie.order =
+                index;
+
+
+        }
+    );
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==================================
+   MOVE MOVIE
+================================== */
+
+
 function moveMovie(
     movingMovie,
     targetMovie
-) {
-
+){
 
 
     const targetTier =
@@ -1460,13 +1537,14 @@ function moveMovie(
 
 
 
-    let moviesInTier =
-        data.movies.filter(
+
+    const moviesInTier =
+        data.movies
+        .filter(
             movie =>
             movie.tier === targetTier &&
             movie.id !== movingMovie.id
         );
-
 
 
 
@@ -1494,9 +1572,8 @@ function moveMovie(
 
 
 
-
     moviesInTier.forEach(
-        (movie,index) => {
+        (movie,index)=>{
 
 
             movie.order =
@@ -1508,6 +1585,10 @@ function moveMovie(
 
 
 
+
+
+
+    normaliseMovieOrders();
 
 
     save();
@@ -1533,16 +1614,16 @@ function moveMovie(
 function setupDropZone(
     area,
     tierID
-) {
+){
 
 
 
     area.addEventListener(
         "dragover",
-        function(event) {
+        function(event){
 
 
-            if(draggedMovie) {
+            if(draggedMovie){
 
                 event.preventDefault();
 
@@ -1560,7 +1641,7 @@ function setupDropZone(
 
     area.addEventListener(
         "drop",
-        function(event) {
+        function(event){
 
 
             event.preventDefault();
@@ -1569,13 +1650,11 @@ function setupDropZone(
 
 
 
-            if(!draggedMovie) {
+            if(!draggedMovie){
 
                 return;
 
             }
-
-
 
 
 
@@ -1589,15 +1668,13 @@ function setupDropZone(
 
 
 
-
-
             const tierMovies =
-                data.movies.filter(
+                data.movies
+                .filter(
                     movie =>
                     movie.tier === tierID &&
                     movie.id !== draggedMovie.id
                 );
-
 
 
 
@@ -1612,6 +1689,9 @@ function setupDropZone(
 
 
 
+            normaliseMovieOrders();
+
+
             save();
 
             render();
@@ -1622,6 +1702,216 @@ function setupDropZone(
 
 
 }
+
+/* ==================================
+   MOVIE MENU
+================================== */
+
+
+function openMovieMenu(
+    movie,
+    button
+){
+
+
+    showMenu(
+
+        button,
+
+        [
+
+
+            {
+
+
+                label:
+                "Edit Movie",
+
+
+
+                action:
+                function(){
+
+
+                    openModal(
+
+                        "Edit Movie",
+
+
+                        `
+
+                        <input
+                        id="movieNameInput"
+                        value="${movie.title}">
+
+                        `,
+
+
+                        "Save",
+
+
+
+                        function(){
+
+
+                            const name =
+                                document
+                                .getElementById(
+                                    "movieNameInput"
+                                )
+                                .value
+                                .trim();
+
+
+
+
+
+                            if(name){
+
+
+                                movie.title =
+                                    name;
+
+
+
+                                save();
+
+                                render();
+
+
+                            }
+
+
+                        }
+
+
+                    );
+
+
+                }
+
+
+            },
+
+
+
+
+
+
+
+
+            {
+
+
+                label:
+                "Move To Movie Bank",
+
+
+
+                action:
+                function(){
+
+
+                    movie.tier =
+                        null;
+
+
+
+                    movie.order =
+                        0;
+
+
+
+                    normaliseMovieOrders();
+
+
+                    save();
+
+                    render();
+
+
+                }
+
+
+            },
+
+
+
+
+
+
+
+
+            {
+
+
+                label:
+                "Delete Movie",
+
+
+
+                action:
+                function(){
+
+
+                    openModal(
+
+                        "Delete Movie",
+
+
+                        `
+
+                        <p>
+                        Delete ${movie.title}?
+                        </p>
+
+                        `,
+
+
+                        "Delete",
+
+
+
+                        function(){
+
+
+
+                            data.movies =
+                                data.movies.filter(
+                                    m =>
+                                    m.id !== movie.id
+                                );
+
+
+
+
+
+                            save();
+
+                            render();
+
+
+
+                        }
+
+
+                    );
+
+
+                }
+
+
+            }
+
+
+        ]
+
+    );
+
+
+}
+
+
 
 
 
@@ -1634,8 +1924,7 @@ function setupDropZone(
 ================================== */
 
 
-
-function render() {
+function render(){
 
 
     tierContainer.innerHTML =
@@ -1651,10 +1940,9 @@ function render() {
 
 
 
-
-    data.tiers
+    [...data.tiers]
         .sort(
-            (a,b) =>
+            (a,b)=>
             a.order - b.order
         )
         .forEach(
@@ -1667,22 +1955,10 @@ function render() {
 
 
 
-    /*
-        IMPORTANT:
-
-        Previous bug:
-        flex ordering could reverse because
-        objects were sorted inconsistently.
-
-        This forces movies to always appear
-        left -> right.
-    */
-
-
-
-    data.movies
+    const sortedMovies =
+        [...data.movies]
         .sort(
-            (a,b) =>
+            (a,b)=>
             a.order - b.order
         );
 
@@ -1691,10 +1967,8 @@ function render() {
 
 
 
-
-
-    data.movies.forEach(
-        movie => {
+    sortedMovies.forEach(
+        movie=>{
 
 
             let location;
@@ -1703,7 +1977,7 @@ function render() {
 
 
 
-            if(movie.tier !== null) {
+            if(movie.tier !== null){
 
 
                 location =
@@ -1713,7 +1987,7 @@ function render() {
 
 
             }
-            else {
+            else{
 
 
                 location =
@@ -1727,8 +2001,7 @@ function render() {
 
 
 
-
-            if(location) {
+            if(location){
 
 
                 location.appendChild(
@@ -1745,18 +2018,27 @@ function render() {
 
 }
 
+
+
+
+
+
+
+
+
 /* ==================================
    ADD SINGLE MOVIE
 ================================== */
 
 
 addMovieButton.onclick =
-function() {
+function(){
 
 
     openModal(
 
         "Add Movie",
+
 
         `
 
@@ -1770,7 +2052,8 @@ function() {
         "Add",
 
 
-        function() {
+
+        function(){
 
 
             const title =
@@ -1784,7 +2067,8 @@ function() {
 
 
 
-            if(!title) {
+
+            if(!title){
 
                 return;
 
@@ -1809,7 +2093,7 @@ function() {
 
 
                 order:
-                    0
+                    data.movies.length
 
 
             });
@@ -1818,10 +2102,10 @@ function() {
 
 
 
+
             save();
 
             render();
-
 
 
         }
@@ -1846,12 +2130,13 @@ function() {
 
 
 addMultipleMoviesButton.onclick =
-function() {
+function(){
 
 
     openModal(
 
         "Add Multiple Movies",
+
 
         `
 
@@ -1865,7 +2150,8 @@ function() {
         "Add Movies",
 
 
-        function() {
+
+        function(){
 
 
             const text =
@@ -1899,7 +2185,7 @@ function() {
 
 
             titles.forEach(
-                title => {
+                title=>{
 
 
                     data.movies.push({
@@ -1918,7 +2204,7 @@ function() {
 
 
                         order:
-                            0
+                            data.movies.length
 
 
                     });
@@ -1931,10 +2217,10 @@ function() {
 
 
 
+
             save();
 
             render();
-
 
 
         }
@@ -1959,12 +2245,13 @@ function() {
 
 
 addTierButton.onclick =
-function() {
+function(){
 
 
     openModal(
 
         "Add Tier",
+
 
         `
 
@@ -1988,7 +2275,7 @@ function() {
 
 
 
-        function() {
+        function(){
 
 
             const name =
@@ -2014,7 +2301,8 @@ function() {
 
 
 
-            if(!name) {
+
+            if(!name){
 
                 return;
 
@@ -2051,11 +2339,9 @@ function() {
 
 
 
-
             save();
 
             render();
-
 
 
         }
@@ -2080,7 +2366,7 @@ function() {
 
 
 settingsButton.onclick =
-function() {
+function(){
 
 
     settingsPanel.classList.toggle(
@@ -2095,16 +2381,12 @@ function() {
 
 
 
-
-
-
 document
 .querySelectorAll(
     'input[name="cardStyle"]'
 )
 .forEach(
-    option => {
-
+    option=>{
 
 
         option.checked =
@@ -2115,10 +2397,8 @@ document
 
 
 
-
-
         option.onchange =
-        function() {
+        function(){
 
 
             data.settings.cardStyle =
@@ -2133,161 +2413,27 @@ document
             render();
 
 
-
         };
 
 
     }
 );
 
+
+
+
+
+
+
+
+
 /* ==================================
-   DATA CLEANUP
+   FINAL START
 ================================== */
 
 
-if(!data.settings) {
-
-
-    data.settings = {
-
-        cardStyle:
-            "title"
-
-    };
-
-
-}
-
-
-
-
-
-if(!data.tiers) {
-
-
-    data.tiers = [];
-
-
-}
-
-
-
-
-if(!data.movies) {
-
-
-    data.movies = [];
-
-
-}
-
-
-
-
-
-
-
-
-data.tiers.forEach(
-    (tier,index) => {
-
-
-        if(
-            tier.order === undefined
-        ) {
-
-
-            tier.order =
-                index;
-
-
-        }
-
-
-
-
-
-        if(
-            !tier.colour
-        ) {
-
-
-            tier.colour =
-                "#6b7280";
-
-
-        }
-
-
-
-
-    }
-);
-
-
-
-
-
-
-
-
-data.movies.forEach(
-    movie => {
-
-
-        if(
-            movie.order === undefined
-        ) {
-
-
-            movie.order =
-                0;
-
-
-        }
-
-
-
-
-
-        if(
-            movie.tier === undefined
-        ) {
-
-
-            movie.tier =
-                null;
-
-
-        }
-
-
-
-
-    }
-);
-
-
-
-
-
-
-
-
+normaliseMovieOrders();
 
 save();
-
-
-
-
-
-
-
-
-
-/* ==================================
-   START APPLICATION
-================================== */
-
 
 render();
