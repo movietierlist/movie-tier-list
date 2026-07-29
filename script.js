@@ -18,6 +18,7 @@
 const addMovieButton = document.getElementById("addMovie");
 const addMultipleMoviesButton = document.getElementById("addMultipleMovies");
 const addTierButton = document.getElementById("addTier");
+const deleteMoviesButton = document.getElementById("deleteMovies");
 const settingsButton = document.getElementById("settingsButton");
 const settingsPanel = document.getElementById("settingsPanel");
 const tierContainer = document.getElementById("tierContainer");
@@ -799,6 +800,57 @@ addMultipleMoviesButton.onclick = function () {
                 });
             });
 
+            save();
+            render();
+        }
+    );
+};
+
+
+/* ==================================
+   DELETE MULTIPLE MOVIES
+================================== */
+
+deleteMoviesButton.onclick = function () {
+
+    if (data.movies.length === 0) {
+
+        openModal(
+            "Delete Movies",
+            `<p>You don't have any movies yet.</p>`,
+            "OK",
+            function () {}
+        );
+
+        return;
+    }
+
+    const rowsHTML = [...data.movies]
+        .sort((a, b) => a.title.localeCompare(b.title))
+        .map(movie => `
+            <label class="delete-movie-row">
+                <input type="checkbox" class="deleteMovieCheckbox" data-movie-id="${movie.id}">
+                ${movie.title}
+            </label>
+        `)
+        .join("");
+
+    openModal(
+        "Delete Movies",
+        `<div class="delete-movie-list">${rowsHTML}</div>`,
+        "Delete Selected",
+        function () {
+
+            const checked = modalContent.querySelectorAll(".deleteMovieCheckbox:checked");
+            const idsToDelete = Array.from(checked).map(box => Number(box.dataset.movieId));
+
+            if (idsToDelete.length === 0) {
+                return;
+            }
+
+            data.movies = data.movies.filter(movie => !idsToDelete.includes(movie.id));
+
+            normaliseMovieOrders();
             save();
             render();
         }
