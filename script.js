@@ -735,6 +735,32 @@ function render() {
             location.appendChild(createMovie(movie));
         }
     });
+
+    addEmptySlotPlaceholders();
+}
+
+
+/* ==================================
+   EMPTY SLOT PLACEHOLDERS
+   Every row (tier or Movie Bank) always keeps a trailing
+   strip of plain outlined squares after its movies, so
+   there's always room shown for more — just like TierMaker.
+================================== */
+
+function addEmptySlotPlaceholders() {
+
+    const TRAILING_SLOT_COUNT = 6;
+
+    document.querySelectorAll(".movies").forEach(area => {
+
+        for (let i = 0; i < TRAILING_SLOT_COUNT; i++) {
+
+            const slot = document.createElement("div");
+            slot.className = "empty-slot";
+
+            area.appendChild(slot);
+        }
+    });
 }
 
 
