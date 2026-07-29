@@ -255,17 +255,16 @@ button:focus-visible {
     border-radius: 10px;
 }
 
-.movies:empty {
-    border: 2px dashed rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-    min-height: 110px;
-}
-
-.movies:empty::after {
-    content: "Drop movies here";
-    color: rgba(255, 255, 255, 0.35);
-    margin: auto;
-    font-size: 14px;
+/* Empty slot squares — shown in a row instead of movie
+   cards when a tier (or the Movie Bank) has nothing in it.
+   Solid outline, no text, matching TierMaker's look. */
+.empty-slot {
+    width: 105px;
+    height: 130px;
+    flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    background: transparent;
 }
 
 
@@ -580,6 +579,11 @@ html {
     }
 
     .poster {
+        height: 105px;
+    }
+
+    .empty-slot {
+        width: 85px;
         height: 105px;
     }
 
