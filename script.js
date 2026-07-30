@@ -494,11 +494,57 @@ function removePlaceholder() {
    placeholder should go at the very end of the row.
 ================================== */
 
-function getDragAfterElement(container, x) {
+function getDragAfterElement(container, x, y) {
 
     const cards = [...container.querySelectorAll(".movie-card:not(.dragging)")];
 
-    return cards.reduce(
+    if (cards.length === 0) {
+        return null;
+    }
+
+    // Group the cards into their visual rows (wrapped lines), since a
+    // row can now span more than one line.
+    const rows = [];
+
+    cards.forEach(card => {
+
+        const box = card.getBoundingClientRect();
+        let row = rows.find(r => Math.abs(r.top - box.top) < box.height / 2);
+
+        if (!row) {
+            row = { top: box.top, bottom: box.bottom, cards: [] };
+            rows.push(row);
+        }
+
+        row.cards.push(card);
+    });
+
+    rows.sort((a, b) => a.top - b.top);
+
+    // Work out which visual line the cursor is closest to.
+    let targetRow = rows[0];
+    let smallestDistance = Infinity;
+
+    rows.forEach(row => {
+
+        let distance;
+
+        if (y < row.top) {
+            distance = row.top - y;
+        } else if (y > row.bottom) {
+            distance = y - row.bottom;
+        } else {
+            distance = 0;
+        }
+
+        if (distance < smallestDistance) {
+            smallestDistance = distance;
+            targetRow = row;
+        }
+    });
+
+    // Within that line, find the card the cursor is positioned in front of.
+    const withinLine = targetRow.cards.reduce(
         function (closest, card) {
 
             const box = card.getBoundingClientRect();
@@ -512,6 +558,17 @@ function getDragAfterElement(container, x) {
         },
         { offset: Number.NEGATIVE_INFINITY, element: null }
     ).element;
+
+    if (withinLine) {
+        return withinLine;
+    }
+
+    // Cursor is past every card on this line — insert right before
+    // whatever starts the next line, or at the very end if this is the last one.
+    const rowIndex = rows.indexOf(targetRow);
+    const nextRow = rows[rowIndex + 1];
+
+    return nextRow ? nextRow.cards[0] : null;
 }
 
 
@@ -588,7 +645,7 @@ function setupDropZone(area, tierID) {
         event.preventDefault();
 
         const placeholder = getPlaceholder();
-        const afterElement = getDragAfterElement(area, event.clientX);
+        const afterElement = getDragAfterElement(area, event.clientX, event.clientY);
 
         if (afterElement == null) {
             area.appendChild(placeholder);
