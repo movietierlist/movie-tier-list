@@ -115,6 +115,26 @@ button:focus-visible {
     margin-top: 0;
 }
 
+.settings-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 18px 0;
+}
+
+.about-text {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.tmdb-logo {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin-bottom: 12px;
+}
+
 .hidden {
     display: none !important;
 }
@@ -306,6 +326,14 @@ button:focus-visible {
     align-items: center;
     background: #374151;
     font-size: 40px;
+    overflow: hidden;
+}
+
+.poster img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .movie-title {
