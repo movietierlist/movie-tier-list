@@ -30,6 +30,8 @@ const addTierButton = document.getElementById("addTier");
 const deleteMoviesButton = document.getElementById("deleteMovies");
 const settingsButton = document.getElementById("settingsButton");
 const settingsPanel = document.getElementById("settingsPanel");
+const aboutButton = document.getElementById("aboutButton");
+const aboutPanel = document.getElementById("aboutPanel");
 const tierContainer = document.getElementById("tierContainer");
 const movieBank = document.getElementById("movieBank");
 
@@ -1077,6 +1079,7 @@ addTierButton.onclick = function () {
 ================================== */
 
 settingsButton.onclick = function () {
+    aboutPanel.classList.add("hidden");
     settingsPanel.classList.toggle("hidden");
 };
 
@@ -1090,6 +1093,16 @@ document.querySelectorAll('input[name="cardStyle"]').forEach(option => {
         render();
     };
 });
+
+
+/* ==================================
+   ABOUT
+================================== */
+
+aboutButton.onclick = function () {
+    settingsPanel.classList.add("hidden");
+    aboutPanel.classList.toggle("hidden");
+};
 
 
 /* ==================================
