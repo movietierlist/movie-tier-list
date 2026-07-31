@@ -12,6 +12,15 @@
 
 
 /* ==================================
+   TMDB (THE MOVIE DATABASE) SETUP
+   Get a free API key at themoviedb.org
+   (Settings > API) and paste it below.
+================================== */
+
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
+
+
+/* ==================================
    DOM REFERENCES
 ================================== */
 
@@ -131,13 +140,63 @@ function showMenu(button, items) {
         menu.appendChild(option);
     });
 
+    // Append it hidden first so we can measure its real size
+    // before deciding where it should actually go.
+    menu.style.visibility = "hidden";
     document.body.appendChild(menu);
 
-    const rect = button.getBoundingClientRect();
-    menu.style.left = rect.left + window.scrollX + "px";
-    menu.style.top = rect.bottom + window.scrollY + "px";
+    positionMenu(menu, button);
+
+    menu.style.visibility = "visible";
 
     activeMenu = menu;
+}
+
+
+/* ==================================
+   SMART MENU POSITIONING
+   Flips the menu above/below and left/right of whatever
+   button opened it, based on available screen space, so
+   it never runs off the edge of the viewport — on any
+   device or screen size.
+================================== */
+
+function positionMenu(menu, button) {
+
+    const EDGE_MARGIN = 8;
+
+    const buttonRect = button.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Horizontal: prefer lining up with the button's left edge,
+    // but flip to the button's right edge if that would overflow.
+    let left = buttonRect.left;
+
+    if (left + menuRect.width > viewportWidth - EDGE_MARGIN) {
+        left = buttonRect.right - menuRect.width;
+    }
+
+    if (left < EDGE_MARGIN) {
+        left = EDGE_MARGIN;
+    }
+
+    // Vertical: prefer opening below the button,
+    // but flip to open above it if there's no room below.
+    let top = buttonRect.bottom;
+
+    if (top + menuRect.height > viewportHeight - EDGE_MARGIN) {
+        top = buttonRect.top - menuRect.height;
+    }
+
+    if (top < EDGE_MARGIN) {
+        top = EDGE_MARGIN;
+    }
+
+    menu.style.left = (left + window.scrollX) + "px";
+    menu.style.top = (top + window.scrollY) + "px";
 }
 
 
@@ -413,7 +472,9 @@ function createMovie(movie) {
     card.dataset.movie = movie.id;
 
     card.innerHTML = `
-        <div class="poster">🎬</div>
+        <div class="poster">
+            ${movie.poster ? `<img src="${movie.poster}" alt="${movie.title} poster">` : "🎬"}
+        </div>
         <div class="movie-title">${movie.title}</div>
         <button class="movie-menu">⋮</button>
     `;
@@ -432,6 +493,54 @@ function createMovie(movie) {
     };
 
     return card;
+}
+
+
+/* ==================================
+   TMDB POSTER LOOKUP
+   Looks a title up on TMDb and, if found, saves the poster
+   URL onto the movie and re-renders. Runs in the background
+   so adding movies still feels instant.
+================================== */
+
+async function fetchPosterUrl(title) {
+
+    if (!TMDB_API_KEY || TMDB_API_KEY === "PASTE_YOUR_TMDB_API_KEY_HERE") {
+        return null;
+    }
+
+    try {
+
+        const searchUrl =
+            "https://api.themoviedb.org/3/search/movie" +
+            "?api_key=" + TMDB_API_KEY +
+            "&query=" + encodeURIComponent(title);
+
+        const response = await fetch(searchUrl);
+        const result = await response.json();
+
+        const firstMatch = result.results && result.results[0];
+
+        if (firstMatch && firstMatch.poster_path) {
+            return "https://image.tmdb.org/t/p/w300" + firstMatch.poster_path;
+        }
+
+    } catch (error) {
+        console.error("TMDb lookup failed for \"" + title + "\":", error);
+    }
+
+    return null;
+}
+
+async function attachPoster(movie) {
+
+    const posterUrl = await fetchPosterUrl(movie.title);
+
+    if (posterUrl) {
+        movie.poster = posterUrl;
+        save();
+        render();
+    }
 }
 
 
@@ -814,15 +923,20 @@ addMovieButton.onclick = function () {
                 return;
             }
 
-            data.movies.push({
+            const newMovie = {
                 id: Date.now(),
                 title: title,
                 tier: null,
-                order: data.movies.length
-            });
+                order: data.movies.length,
+                poster: null
+            };
+
+            data.movies.push(newMovie);
 
             save();
             render();
+
+            attachPoster(newMovie);
         }
     );
 };
@@ -847,18 +961,24 @@ addMultipleMoviesButton.onclick = function () {
                 .map(title => title.trim())
                 .filter(title => title.length);
 
-            titles.forEach(title => {
+            const startingOrder = data.movies.length;
 
-                data.movies.push({
-                    id: Date.now() + Math.random(),
-                    title: title,
-                    tier: null,
-                    order: data.movies.length
-                });
+            const newMovies = titles.map((title, index) => ({
+                id: Date.now() + Math.random(),
+                title: title,
+                tier: null,
+                order: startingOrder + index,
+                poster: null
+            }));
+
+            newMovies.forEach(movie => {
+                data.movies.push(movie);
             });
 
             save();
             render();
+
+            newMovies.forEach(attachPoster);
         }
     );
 };
