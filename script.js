@@ -322,6 +322,49 @@ function createTier(tier) {
 
 
 /* ==================================
+   SMOOTH REORDER ANIMATION
+   Records where a set of elements are BEFORE a DOM change,
+   makes the change, then animates them from their old spot
+   to their new one — this is what makes other tiers/movies
+   visibly "part ways" instead of instantly jumping.
+================================== */
+
+function animateShift(elements, domChange) {
+
+    const startRects = new Map();
+
+    elements.forEach(el => {
+        startRects.set(el, el.getBoundingClientRect());
+    });
+
+    domChange();
+
+    elements.forEach(el => {
+
+        const start = startRects.get(el);
+        const end = el.getBoundingClientRect();
+
+        const deltaX = start.left - end.left;
+        const deltaY = start.top - end.top;
+
+        if (!deltaX && !deltaY) {
+            return;
+        }
+
+        el.style.transition = "none";
+        el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+        // Force the browser to apply that jump before re-enabling
+        // the transition, otherwise it would animate the jump too.
+        void el.offsetWidth;
+
+        el.style.transition = "transform 0.2s ease";
+        el.style.transform = "";
+    });
+}
+
+
+/* ==================================
    TIER DRAGGING SYSTEM
    Built on Pointer Events, which fire the same way for a
    mouse, trackpad, or a finger on a touchscreen — this is
@@ -360,12 +403,21 @@ function startTierDrag(startEvent, section, tier) {
     const originalWidth = rect.width;
     const originalHeight = rect.height;
 
+    let lastAfterElement;
+
     function beginDragVisuals() {
 
         dragging = true;
 
         const placeholder = getTierPlaceholder();
         placeholder.style.height = originalHeight + "px";
+
+        placeholder.innerHTML = `
+            <div class="tier-label" style="background:${tier.colour}">
+                <h2>${tier.name}</h2>
+            </div>
+            <div class="tier-content"></div>
+        `;
 
         tierContainer.insertBefore(placeholder, section);
 
@@ -402,14 +454,26 @@ function startTierDrag(startEvent, section, tier) {
 
         section.style.top = (event.clientY - offsetY) + "px";
 
-        const placeholder = getTierPlaceholder();
         const afterElement = getVerticalAfterElement(tierContainer, event.clientY);
 
-        if (afterElement == null) {
-            tierContainer.appendChild(placeholder);
-        } else {
-            tierContainer.insertBefore(placeholder, afterElement);
+        if (afterElement === lastAfterElement) {
+            return;
         }
+
+        lastAfterElement = afterElement;
+
+        const otherTiers = [...tierContainer.querySelectorAll(".tier:not(.dragging-ghost)")];
+
+        animateShift(otherTiers, () => {
+
+            const placeholder = getTierPlaceholder();
+
+            if (afterElement == null) {
+                tierContainer.appendChild(placeholder);
+            } else {
+                tierContainer.insertBefore(placeholder, afterElement);
+            }
+        });
     }
 
     function onPointerUp(event) {
@@ -488,7 +552,7 @@ function getTierPlaceholder() {
 
     if (!tierPlaceholder) {
         tierPlaceholder = document.createElement("div");
-        tierPlaceholder.className = "tier-placeholder";
+        tierPlaceholder.className = "tier tier-placeholder";
     }
 
     return tierPlaceholder;
@@ -746,6 +810,9 @@ function startMovieDrag(startEvent, card, movie) {
     const originalParent = card.parentNode;
     const originalNextSibling = card.nextSibling;
 
+    let lastAfterElement;
+    let lastContainer;
+
     function beginDragVisuals() {
 
         dragging = true;
@@ -807,11 +874,23 @@ function startMovieDrag(startEvent, card, movie) {
         const placeholder = getPlaceholder();
         const afterElement = getDragAfterElement(container, x, y);
 
-        if (afterElement == null) {
-            container.appendChild(placeholder);
-        } else {
-            container.insertBefore(placeholder, afterElement);
+        if (afterElement === lastAfterElement && container === lastContainer) {
+            return;
         }
+
+        lastAfterElement = afterElement;
+        lastContainer = container;
+
+        const cardsInRow = [...container.querySelectorAll(".movie-card:not(.dragging-ghost)")];
+
+        animateShift(cardsInRow, () => {
+
+            if (afterElement == null) {
+                container.appendChild(placeholder);
+            } else {
+                container.insertBefore(placeholder, afterElement);
+            }
+        });
     }
 
     function onPointerUp(event) {
