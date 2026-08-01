@@ -328,9 +328,13 @@ button:focus-visible {
 }
 
 .tier-placeholder {
-    border-radius: 12px;
-    background: rgba(59, 130, 246, 0.15);
-    border: 2px dashed #3b82f6;
+    opacity: 0.4;
+    outline: 2px dashed rgba(255, 255, 255, 0.4);
+    outline-offset: -2px;
+}
+
+.tier-placeholder .tier-content {
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .poster {
