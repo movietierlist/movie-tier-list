@@ -298,7 +298,7 @@ function createTier(tier) {
 
     section.innerHTML = `
         <div class="tier-label" style="background:${tier.colour}">
-            <button class="grab-handle" draggable="true" title="Drag to reorder tiers">⠿</button>
+            <button class="grab-handle" title="Drag to reorder tiers">⠿</button>
             <h2>${tier.name}</h2>
         </div>
 
@@ -317,68 +317,226 @@ function createTier(tier) {
         openTierMenu(tier, this);
     };
 
-    const movieArea = section.querySelector(".movies");
-    setupDropZone(movieArea, tier.id);
-
     tierContainer.appendChild(section);
 }
 
 
 /* ==================================
    TIER DRAGGING SYSTEM
-   (Only the grab handle starts a drag —
-   clicking anywhere else on the tier does nothing)
+   Built on Pointer Events, which fire the same way for a
+   mouse, trackpad, or a finger on a touchscreen — this is
+   what makes it actually work on mobile. Only the grab
+   handle starts a drag; clicking anywhere else on the tier
+   does nothing.
 ================================== */
 
-let draggedTier = null;
+function setupTierDragging(section, tier) {
 
-function setupTierDragging(element, tier) {
+    const grabHandle = section.querySelector(".grab-handle");
 
-    const grabHandle = element.querySelector(".grab-handle");
+    grabHandle.addEventListener("pointerdown", function (event) {
 
-    grabHandle.addEventListener("dragstart", function (event) {
-        draggedTier = tier;
-        element.classList.add("dragging");
-        event.dataTransfer.effectAllowed = "move";
-    });
-
-    grabHandle.addEventListener("dragend", function () {
-        element.classList.remove("dragging");
-        draggedTier = null;
-    });
-
-    element.addEventListener("dragover", function (event) {
-        if (!draggedTier) {
-            return;
-        }
-        event.preventDefault();
-    });
-
-    element.addEventListener("drop", function (event) {
-
-        event.preventDefault();
-
-        if (!draggedTier || draggedTier.id === tier.id) {
+        if (event.button !== undefined && event.button !== 0) {
             return;
         }
 
-        const newOrder = [...data.tiers];
-
-        const from = newOrder.findIndex(t => t.id === draggedTier.id);
-        const to = newOrder.findIndex(t => t.id === tier.id);
-
-        newOrder.splice(from, 1);
-        newOrder.splice(to, 0, draggedTier);
-
-        newOrder.forEach((t, index) => {
-            t.order = index;
-        });
-
-        data.tiers = newOrder;
-
-        save();
-        render();
+        startTierDrag(event, section, tier);
     });
+}
+
+function startTierDrag(startEvent, section, tier) {
+
+    const pointerId = startEvent.pointerId;
+    const startX = startEvent.clientX;
+    const startY = startEvent.clientY;
+
+    const DRAG_THRESHOLD = 6;
+
+    let dragging = false;
+
+    const rect = section.getBoundingClientRect();
+    const offsetY = startY - rect.top;
+    const originalLeft = rect.left;
+    const originalWidth = rect.width;
+    const originalHeight = rect.height;
+
+    function beginDragVisuals() {
+
+        dragging = true;
+
+        const placeholder = getTierPlaceholder();
+        placeholder.style.height = originalHeight + "px";
+
+        tierContainer.insertBefore(placeholder, section);
+
+        section.classList.add("dragging-ghost");
+        section.style.position = "fixed";
+        section.style.left = originalLeft + "px";
+        section.style.top = (startY - offsetY) + "px";
+        section.style.width = originalWidth + "px";
+        section.style.zIndex = "10000";
+        section.style.pointerEvents = "none";
+
+        document.body.appendChild(section);
+    }
+
+    function onPointerMove(event) {
+
+        if (event.pointerId !== pointerId) {
+            return;
+        }
+
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+
+        if (!dragging) {
+
+            if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) {
+                return;
+            }
+
+            beginDragVisuals();
+        }
+
+        event.preventDefault();
+
+        section.style.top = (event.clientY - offsetY) + "px";
+
+        const placeholder = getTierPlaceholder();
+        const afterElement = getVerticalAfterElement(tierContainer, event.clientY);
+
+        if (afterElement == null) {
+            tierContainer.appendChild(placeholder);
+        } else {
+            tierContainer.insertBefore(placeholder, afterElement);
+        }
+    }
+
+    function onPointerUp(event) {
+
+        if (event.pointerId !== pointerId) {
+            return;
+        }
+
+        cleanup();
+
+        if (!dragging) {
+            return;
+        }
+
+        finishDrag();
+    }
+
+    function onPointerCancel(event) {
+
+        if (event.pointerId !== pointerId) {
+            return;
+        }
+
+        cleanup();
+
+        if (dragging) {
+            removeTierPlaceholder();
+            render();
+        }
+    }
+
+    function cleanup() {
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+        document.removeEventListener("pointercancel", onPointerCancel);
+    }
+
+    function finishDrag() {
+
+        const placeholder = getTierPlaceholder();
+        const parent = placeholder.parentNode;
+
+        if (!parent) {
+            render();
+            return;
+        }
+
+        const siblings = Array.from(parent.children);
+        const placeholderIndex = siblings.indexOf(placeholder);
+
+        let targetIndex = 0;
+
+        for (let i = 0; i < placeholderIndex; i++) {
+            if (siblings[i].classList && siblings[i].classList.contains("tier")) {
+                targetIndex++;
+            }
+        }
+
+        removeTierPlaceholder();
+        moveTierToPosition(tier, targetIndex);
+    }
+
+    document.addEventListener("pointermove", onPointerMove, { passive: false });
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", onPointerCancel);
+}
+
+
+/* ==================================
+   TIER DRAG PLACEHOLDER + POSITIONING
+================================== */
+
+let tierPlaceholder = null;
+
+function getTierPlaceholder() {
+
+    if (!tierPlaceholder) {
+        tierPlaceholder = document.createElement("div");
+        tierPlaceholder.className = "tier-placeholder";
+    }
+
+    return tierPlaceholder;
+}
+
+function removeTierPlaceholder() {
+
+    if (tierPlaceholder && tierPlaceholder.parentNode) {
+        tierPlaceholder.parentNode.removeChild(tierPlaceholder);
+    }
+}
+
+function getVerticalAfterElement(container, y) {
+
+    const sections = [...container.querySelectorAll(".tier:not(.dragging-ghost)")];
+
+    return sections.reduce(
+        function (closest, section) {
+
+            const box = section.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: section };
+            } else {
+                return closest;
+            }
+        },
+        { offset: Number.NEGATIVE_INFINITY, element: null }
+    ).element;
+}
+
+function moveTierToPosition(tier, targetIndex) {
+
+    const others = data.tiers
+        .filter(t => t.id !== tier.id)
+        .sort((a, b) => a.order - b.order);
+
+    others.splice(targetIndex, 0, tier);
+
+    others.forEach((t, index) => {
+        t.order = index;
+    });
+
+    data.tiers = others;
+
+    save();
+    render();
 }
 
 
@@ -470,12 +628,11 @@ function createMovie(movie) {
 
     const card = document.createElement("div");
     card.className = "movie-card";
-    card.draggable = true;
     card.dataset.movie = movie.id;
 
     card.innerHTML = `
         <div class="poster">
-            ${movie.poster ? `<img src="${movie.poster}" alt="${movie.title} poster">` : "🎬"}
+            ${movie.poster ? `<img src="${movie.poster}" alt="${movie.title} poster" draggable="false">` : "🎬"}
         </div>
         <div class="movie-title">${movie.title}</div>
         <button class="movie-menu">⋮</button>
@@ -548,27 +705,184 @@ async function attachPoster(movie) {
 
 /* ==================================
    MOVIE DRAGGING
-   The card only announces itself as "being dragged".
-   All the drop-position logic lives in the drop zone
-   (setupDropZone) further down — that's what lets a
-   movie land in any gap, not just "before" a card.
+   Built on Pointer Events so it works the same way with a
+   mouse or a finger. The dragged card itself becomes a
+   floating "ghost" that follows the pointer; a thin blue
+   placeholder line marks the exact gap it will drop into —
+   this works across every row, including the Movie Bank.
 ================================== */
 
-let draggedMovie = null;
+function setupMovieDragging(card, movie) {
 
-function setupMovieDragging(element, movie) {
+    card.addEventListener("pointerdown", function (event) {
 
-    element.addEventListener("dragstart", function (event) {
-        draggedMovie = movie;
-        element.classList.add("dragging");
-        event.dataTransfer.effectAllowed = "move";
+        if (event.target.closest(".movie-menu")) {
+            return;
+        }
+
+        if (event.button !== undefined && event.button !== 0) {
+            return;
+        }
+
+        startMovieDrag(event, card, movie);
     });
+}
 
-    element.addEventListener("dragend", function () {
-        element.classList.remove("dragging");
-        draggedMovie = null;
+function startMovieDrag(startEvent, card, movie) {
+
+    const pointerId = startEvent.pointerId;
+    const startX = startEvent.clientX;
+    const startY = startEvent.clientY;
+
+    const DRAG_THRESHOLD = 6;
+
+    let dragging = false;
+
+    const rect = card.getBoundingClientRect();
+    const offsetX = startX - rect.left;
+    const offsetY = startY - rect.top;
+    const originalWidth = rect.width;
+
+    const originalParent = card.parentNode;
+    const originalNextSibling = card.nextSibling;
+
+    function beginDragVisuals() {
+
+        dragging = true;
+
+        const placeholder = getPlaceholder();
+        originalParent.insertBefore(placeholder, originalNextSibling);
+
+        card.classList.add("dragging-ghost");
+        card.style.position = "fixed";
+        card.style.width = originalWidth + "px";
+        card.style.left = (startX - offsetX) + "px";
+        card.style.top = (startY - offsetY) + "px";
+        card.style.zIndex = "10000";
+        card.style.pointerEvents = "none";
+
+        document.body.appendChild(card);
+    }
+
+    function onPointerMove(event) {
+
+        if (event.pointerId !== pointerId) {
+            return;
+        }
+
+        const dx = event.clientX - startX;
+        const dy = event.clientY - startY;
+
+        if (!dragging) {
+
+            if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) {
+                return;
+            }
+
+            beginDragVisuals();
+        }
+
+        event.preventDefault();
+
+        card.style.left = (event.clientX - offsetX) + "px";
+        card.style.top = (event.clientY - offsetY) + "px";
+
+        updateDropTarget(event.clientX, event.clientY);
+    }
+
+    function updateDropTarget(x, y) {
+
+        const elementBelow = document.elementFromPoint(x, y);
+
+        if (!elementBelow) {
+            return;
+        }
+
+        const container = elementBelow.closest(".movies");
+
+        if (!container) {
+            return;
+        }
+
+        const placeholder = getPlaceholder();
+        const afterElement = getDragAfterElement(container, x, y);
+
+        if (afterElement == null) {
+            container.appendChild(placeholder);
+        } else {
+            container.insertBefore(placeholder, afterElement);
+        }
+    }
+
+    function onPointerUp(event) {
+
+        if (event.pointerId !== pointerId) {
+            return;
+        }
+
+        cleanup();
+
+        if (!dragging) {
+            return;
+        }
+
+        finishDrag();
+    }
+
+    function onPointerCancel(event) {
+
+        if (event.pointerId !== pointerId) {
+            return;
+        }
+
+        cleanup();
+
+        if (dragging) {
+            removePlaceholder();
+            render();
+        }
+    }
+
+    function cleanup() {
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+        document.removeEventListener("pointercancel", onPointerCancel);
+    }
+
+    function finishDrag() {
+
+        const placeholder = getPlaceholder();
+        const parent = placeholder.parentNode;
+
+        if (!parent) {
+            render();
+            return;
+        }
+
+        let tierID = null;
+
+        if (parent.dataset && parent.dataset.tier !== undefined) {
+            tierID = Number(parent.dataset.tier);
+        }
+
+        const children = Array.from(parent.children);
+        const placeholderIndex = children.indexOf(placeholder);
+
+        let targetIndex = 0;
+
+        for (let i = 0; i < placeholderIndex; i++) {
+            if (children[i].classList && children[i].classList.contains("movie-card")) {
+                targetIndex++;
+            }
+        }
+
         removePlaceholder();
-    });
+        moveMovieToPosition(movie, tierID, targetIndex);
+    }
+
+    document.addEventListener("pointermove", onPointerMove, { passive: false });
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", onPointerCancel);
 }
 
 
@@ -600,14 +914,14 @@ function removePlaceholder() {
 
 /* ==================================
    FIND INSERTION POINT
-   Given a mouse X position, finds which existing card
+   Given a pointer position, finds which existing card
    the placeholder should sit BEFORE. Returns null if the
    placeholder should go at the very end of the row.
 ================================== */
 
 function getDragAfterElement(container, x, y) {
 
-    const cards = [...container.querySelectorAll(".movie-card:not(.dragging)")];
+    const cards = [...container.querySelectorAll(".movie-card:not(.dragging-ghost)")];
 
     if (cards.length === 0) {
         return null;
@@ -734,77 +1048,6 @@ function moveMovieToPosition(movie, tierID, targetIndex) {
     normaliseMovieOrders();
     save();
     render();
-}
-
-
-/* ==================================
-   MOVIE DROP ZONES
-   Used for every tier row AND the Movie Bank.
-   As you drag over the row, the placeholder line follows
-   your cursor and shows exactly where the movie will land —
-   including after the very last card.
-================================== */
-
-function setupDropZone(area, tierID) {
-
-    area.addEventListener("dragover", function (event) {
-
-        if (!draggedMovie) {
-            return;
-        }
-
-        event.preventDefault();
-
-        const placeholder = getPlaceholder();
-        const afterElement = getDragAfterElement(area, event.clientX, event.clientY);
-
-        if (afterElement == null) {
-            area.appendChild(placeholder);
-        } else {
-            area.insertBefore(placeholder, afterElement);
-        }
-    });
-
-    area.addEventListener("dragleave", function (event) {
-
-        // Only clear the placeholder if the cursor actually left
-        // this row, not just moved between two cards inside it.
-        if (event.target === area && !area.contains(event.relatedTarget)) {
-            removePlaceholder();
-        }
-    });
-
-    area.addEventListener("drop", function (event) {
-
-        event.preventDefault();
-
-        if (!draggedMovie) {
-            return;
-        }
-
-        const placeholder = getPlaceholder();
-        const children = Array.from(area.children);
-        const placeholderIndex = children.indexOf(placeholder);
-
-        let targetIndex = 0;
-
-        for (let i = 0; i < placeholderIndex; i++) {
-
-            const child = children[i];
-
-            if (
-                child.classList &&
-                child.classList.contains("movie-card") &&
-                Number(child.dataset.movie) !== draggedMovie.id
-            ) {
-                targetIndex++;
-            }
-        }
-
-        moveMovieToPosition(draggedMovie, tierID, targetIndex);
-
-        removePlaceholder();
-    });
 }
 
 
@@ -1108,8 +1351,6 @@ aboutButton.onclick = function () {
 /* ==================================
    FINAL START
 ================================== */
-
-setupDropZone(movieBank, null);
 
 normaliseMovieOrders();
 save();
