@@ -164,10 +164,6 @@ button:focus-visible {
     transition: transform 0.2s, opacity 0.2s;
 }
 
-.tier.dragging {
-    opacity: 0.5;
-}
-
 .tier:hover {
     filter: brightness(1.05);
 }
@@ -209,6 +205,8 @@ button:focus-visible {
     color: rgba(255, 255, 255, 0.5);
     cursor: grab;
     user-select: none;
+    touch-action: none;
+    -webkit-touch-callout: none;
     transition: color 0.15s;
 }
 
@@ -307,6 +305,9 @@ button:focus-visible {
     border-radius: 12px;
     overflow: hidden;
     cursor: grab;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-drag: none;
     transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
 }
 
@@ -315,8 +316,21 @@ button:focus-visible {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
 
-.movie-card.dragging {
-    opacity: 0.5;
+.movie-card.dragging-ghost {
+    cursor: grabbing;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    transform: scale(1.06) rotate(-2deg);
+}
+
+.tier.dragging-ghost {
+    cursor: grabbing;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.tier-placeholder {
+    border-radius: 12px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 2px dashed #3b82f6;
 }
 
 .poster {
