@@ -17,7 +17,7 @@
    (Settings > API) and paste it below.
 ================================== */
 
-const TMDB_API_KEY = "67e7ad777efc7a0cee0587954ddf8d54";
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
 
 
 /* ==================================
@@ -35,6 +35,13 @@ const aboutButton = document.getElementById("aboutButton");
 const aboutPanel = document.getElementById("aboutPanel");
 const tierContainer = document.getElementById("tierContainer");
 const movieBank = document.getElementById("movieBank");
+
+const appTitle = document.getElementById("appTitle");
+const homeView = document.getElementById("homeView");
+const appView = document.getElementById("appView");
+const homeButton = document.getElementById("homeButton");
+const newListButton = document.getElementById("newListButton");
+const listGrid = document.getElementById("listGrid");
 
 
 /* ==================================
@@ -204,7 +211,12 @@ function positionMenu(menu, button) {
 
 
 /* ==================================
-   DATA SYSTEM
+   MULTI-LIST STORAGE
+   Everything now lives under named "tier lists" instead of
+   a single save. `data` always points at whichever list is
+   currently open — every other function in this file still
+   just reads/writes data.tiers, data.movies, etc. exactly
+   like before, so none of that code needed to change.
 ================================== */
 
 const defaultColours = [
@@ -217,9 +229,9 @@ const defaultColours = [
     "#6b7280"
 ];
 
-let data =
-    JSON.parse(localStorage.getItem("movieClub")) ||
-    {
+function getDefaultListData() {
+
+    return {
         settings: {
             cardStyle: "title"
         },
@@ -235,9 +247,49 @@ let data =
 
         movies: []
     };
+}
+
+function loadAppStore() {
+
+    const stored = JSON.parse(localStorage.getItem("movieTierListApp"));
+
+    if (stored && stored.lists) {
+        return stored;
+    }
+
+    // Migrate an older single-list save if one exists, so nothing
+    // from before this update gets lost.
+    const legacy = JSON.parse(localStorage.getItem("movieClub"));
+
+    if (legacy) {
+
+        const migratedList = {
+            id: Date.now() + Math.random(),
+            name: "My Tier List",
+            data: legacy
+        };
+
+        return {
+            activeListId: migratedList.id,
+            lists: [migratedList]
+        };
+    }
+
+    return {
+        activeListId: null,
+        lists: []
+    };
+}
+
+let appStore = loadAppStore();
+let data = null;
+
+function saveAppStore() {
+    localStorage.setItem("movieTierListApp", JSON.stringify(appStore));
+}
 
 function save() {
-    localStorage.setItem("movieClub", JSON.stringify(data));
+    saveAppStore();
 }
 
 
@@ -284,7 +336,202 @@ function cleanupData() {
     save();
 }
 
-cleanupData();
+
+/* ==================================
+   LIST SWITCHING
+   Handles moving between the home screen (picking/creating
+   a list) and the app screen (editing whichever list is
+   currently open).
+================================== */
+
+function openList(listId) {
+
+    const list = appStore.lists.find(l => l.id === listId);
+
+    if (!list) {
+        return;
+    }
+
+    appStore.activeListId = listId;
+    data = list.data;
+
+    cleanupData();
+    saveAppStore();
+
+    appTitle.textContent = "🎬 " + list.name;
+
+    homeView.classList.add("hidden");
+    appView.classList.remove("hidden");
+
+    normaliseMovieOrders();
+    render();
+}
+
+function goHome() {
+
+    homeView.classList.remove("hidden");
+    appView.classList.add("hidden");
+
+    renderHome();
+}
+
+function createNewList(name) {
+
+    const newList = {
+        id: Date.now() + Math.random(),
+        name: name,
+        data: getDefaultListData()
+    };
+
+    appStore.lists.push(newList);
+    saveAppStore();
+
+    openList(newList.id);
+}
+
+function renameList(listId, newName) {
+
+    const list = appStore.lists.find(l => l.id === listId);
+
+    if (!list) {
+        return;
+    }
+
+    list.name = newName;
+    saveAppStore();
+
+    if (appStore.activeListId === listId) {
+        appTitle.textContent = "🎬 " + newName;
+    }
+
+    renderHome();
+}
+
+function deleteList(listId) {
+
+    appStore.lists = appStore.lists.filter(l => l.id !== listId);
+
+    if (appStore.activeListId === listId) {
+        appStore.activeListId = null;
+        data = null;
+    }
+
+    saveAppStore();
+    renderHome();
+}
+
+
+/* ==================================
+   HOME SCREEN
+================================== */
+
+function renderHome() {
+
+    listGrid.innerHTML = "";
+
+    if (appStore.lists.length === 0) {
+
+        listGrid.innerHTML = `<p class="empty-home-message">You don't have any tier lists yet — create one to get started.</p>`;
+        return;
+    }
+
+    appStore.lists.forEach(list => {
+
+        const movieCount = list.data.movies ? list.data.movies.length : 0;
+
+        const card = document.createElement("div");
+        card.className = "list-card";
+
+        card.innerHTML = `
+            <button class="list-card-menu">⋮</button>
+            <h3>${list.name}</h3>
+            <p>${movieCount} movie${movieCount === 1 ? "" : "s"}</p>
+        `;
+
+        card.onclick = function (event) {
+
+            if (event.target.closest(".list-card-menu")) {
+                return;
+            }
+
+            openList(list.id);
+        };
+
+        const menuButton = card.querySelector(".list-card-menu");
+
+        menuButton.onclick = function (event) {
+            event.stopPropagation();
+            openListMenu(list, this);
+        };
+
+        listGrid.appendChild(card);
+    });
+}
+
+function openListMenu(list, button) {
+
+    showMenu(button, [
+
+        {
+            label: "Rename",
+            action: function () {
+
+                openModal(
+                    "Rename Tier List",
+                    `<input id="listNameInput" value="${list.name}">`,
+                    "Save",
+                    function () {
+
+                        const name = document.getElementById("listNameInput").value.trim();
+
+                        if (name) {
+                            renameList(list.id, name);
+                        }
+                    }
+                );
+            }
+        },
+
+        {
+            label: "Delete",
+            action: function () {
+
+                openModal(
+                    "Delete Tier List",
+                    `<p>Delete "${list.name}"? This can't be undone.</p>`,
+                    "Delete",
+                    function () {
+                        deleteList(list.id);
+                    }
+                );
+            }
+        }
+
+    ]);
+}
+
+homeButton.onclick = function () {
+    goHome();
+};
+
+newListButton.onclick = function () {
+
+    openModal(
+        "New Tier List",
+        `<input id="listNameInput" placeholder="e.g. Best of 2026">`,
+        "Create",
+        function () {
+
+            const name = document.getElementById("listNameInput").value.trim();
+
+            if (!name) {
+                return;
+            }
+
+            createNewList(name);
+        }
+    );
+};
 
 
 /* ==================================
@@ -1574,6 +1821,10 @@ aboutButton.onclick = function () {
    FINAL START
 ================================== */
 
-normaliseMovieOrders();
-save();
-render();
+const startingList = appStore.lists.find(l => l.id === appStore.activeListId);
+
+if (startingList) {
+    openList(startingList.id);
+} else {
+    goHome();
+}
