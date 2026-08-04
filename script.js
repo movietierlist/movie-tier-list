@@ -17,7 +17,7 @@
    (Settings > API) and paste it below.
 ================================== */
 
-const TMDB_API_KEY = "67e7ad777efc7a0cee0587954ddf8d54";
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
 
 
 /* ==================================
@@ -1728,7 +1728,13 @@ deleteMoviesButton.onclick = function () {
 
     openModal(
         "Delete Movies",
-        `<div class="delete-movie-list">${rowsHTML}</div>`,
+        `
+        <label class="delete-movie-row select-all-row">
+            <input type="checkbox" id="selectAllMoviesCheckbox">
+            <strong>Select All</strong>
+        </label>
+        <div class="delete-movie-list">${rowsHTML}</div>
+        `,
         "Delete Selected",
         function () {
 
@@ -1746,6 +1752,17 @@ deleteMoviesButton.onclick = function () {
             render();
         }
     );
+
+    const selectAllCheckbox = document.getElementById("selectAllMoviesCheckbox");
+
+    selectAllCheckbox.onchange = function () {
+
+        const allCheckboxes = modalContent.querySelectorAll(".deleteMovieCheckbox");
+
+        allCheckboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+    };
 };
 
 
