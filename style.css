@@ -157,6 +157,8 @@ button {
 #settingsButton { background: #475569; }
 #homeButton { background: #0f172a; }
 #newListButton { background: #16a34a; }
+#exportListsButton { background: #0e7490; }
+#importListsButton { background: #6d28d9; }
 
 button:active {
     transform: scale(0.96);
