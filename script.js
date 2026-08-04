@@ -42,6 +42,9 @@ const appView = document.getElementById("appView");
 const homeButton = document.getElementById("homeButton");
 const newListButton = document.getElementById("newListButton");
 const listGrid = document.getElementById("listGrid");
+const exportListsButton = document.getElementById("exportListsButton");
+const importListsButton = document.getElementById("importListsButton");
+const importFileInput = document.getElementById("importFileInput");
 
 
 /* ==================================
@@ -531,6 +534,113 @@ newListButton.onclick = function () {
             createNewList(name);
         }
     );
+};
+
+
+/* ==================================
+   EXPORT / IMPORT
+   A manual way to move your tier lists between devices —
+   Export downloads everything as a JSON file, Import reads
+   one back in. Imported lists are always ADDED alongside
+   whatever you already have (never overwritten), and each
+   gets a fresh ID so importing the same file twice is safe.
+================================== */
+
+exportListsButton.onclick = function () {
+
+    const exportPayload = {
+        exportVersion: 1,
+        exportedAt: new Date().toISOString(),
+        lists: appStore.lists
+    };
+
+    const blob = new Blob(
+        [JSON.stringify(exportPayload, null, 2)],
+        { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "movie-tier-lists-backup.json";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+};
+
+importListsButton.onclick = function () {
+    importFileInput.click();
+};
+
+importFileInput.onchange = function () {
+
+    const file = importFileInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function () {
+
+        importFileInput.value = "";
+
+        let parsed;
+
+        try {
+            parsed = JSON.parse(reader.result);
+        } catch (error) {
+
+            openModal(
+                "Import Failed",
+                `<p>That file doesn't look like a valid tier list backup.</p>`,
+                "OK",
+                function () {}
+            );
+
+            return;
+        }
+
+        const importedLists = Array.isArray(parsed.lists) ? parsed.lists : null;
+
+        if (!importedLists || importedLists.length === 0) {
+
+            openModal(
+                "Import Failed",
+                `<p>No tier lists were found in that file.</p>`,
+                "OK",
+                function () {}
+            );
+
+            return;
+        }
+
+        importedLists.forEach(list => {
+
+            appStore.lists.push({
+                id: Date.now() + Math.random(),
+                name: list.name || "Imported List",
+                data: list.data || getDefaultListData()
+            });
+        });
+
+        saveAppStore();
+        renderHome();
+
+        openModal(
+            "Import Complete",
+            `<p>Imported ${importedLists.length} tier list${importedLists.length === 1 ? "" : "s"}.</p>`,
+            "OK",
+            function () {}
+        );
+    };
+
+    reader.readAsText(file);
 };
 
 
