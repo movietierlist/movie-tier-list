@@ -501,6 +501,7 @@ function startTierDrag(startEvent, section, tier) {
 
         if (dragging) {
             removeTierPlaceholder();
+            section.remove();
             render();
         }
     }
@@ -517,6 +518,8 @@ function startTierDrag(startEvent, section, tier) {
         const parent = placeholder.parentNode;
 
         if (!parent) {
+            removeTierPlaceholder();
+            section.remove();
             render();
             return;
         }
@@ -533,6 +536,7 @@ function startTierDrag(startEvent, section, tier) {
         }
 
         removeTierPlaceholder();
+        section.remove();
         moveTierToPosition(tier, targetIndex);
     }
 
@@ -918,6 +922,7 @@ function startMovieDrag(startEvent, card, movie) {
 
         if (dragging) {
             removePlaceholder();
+            card.remove();
             render();
         }
     }
@@ -934,6 +939,8 @@ function startMovieDrag(startEvent, card, movie) {
         const parent = placeholder.parentNode;
 
         if (!parent) {
+            removePlaceholder();
+            card.remove();
             render();
             return;
         }
@@ -956,6 +963,7 @@ function startMovieDrag(startEvent, card, movie) {
         }
 
         removePlaceholder();
+        card.remove();
         moveMovieToPosition(movie, tierID, targetIndex);
     }
 
