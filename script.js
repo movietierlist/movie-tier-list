@@ -17,7 +17,7 @@
    (Settings > API) and paste it below.
 ================================== */
 
-const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
+const TMDB_API_KEY = "67e7ad777efc7a0cee0587954ddf8d54";
 
 
 /* ==================================
