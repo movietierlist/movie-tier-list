@@ -740,31 +740,47 @@ function createMovie(movie) {
    URL onto the movie and re-renders. Runs in the background
    so adding movies still feels instant.
 
-   Uses TMDb's "multi" search, which checks movies, TV shows,
-   AND people in one call and tags each result with its type —
-   that's what lets this match TV shows too, not just movies.
+   mediaType can be "movie", "tv", or left out. When left out,
+   it uses TMDb's "multi" search, which checks movies, TV
+   shows, AND people in one call and tags each result with
+   its type — that's what lets an unmarked title still match
+   a TV show. Passing "movie" or "tv" explicitly searches
+   only that catalog, for when you know exactly what it is.
 ================================== */
 
-async function fetchPosterUrl(title) {
+async function fetchPosterUrl(title, mediaType) {
 
     if (!TMDB_API_KEY || TMDB_API_KEY === "PASTE_YOUR_TMDB_API_KEY_HERE") {
         return null;
     }
 
+    const endpoint =
+        mediaType === "movie" ? "search/movie" :
+        mediaType === "tv" ? "search/tv" :
+        "search/multi";
+
     try {
 
         const searchUrl =
-            "https://api.themoviedb.org/3/search/multi" +
+            "https://api.themoviedb.org/3/" + endpoint +
             "?api_key=" + TMDB_API_KEY +
             "&query=" + encodeURIComponent(title);
 
         const response = await fetch(searchUrl);
         const result = await response.json();
 
-        const firstMatch = result.results && result.results.find(entry =>
-            (entry.media_type === "movie" || entry.media_type === "tv") &&
-            entry.poster_path
-        );
+        const firstMatch = result.results && result.results.find(entry => {
+
+            if (!entry.poster_path) {
+                return false;
+            }
+
+            if (endpoint === "search/multi") {
+                return entry.media_type === "movie" || entry.media_type === "tv";
+            }
+
+            return true;
+        });
 
         if (firstMatch) {
             return "https://image.tmdb.org/t/p/w300" + firstMatch.poster_path;
@@ -779,13 +795,37 @@ async function fetchPosterUrl(title) {
 
 async function attachPoster(movie) {
 
-    const posterUrl = await fetchPosterUrl(movie.title);
+    const posterUrl = await fetchPosterUrl(movie.title, movie.mediaType);
 
     if (posterUrl) {
         movie.poster = posterUrl;
         save();
         render();
     }
+}
+
+
+/* ==================================
+   TITLE TYPE PARSING
+   Lets a title carry its own type override by ending with
+   "(tv)" or "(movie)" — e.g. "Severance (tv)". Strips the
+   tag from the stored title and returns it separately. If no
+   tag is present, falls back to whatever default is passed in.
+================================== */
+
+function parseTitleAndType(rawTitle, defaultType) {
+
+    const match = rawTitle.match(/\s*\((tv show|tv|movie)\)\s*$/i);
+
+    if (!match) {
+        return { title: rawTitle, mediaType: defaultType };
+    }
+
+    const tag = match[1].toLowerCase();
+    const mediaType = tag.startsWith("tv") ? "tv" : "movie";
+    const cleanTitle = rawTitle.slice(0, match.index).trim();
+
+    return { title: cleanTitle || rawTitle, mediaType: mediaType };
 }
 
 
@@ -1261,24 +1301,35 @@ function render() {
 
 addMovieButton.onclick = function () {
 
+    let selectedType = "movie";
+
     openModal(
-        "Add Movie",
-        `<input id="movieNameInput" placeholder="Movie name">`,
+        "Add",
+        `
+        <input id="movieNameInput" placeholder='Title — or add "(tv)" to force a type'>
+        <div class="type-toggle">
+            <button type="button" id="typeMovieBtn" class="type-toggle-option selected">🎬 Movie</button>
+            <button type="button" id="typeTvBtn" class="type-toggle-option">📺 TV Show</button>
+        </div>
+        `,
         "Add",
         function () {
 
-            const title = document.getElementById("movieNameInput").value.trim();
+            const raw = document.getElementById("movieNameInput").value.trim();
 
-            if (!title) {
+            if (!raw) {
                 return;
             }
 
+            const parsed = parseTitleAndType(raw, selectedType);
+
             const newMovie = {
                 id: Date.now(),
-                title: title,
+                title: parsed.title,
                 tier: null,
                 order: data.movies.length,
-                poster: null
+                poster: null,
+                mediaType: parsed.mediaType
             };
 
             data.movies.push(newMovie);
@@ -1289,6 +1340,21 @@ addMovieButton.onclick = function () {
             attachPoster(newMovie);
         }
     );
+
+    const movieBtn = document.getElementById("typeMovieBtn");
+    const tvBtn = document.getElementById("typeTvBtn");
+
+    movieBtn.onclick = function () {
+        selectedType = "movie";
+        movieBtn.classList.add("selected");
+        tvBtn.classList.remove("selected");
+    };
+
+    tvBtn.onclick = function () {
+        selectedType = "tv";
+        tvBtn.classList.add("selected");
+        movieBtn.classList.remove("selected");
+    };
 };
 
 
@@ -1338,26 +1404,32 @@ addMultipleMoviesButton.onclick = function () {
 
     openModal(
         "Add Multiple Movies",
-        `<textarea id="multipleMovieInput" placeholder="Enter movie names separated by commas or new lines"></textarea>`,
+        `<textarea id="multipleMovieInput" placeholder='Enter titles separated by commas or new lines — add "(tv)" after any title to force it as a TV show'></textarea>`,
         "Add Movies",
         function () {
 
             const text = document.getElementById("multipleMovieInput").value;
 
-            const titles = text
+            const rawTitles = text
                 .split(/[\n,]+/)
                 .map(title => title.trim())
                 .filter(title => title.length);
 
             const startingOrder = data.movies.length;
 
-            const newMovies = titles.map((title, index) => ({
-                id: Date.now() + Math.random(),
-                title: title,
-                tier: null,
-                order: startingOrder + index,
-                poster: null
-            }));
+            const newMovies = rawTitles.map((rawTitle, index) => {
+
+                const parsed = parseTitleAndType(rawTitle, undefined);
+
+                return {
+                    id: Date.now() + Math.random(),
+                    title: parsed.title,
+                    tier: null,
+                    order: startingOrder + index,
+                    poster: null,
+                    mediaType: parsed.mediaType
+                };
+            });
 
             newMovies.forEach(movie => {
                 data.movies.push(movie);
