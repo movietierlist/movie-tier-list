@@ -769,6 +769,11 @@ async function fetchPosterUrl(title, mediaType) {
         const response = await fetch(searchUrl);
         const result = await response.json();
 
+        if (result.success === false) {
+            console.error("TMDb rejected the request for \"" + title + "\" via " + endpoint + ":", result.status_message);
+            return null;
+        }
+
         const firstMatch = result.results && result.results.find(entry => {
 
             if (!entry.poster_path) {
@@ -785,6 +790,8 @@ async function fetchPosterUrl(title, mediaType) {
         if (firstMatch) {
             return "https://image.tmdb.org/t/p/w300" + firstMatch.poster_path;
         }
+
+        console.warn("TMDb: no poster match for \"" + title + "\" via " + endpoint, result);
 
     } catch (error) {
         console.error("TMDb lookup failed for \"" + title + "\":", error);
@@ -815,7 +822,7 @@ async function attachPoster(movie) {
 
 function parseTitleAndType(rawTitle, defaultType) {
 
-    const match = rawTitle.match(/\s*\((tv show|tv|movie)\)\s*$/i);
+    const match = rawTitle.match(/\s*\(\s*(tv show|tv|movie)\s*\)\s*$/i);
 
     if (!match) {
         return { title: rawTitle, mediaType: defaultType };
