@@ -52,6 +52,72 @@ main {
 
 
 /* ==================================
+   HOME VIEW (LIST PICKER)
+================================== */
+
+.home-view {
+    max-width: 1300px;
+    margin: auto;
+    padding: 20px;
+}
+
+.list-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.empty-home-message {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 15px;
+}
+
+.list-card {
+    position: relative;
+    width: 220px;
+    background: #111827;
+    border-radius: 16px;
+    padding: 22px 20px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.list-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.list-card h3 {
+    margin: 0 26px 6px 0;
+    font-size: 18px;
+    word-break: break-word;
+}
+
+.list-card p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+}
+
+.list-card-menu {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 18px;
+}
+
+.list-card-menu:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+
+/* ==================================
    BUTTONS
 ================================== */
 
@@ -89,6 +155,8 @@ button {
 #addTier { background: #374151; }
 #deleteMovies { background: #b91c1c; }
 #settingsButton { background: #475569; }
+#homeButton { background: #0f172a; }
+#newListButton { background: #16a34a; }
 
 button:active {
     transform: scale(0.96);
