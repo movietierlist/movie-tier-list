@@ -8,11 +8,24 @@
 </head>
 <body>
 <header>
-    <h1>🎬 Movie Tier List</h1>
+    <h1 id="appTitle">🎬 Movie Tier List</h1>
 </header>
-<main>
+<!-- HOME VIEW: pick or create a tier list -->
+<div id="homeView" class="home-view hidden">
+    <div class="top-buttons">
+        <button id="newListButton">
+            + New Tier List
+        </button>
+    </div>
+    <div id="listGrid" class="list-grid"></div>
+</div>
+<!-- APP VIEW: the tier list editor -->
+<main id="appView">
     <!-- TOP CONTROLS -->
     <div class="top-buttons">
+        <button id="homeButton">
+            🏠 Home
+        </button>
         <button id="addMovie">
             + Add
         </button>
