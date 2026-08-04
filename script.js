@@ -17,7 +17,7 @@
    (Settings > API) and paste it below.
 ================================== */
 
-const TMDB_API_KEY = "67e7ad777efc7a0cee0587954ddf8d54";
+const TMDB_API_KEY = "PASTE_YOUR_TMDB_API_KEY_HERE";
 
 
 /* ==================================
@@ -25,6 +25,7 @@ const TMDB_API_KEY = "67e7ad777efc7a0cee0587954ddf8d54";
 ================================== */
 
 const addMovieButton = document.getElementById("addMovie");
+const addTextPosterMovieButton = document.getElementById("addTextPosterMovie");
 const addMultipleMoviesButton = document.getElementById("addMultipleMovies");
 const addTierButton = document.getElementById("addTier");
 const deleteMoviesButton = document.getElementById("deleteMovies");
@@ -698,9 +699,19 @@ function createMovie(movie) {
     card.className = "movie-card";
     card.dataset.movie = movie.id;
 
+    let posterContent;
+
+    if (movie.poster) {
+        posterContent = `<img src="${movie.poster}" alt="${movie.title} poster" draggable="false">`;
+    } else if (movie.textPoster) {
+        posterContent = `<div class="text-poster">${movie.title}</div>`;
+    } else {
+        posterContent = "🎬";
+    }
+
     card.innerHTML = `
         <div class="poster">
-            ${movie.poster ? `<img src="${movie.poster}" alt="${movie.title} poster" draggable="false">` : "🎬"}
+            ${posterContent}
         </div>
         <div class="movie-title">${movie.title}</div>
         <button class="movie-menu">⋮</button>
@@ -728,6 +739,10 @@ function createMovie(movie) {
    Looks a title up on TMDb and, if found, saves the poster
    URL onto the movie and re-renders. Runs in the background
    so adding movies still feels instant.
+
+   Uses TMDb's "multi" search, which checks movies, TV shows,
+   AND people in one call and tags each result with its type —
+   that's what lets this match TV shows too, not just movies.
 ================================== */
 
 async function fetchPosterUrl(title) {
@@ -739,16 +754,19 @@ async function fetchPosterUrl(title) {
     try {
 
         const searchUrl =
-            "https://api.themoviedb.org/3/search/movie" +
+            "https://api.themoviedb.org/3/search/multi" +
             "?api_key=" + TMDB_API_KEY +
             "&query=" + encodeURIComponent(title);
 
         const response = await fetch(searchUrl);
         const result = await response.json();
 
-        const firstMatch = result.results && result.results[0];
+        const firstMatch = result.results && result.results.find(entry =>
+            (entry.media_type === "movie" || entry.media_type === "tv") &&
+            entry.poster_path
+        );
 
-        if (firstMatch && firstMatch.poster_path) {
+        if (firstMatch) {
             return "https://image.tmdb.org/t/p/w300" + firstMatch.poster_path;
         }
 
@@ -1269,6 +1287,44 @@ addMovieButton.onclick = function () {
             render();
 
             attachPoster(newMovie);
+        }
+    );
+};
+
+
+/* ==================================
+   ADD MOVIE (TEXT POSTER)
+   Same as Add Movie, but skips the TMDb lookup entirely —
+   the title itself is shown styled as the poster instead.
+   Useful for anything TMDb won't match, or when you just
+   don't want an image fetched.
+================================== */
+
+addTextPosterMovieButton.onclick = function () {
+
+    openModal(
+        "Add Movie (Text Poster)",
+        `<input id="movieNameInput" placeholder="Movie name">`,
+        "Add",
+        function () {
+
+            const title = document.getElementById("movieNameInput").value.trim();
+
+            if (!title) {
+                return;
+            }
+
+            data.movies.push({
+                id: Date.now(),
+                title: title,
+                tier: null,
+                order: data.movies.length,
+                poster: null,
+                textPoster: true
+            });
+
+            save();
+            render();
         }
     );
 };
