@@ -26,10 +26,22 @@
             type="file"
             id="importFileInput"
             accept="application/json"
-            class="hidden">
+            class="visually-hidden-file-input">
     </div>
     <div id="listGrid" class="list-grid"></div>
+
+    <div class="section-divider"></div>
+
+    <h2 class="home-section-heading">🏆 Tournaments</h2>
+    <div class="top-buttons">
+        <button id="newTournamentButton">
+            + New Tournament
+        </button>
+    </div>
+    <div id="tournamentGrid" class="list-grid"></div>
 </div>
+<!-- TOURNAMENT PLAY VIEW: head-to-head bracket voting -->
+<div id="tournamentPlayView" class="tournament-view hidden"></div>
 <!-- APP VIEW: the tier list editor -->
 <main id="appView">
     <!-- TOP CONTROLS -->
