@@ -45,6 +45,9 @@ const listGrid = document.getElementById("listGrid");
 const exportListsButton = document.getElementById("exportListsButton");
 const importListsButton = document.getElementById("importListsButton");
 const importFileInput = document.getElementById("importFileInput");
+const tournamentGrid = document.getElementById("tournamentGrid");
+const newTournamentButton = document.getElementById("newTournamentButton");
+const tournamentPlayView = document.getElementById("tournamentPlayView");
 
 
 /* ==================================
@@ -269,6 +272,7 @@ function loadAppStore() {
         const migratedList = {
             id: Date.now() + Math.random(),
             name: "My Tier List",
+            type: "movie",
             data: legacy
         };
 
@@ -286,6 +290,11 @@ function loadAppStore() {
 
 let appStore = loadAppStore();
 let data = null;
+let activeListType = "movie";
+
+if (!appStore.tournaments) {
+    appStore.tournaments = [];
+}
 
 function saveAppStore() {
     localStorage.setItem("movieTierListApp", JSON.stringify(appStore));
@@ -341,6 +350,28 @@ function cleanupData() {
 
 
 /* ==================================
+   LIST TYPE WORDING
+   Movie lists use TMDb lookups and "movie" wording. General
+   lists skip TMDb entirely — everything is a text poster —
+   and every button/label swaps to "item" wording instead.
+================================== */
+
+function noun(movieWord, itemWord) {
+    return activeListType === "general" ? itemWord || "items" : movieWord || "movies";
+}
+
+function applyListTypeUI() {
+
+    const isGeneral = activeListType === "general";
+
+    addMovieButton.textContent = isGeneral ? "+ Add Item" : "+ Add";
+    deleteMoviesButton.textContent = isGeneral ? "🗑 Delete Items" : "🗑 Delete Movies";
+
+    addTextPosterMovieButton.classList.toggle("hidden", isGeneral);
+}
+
+
+/* ==================================
    LIST SWITCHING
    Handles moving between the home screen (picking/creating
    a list) and the app screen (editing whichever list is
@@ -357,13 +388,18 @@ function openList(listId) {
 
     appStore.activeListId = listId;
     data = list.data;
+    activeListType = list.type || "movie";
 
     cleanupData();
     saveAppStore();
 
-    appTitle.textContent = "🎬 " + list.name;
+    const typeIcon = activeListType === "general" ? "📝" : "🎬";
+    appTitle.textContent = typeIcon + " " + list.name;
+
+    applyListTypeUI();
 
     homeView.classList.add("hidden");
+    tournamentPlayView.classList.add("hidden");
     appView.classList.remove("hidden");
 
     normaliseMovieOrders();
@@ -374,15 +410,17 @@ function goHome() {
 
     homeView.classList.remove("hidden");
     appView.classList.add("hidden");
+    tournamentPlayView.classList.add("hidden");
 
     renderHome();
 }
 
-function createNewList(name) {
+function createNewList(name, type) {
 
     const newList = {
         id: Date.now() + Math.random(),
         name: name,
+        type: type || "movie",
         data: getDefaultListData()
     };
 
@@ -433,42 +471,46 @@ function renderHome() {
     listGrid.innerHTML = "";
 
     if (appStore.lists.length === 0) {
-
         listGrid.innerHTML = `<p class="empty-home-message">You don't have any tier lists yet — create one to get started.</p>`;
-        return;
+    } else {
+
+        appStore.lists.forEach(list => {
+
+            const itemCount = list.data.movies ? list.data.movies.length : 0;
+            const isGeneral = list.type === "general";
+            const typeLabel = isGeneral ? "📝 General List" : "🎬 Movie List";
+            const itemNoun = isGeneral ? "item" : "movie";
+
+            const card = document.createElement("div");
+            card.className = "list-card";
+
+            card.innerHTML = `
+                <button class="list-card-menu">⋮</button>
+                <h3>${list.name}</h3>
+                <p>${typeLabel} · ${itemCount} ${itemNoun}${itemCount === 1 ? "" : "s"}</p>
+            `;
+
+            card.onclick = function (event) {
+
+                if (event.target.closest(".list-card-menu")) {
+                    return;
+                }
+
+                openList(list.id);
+            };
+
+            const menuButton = card.querySelector(".list-card-menu");
+
+            menuButton.onclick = function (event) {
+                event.stopPropagation();
+                openListMenu(list, this);
+            };
+
+            listGrid.appendChild(card);
+        });
     }
 
-    appStore.lists.forEach(list => {
-
-        const movieCount = list.data.movies ? list.data.movies.length : 0;
-
-        const card = document.createElement("div");
-        card.className = "list-card";
-
-        card.innerHTML = `
-            <button class="list-card-menu">⋮</button>
-            <h3>${list.name}</h3>
-            <p>${movieCount} movie${movieCount === 1 ? "" : "s"}</p>
-        `;
-
-        card.onclick = function (event) {
-
-            if (event.target.closest(".list-card-menu")) {
-                return;
-            }
-
-            openList(list.id);
-        };
-
-        const menuButton = card.querySelector(".list-card-menu");
-
-        menuButton.onclick = function (event) {
-            event.stopPropagation();
-            openListMenu(list, this);
-        };
-
-        listGrid.appendChild(card);
-    });
+    renderTournamentsHome();
 }
 
 function openListMenu(list, button) {
@@ -513,15 +555,731 @@ function openListMenu(list, button) {
     ]);
 }
 
+
+/* ==================================
+   TOURNAMENT HELPERS
+================================== */
+
+function nextPowerOfTwo(n) {
+
+    let power = 1;
+
+    while (power < n) {
+        power *= 2;
+    }
+
+    return Math.max(power, 2);
+}
+
+function shuffleArray(array) {
+
+    const copy = [...array];
+
+    for (let i = copy.length - 1; i > 0; i--) {
+
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = copy[i];
+
+        copy[i] = copy[j];
+        copy[j] = temp;
+    }
+
+    return copy;
+}
+
+function findParticipant(tournament, id) {
+    return tournament.participants.find(p => p.id === id);
+}
+
+function renderParticipantPoster(participant) {
+
+    if (participant.poster) {
+        return `<div class="poster"><img src="${participant.poster}" alt="${participant.title} poster" draggable="false"></div>`;
+    }
+
+    if (participant.textPoster) {
+        return `<div class="poster"><div class="text-poster">${participant.title}</div></div>`;
+    }
+
+    return `<div class="poster">🎬</div>`;
+}
+
+function buildFirstRound(participants, byeIds) {
+
+    const byeSet = new Set(byeIds);
+    const byeParticipants = participants.filter(p => byeSet.has(p.id));
+    const playing = shuffleArray(participants.filter(p => !byeSet.has(p.id)));
+
+    const matches = [];
+
+    for (let i = 0; i < playing.length; i += 2) {
+
+        matches.push({
+            a: playing[i].id,
+            b: playing[i + 1].id,
+            winner: null
+        });
+    }
+
+    byeParticipants.forEach(participant => {
+        matches.push({ a: participant.id, b: null, winner: participant.id });
+    });
+
+    return shuffleArray(matches);
+}
+
+function buildNextRound(previousRoundMatches) {
+
+    const winners = previousRoundMatches.map(m => m.winner);
+    const matches = [];
+
+    for (let i = 0; i < winners.length; i += 2) {
+        matches.push({ a: winners[i], b: winners[i + 1], winner: null });
+    }
+
+    return matches;
+}
+
+
+/* ==================================
+   TOURNAMENT CREATION
+================================== */
+
+function openNewTournamentFlow() {
+
+    let selectedSource = "existing";
+
+    openModal(
+        "New Tournament",
+        `
+        <input id="tournamentNameInput" placeholder="e.g. Best Movie Ever">
+        <div class="type-toggle">
+            <button type="button" id="sourceExistingBtn" class="type-toggle-option selected">From A List</button>
+            <button type="button" id="sourceFreshBtn" class="type-toggle-option">Enter Fresh</button>
+        </div>
+        `,
+        "Next",
+        function () {
+
+            const name = document.getElementById("tournamentNameInput").value.trim();
+
+            if (!name) {
+                return;
+            }
+
+            if (selectedSource === "existing") {
+                openTournamentSourceListPicker(name);
+            } else {
+                openTournamentFreshEntry(name);
+            }
+        }
+    );
+
+    const existingBtn = document.getElementById("sourceExistingBtn");
+    const freshBtn = document.getElementById("sourceFreshBtn");
+
+    existingBtn.onclick = function () {
+        selectedSource = "existing";
+        existingBtn.classList.add("selected");
+        freshBtn.classList.remove("selected");
+    };
+
+    freshBtn.onclick = function () {
+        selectedSource = "fresh";
+        freshBtn.classList.add("selected");
+        existingBtn.classList.remove("selected");
+    };
+}
+
+function openTournamentSourceListPicker(name) {
+
+    if (appStore.lists.length === 0) {
+
+        openModal(
+            "No Tier Lists",
+            `<p>You don't have any tier lists to pull from yet. Try "Enter Fresh" instead.</p>`,
+            "OK",
+            function () {}
+        );
+
+        return;
+    }
+
+    openModal(
+        "Choose A List",
+        `<div id="pickListContainer" class="pick-list"></div>`,
+        "Close",
+        function () {}
+    );
+
+    const container = document.getElementById("pickListContainer");
+
+    appStore.lists.forEach(list => {
+
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "pick-row";
+        row.textContent = list.name;
+
+        row.onclick = function () {
+            closeModal();
+            proceedWithParticipantsFromList(name, list);
+        };
+
+        container.appendChild(row);
+    });
+}
+
+function proceedWithParticipantsFromList(name, list) {
+
+    const participants = (list.data.movies || []).map(movie => ({
+        id: Date.now() + Math.random(),
+        title: movie.title,
+        poster: movie.poster || null,
+        textPoster: movie.textPoster || false
+    }));
+
+    if (participants.length < 2) {
+
+        openModal(
+            "Not Enough Items",
+            `<p>"${list.name}" needs at least 2 items to run a tournament.</p>`,
+            "OK",
+            function () {}
+        );
+
+        return;
+    }
+
+    beginTournamentSetup(name, participants);
+}
+
+function openTournamentFreshEntry(name) {
+
+    let selectedType = "movie";
+
+    openModal(
+        "Enter Participants",
+        `
+        <div class="type-toggle">
+            <button type="button" id="freshTypeMovieBtn" class="type-toggle-option selected">🎬 Movie/TV</button>
+            <button type="button" id="freshTypeGeneralBtn" class="type-toggle-option">📝 Text Only</button>
+        </div>
+        <textarea id="tournamentParticipantsInput" placeholder="Enter names separated by commas or new lines"></textarea>
+        `,
+        "Next",
+        function () {
+
+            const text = document.getElementById("tournamentParticipantsInput").value;
+
+            const titles = text
+                .split(/[\n,]+/)
+                .map(t => t.trim())
+                .filter(t => t.length);
+
+            if (titles.length < 2) {
+
+                openModal(
+                    "Not Enough Participants",
+                    `<p>Enter at least 2 names to run a tournament.</p>`,
+                    "OK",
+                    function () {}
+                );
+
+                return;
+            }
+
+            const participants = titles.map(title => ({
+                id: Date.now() + Math.random(),
+                title: title,
+                poster: null,
+                textPoster: selectedType === "general"
+            }));
+
+            beginTournamentSetup(name, participants);
+
+            if (selectedType === "movie") {
+                participants.forEach(attachTournamentPoster);
+            }
+        }
+    );
+
+    const movieBtn = document.getElementById("freshTypeMovieBtn");
+    const generalBtn = document.getElementById("freshTypeGeneralBtn");
+
+    movieBtn.onclick = function () {
+        selectedType = "movie";
+        movieBtn.classList.add("selected");
+        generalBtn.classList.remove("selected");
+    };
+
+    generalBtn.onclick = function () {
+        selectedType = "general";
+        generalBtn.classList.add("selected");
+        movieBtn.classList.remove("selected");
+    };
+}
+
+async function attachTournamentPoster(participant) {
+
+    const posterUrl = await fetchPosterUrl(participant.title);
+
+    if (posterUrl) {
+        participant.poster = posterUrl;
+        saveAppStore();
+    }
+}
+
+function beginTournamentSetup(name, participants) {
+
+    const bracketSize = nextPowerOfTwo(participants.length);
+    const byesNeeded = bracketSize - participants.length;
+
+    if (byesNeeded === 0) {
+        finalizeNewTournament(name, participants, []);
+        return;
+    }
+
+    openByeSelectionModal(name, participants, byesNeeded);
+}
+
+function openByeSelectionModal(name, participants, byesNeeded) {
+
+    openModal(
+        "Choose Byes",
+        `
+        <p class="bye-instructions">Your bracket needs ${byesNeeded} bye${byesNeeded === 1 ? "" : "s"} — pick exactly ${byesNeeded} to automatically skip Round 1.</p>
+        <div id="byeCheckboxList" class="delete-movie-list"></div>
+        `,
+        "Start Tournament",
+        function () {
+
+            const checked = modalContent.querySelectorAll(".byeCheckbox:checked");
+
+            if (checked.length !== byesNeeded) {
+                return;
+            }
+
+            const byeIds = Array.from(checked).map(box => Number(box.dataset.participantId));
+
+            finalizeNewTournament(name, participants, byeIds);
+        }
+    );
+
+    const listContainer = document.getElementById("byeCheckboxList");
+
+    participants.forEach(participant => {
+
+        const row = document.createElement("label");
+        row.className = "delete-movie-row";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "byeCheckbox";
+        checkbox.dataset.participantId = participant.id;
+
+        checkbox.onchange = function () {
+
+            const checkedCount = listContainer.querySelectorAll(".byeCheckbox:checked").length;
+            const allCheckboxes = listContainer.querySelectorAll(".byeCheckbox");
+
+            allCheckboxes.forEach(box => {
+                if (!box.checked) {
+                    box.disabled = checkedCount >= byesNeeded;
+                }
+            });
+        };
+
+        row.appendChild(checkbox);
+        row.appendChild(document.createTextNode(participant.title));
+
+        listContainer.appendChild(row);
+    });
+}
+
+function finalizeNewTournament(name, participants, byeIds) {
+
+    const tournament = {
+        id: Date.now() + Math.random(),
+        name: name,
+        participants: participants,
+        matches: [],
+        currentRound: 0,
+        currentMatch: 0,
+        status: "active",
+        winnerId: null
+    };
+
+    tournament.matches.push(buildFirstRound(participants, byeIds));
+
+    appStore.tournaments.push(tournament);
+    saveAppStore();
+
+    openTournament(tournament.id);
+}
+
+
+/* ==================================
+   TOURNAMENT PLAY
+================================== */
+
+function openTournament(id) {
+
+    const tournament = appStore.tournaments.find(t => t.id === id);
+
+    if (!tournament) {
+        return;
+    }
+
+    homeView.classList.add("hidden");
+    appView.classList.add("hidden");
+    tournamentPlayView.classList.remove("hidden");
+
+    renderTournamentPlay(tournament);
+}
+
+function renderTournamentPlay(tournament) {
+
+    while (true) {
+
+        const roundMatches = tournament.matches[tournament.currentRound];
+
+        while (tournament.currentMatch < roundMatches.length && roundMatches[tournament.currentMatch].winner) {
+            tournament.currentMatch++;
+        }
+
+        if (tournament.currentMatch < roundMatches.length) {
+            break;
+        }
+
+        if (roundMatches.length === 1) {
+            tournament.status = "complete";
+            tournament.winnerId = roundMatches[0].winner;
+            saveAppStore();
+            renderTournamentComplete(tournament);
+            return;
+        }
+
+        tournament.matches.push(buildNextRound(roundMatches));
+        tournament.currentRound++;
+        tournament.currentMatch = 0;
+    }
+
+    saveAppStore();
+
+    const roundMatches = tournament.matches[tournament.currentRound];
+    const match = roundMatches[tournament.currentMatch];
+
+    const participantA = findParticipant(tournament, match.a);
+    const participantB = findParticipant(tournament, match.b);
+
+    const roundLabel = roundMatches.length === 1 ? "Final" : "Round of " + (roundMatches.length * 2);
+
+    tournamentPlayView.innerHTML = `
+        <div class="tournament-header">
+            <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
+            <h2>${tournament.name}</h2>
+            <p>${roundLabel} — Match ${tournament.currentMatch + 1} of ${roundMatches.length}</p>
+        </div>
+        <div class="matchup">
+            <div class="matchup-card" data-pick="a">
+                ${renderParticipantPoster(participantA)}
+                <div class="matchup-title">${participantA.title}</div>
+            </div>
+            <div class="matchup-vs">VS</div>
+            <div class="matchup-card" data-pick="b">
+                ${renderParticipantPoster(participantB)}
+                <div class="matchup-title">${participantB.title}</div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById("tournamentExitButton").onclick = function () {
+        goHome();
+    };
+
+    tournamentPlayView.querySelectorAll(".matchup-card").forEach(card => {
+
+        card.onclick = function () {
+            const pick = card.dataset.pick === "a" ? match.a : match.b;
+            pickWinner(tournament, match, pick);
+        };
+    });
+}
+
+function pickWinner(tournament, match, winnerId) {
+
+    match.winner = winnerId;
+    tournament.currentMatch++;
+
+    saveAppStore();
+    renderTournamentPlay(tournament);
+}
+
+function renderTournamentComplete(tournament) {
+
+    const winner = findParticipant(tournament, tournament.winnerId);
+
+    tournamentPlayView.innerHTML = `
+        <div class="tournament-header">
+            <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
+            <h2>${tournament.name}</h2>
+            <p>🏆 Winner!</p>
+        </div>
+        <div class="tournament-winner">
+            ${renderParticipantPoster(winner)}
+            <h3>${winner.title}</h3>
+            <div class="tournament-winner-actions">
+                <button id="addWinnerToListButton">Add To A Tier List</button>
+                <button id="tournamentDoneButton">Done</button>
+            </div>
+        </div>
+    `;
+
+    document.getElementById("tournamentExitButton").onclick = function () {
+        goHome();
+    };
+
+    document.getElementById("tournamentDoneButton").onclick = function () {
+        goHome();
+    };
+
+    document.getElementById("addWinnerToListButton").onclick = function () {
+        promptAddWinnerToList(winner);
+    };
+}
+
+function promptAddWinnerToList(winner) {
+
+    if (appStore.lists.length === 0) {
+
+        openModal(
+            "No Tier Lists",
+            `<p>You don't have any tier lists to add this to yet.</p>`,
+            "OK",
+            function () {}
+        );
+
+        return;
+    }
+
+    openModal(
+        "Add To Which List?",
+        `<div id="winnerListPicker" class="pick-list"></div>`,
+        "Close",
+        function () {}
+    );
+
+    const container = document.getElementById("winnerListPicker");
+
+    appStore.lists.forEach(list => {
+
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "pick-row";
+        row.textContent = list.name;
+
+        row.onclick = function () {
+            closeModal();
+            promptAddWinnerToTier(winner, list);
+        };
+
+        container.appendChild(row);
+    });
+}
+
+function promptAddWinnerToTier(winner, list) {
+
+    const tiers = [...(list.data.tiers || [])].sort((a, b) => a.order - b.order);
+
+    if (tiers.length === 0) {
+
+        openModal(
+            "No Tiers",
+            `<p>"${list.name}" doesn't have any tiers to add to.</p>`,
+            "OK",
+            function () {}
+        );
+
+        return;
+    }
+
+    openModal(
+        "Add To Which Tier?",
+        `<div id="winnerTierPicker" class="pick-list"></div>`,
+        "Close",
+        function () {}
+    );
+
+    const container = document.getElementById("winnerTierPicker");
+
+    tiers.forEach(tier => {
+
+        const row = document.createElement("button");
+        row.type = "button";
+        row.className = "pick-row";
+        row.textContent = tier.name;
+        row.style.background = tier.colour;
+
+        row.onclick = function () {
+
+            closeModal();
+
+            if (!list.data.movies) {
+                list.data.movies = [];
+            }
+
+            const newItem = {
+                id: Date.now() + Math.random(),
+                title: winner.title,
+                tier: tier.id,
+                order: list.data.movies.filter(m => m.tier === tier.id).length,
+                poster: winner.poster || null,
+                textPoster: winner.textPoster || false
+            };
+
+            list.data.movies.push(newItem);
+            saveAppStore();
+
+            openModal(
+                "Added!",
+                `<p>${winner.title} was added to "${tier.name}" in "${list.name}".</p>`,
+                "OK",
+                function () {}
+            );
+        };
+
+        container.appendChild(row);
+    });
+}
+
+
+/* ==================================
+   TOURNAMENTS HOME
+================================== */
+
+function renderTournamentsHome() {
+
+    tournamentGrid.innerHTML = "";
+
+    if (appStore.tournaments.length === 0) {
+        tournamentGrid.innerHTML = `<p class="empty-home-message">No tournaments yet — start one to find your favorite.</p>`;
+        return;
+    }
+
+    appStore.tournaments.forEach(tournament => {
+
+        const card = document.createElement("div");
+        card.className = "list-card";
+
+        let statusLine;
+
+        if (tournament.status === "complete") {
+
+            const winner = findParticipant(tournament, tournament.winnerId);
+            statusLine = "🏆 Winner: " + (winner ? winner.title : "—");
+
+        } else {
+
+            const roundMatches = tournament.matches[tournament.currentRound] || [];
+            const roundLabel = roundMatches.length === 1 ? "Final" : "Round of " + (roundMatches.length * 2);
+            statusLine = "In Progress — " + roundLabel;
+        }
+
+        card.innerHTML = `
+            <button class="list-card-menu">⋮</button>
+            <h3>${tournament.name}</h3>
+            <p>${statusLine}</p>
+        `;
+
+        card.onclick = function (event) {
+
+            if (event.target.closest(".list-card-menu")) {
+                return;
+            }
+
+            openTournament(tournament.id);
+        };
+
+        const menuButton = card.querySelector(".list-card-menu");
+
+        menuButton.onclick = function (event) {
+            event.stopPropagation();
+            openTournamentMenu(tournament, this);
+        };
+
+        tournamentGrid.appendChild(card);
+    });
+}
+
+function openTournamentMenu(tournament, button) {
+
+    showMenu(button, [
+
+        {
+            label: "Rename",
+            action: function () {
+
+                openModal(
+                    "Rename Tournament",
+                    `<input id="tournamentRenameInput" value="${tournament.name}">`,
+                    "Save",
+                    function () {
+
+                        const name = document.getElementById("tournamentRenameInput").value.trim();
+
+                        if (name) {
+                            tournament.name = name;
+                            saveAppStore();
+                            renderTournamentsHome();
+                        }
+                    }
+                );
+            }
+        },
+
+        {
+            label: "Delete",
+            action: function () {
+
+                openModal(
+                    "Delete Tournament",
+                    `<p>Delete "${tournament.name}"? This can't be undone.</p>`,
+                    "Delete",
+                    function () {
+
+                        appStore.tournaments = appStore.tournaments.filter(t => t.id !== tournament.id);
+                        saveAppStore();
+                        renderTournamentsHome();
+                    }
+                );
+            }
+        }
+
+    ]);
+}
+
+newTournamentButton.onclick = function () {
+    openNewTournamentFlow();
+};
+
 homeButton.onclick = function () {
     goHome();
 };
 
 newListButton.onclick = function () {
 
+    let selectedListType = "movie";
+
     openModal(
         "New Tier List",
-        `<input id="listNameInput" placeholder="e.g. Best of 2026">`,
+        `
+        <input id="listNameInput" placeholder="e.g. Best of 2026">
+        <div class="type-toggle">
+            <button type="button" id="listTypeMovieBtn" class="type-toggle-option selected">🎬 Movie List</button>
+            <button type="button" id="listTypeGeneralBtn" class="type-toggle-option">📝 General List</button>
+        </div>
+        `,
         "Create",
         function () {
 
@@ -531,9 +1289,24 @@ newListButton.onclick = function () {
                 return;
             }
 
-            createNewList(name);
+            createNewList(name, selectedListType);
         }
     );
+
+    const movieTypeBtn = document.getElementById("listTypeMovieBtn");
+    const generalTypeBtn = document.getElementById("listTypeGeneralBtn");
+
+    movieTypeBtn.onclick = function () {
+        selectedListType = "movie";
+        movieTypeBtn.classList.add("selected");
+        generalTypeBtn.classList.remove("selected");
+    };
+
+    generalTypeBtn.onclick = function () {
+        selectedListType = "general";
+        generalTypeBtn.classList.add("selected");
+        movieTypeBtn.classList.remove("selected");
+    };
 };
 
 
@@ -1566,14 +2339,16 @@ function moveMovieToPosition(movie, tierID, targetIndex) {
 
 function openMovieMenu(movie, button) {
 
+    const singular = activeListType === "general" ? "Item" : "Movie";
+
     showMenu(button, [
 
         {
-            label: "Edit Movie",
+            label: "Edit " + singular,
             action: function () {
 
                 openModal(
-                    "Edit Movie",
+                    "Edit " + singular,
                     `<input id="movieNameInput" value="${movie.title}">`,
                     "Save",
                     function () {
@@ -1591,7 +2366,7 @@ function openMovieMenu(movie, button) {
         },
 
         {
-            label: "Move To Movie Bank",
+            label: activeListType === "general" ? "Move To Unranked" : "Move To Movie Bank",
             action: function () {
 
                 movie.tier = null;
@@ -1604,11 +2379,11 @@ function openMovieMenu(movie, button) {
         },
 
         {
-            label: "Delete Movie",
+            label: "Delete " + singular,
             action: function () {
 
                 openModal(
-                    "Delete Movie",
+                    "Delete " + singular,
                     `<p>Delete ${movie.title}?</p>`,
                     "Delete",
                     function () {
@@ -1664,6 +2439,37 @@ function render() {
 ================================== */
 
 addMovieButton.onclick = function () {
+
+    if (activeListType === "general") {
+
+        openModal(
+            "Add Item",
+            `<input id="movieNameInput" placeholder="Item name">`,
+            "Add",
+            function () {
+
+                const title = document.getElementById("movieNameInput").value.trim();
+
+                if (!title) {
+                    return;
+                }
+
+                data.movies.push({
+                    id: Date.now(),
+                    title: title,
+                    tier: null,
+                    order: data.movies.length,
+                    poster: null,
+                    textPoster: true
+                });
+
+                save();
+                render();
+            }
+        );
+
+        return;
+    }
 
     let selectedType = "movie";
 
@@ -1766,6 +2572,43 @@ addTextPosterMovieButton.onclick = function () {
 
 addMultipleMoviesButton.onclick = function () {
 
+    if (activeListType === "general") {
+
+        openModal(
+            "Bulk Import",
+            `<textarea id="multipleMovieInput" placeholder="Enter item names separated by commas or new lines"></textarea>`,
+            "Add Items",
+            function () {
+
+                const text = document.getElementById("multipleMovieInput").value;
+
+                const titles = text
+                    .split(/[\n,]+/)
+                    .map(title => title.trim())
+                    .filter(title => title.length);
+
+                const startingOrder = data.movies.length;
+
+                titles.forEach((title, index) => {
+
+                    data.movies.push({
+                        id: Date.now() + Math.random(),
+                        title: title,
+                        tier: null,
+                        order: startingOrder + index,
+                        poster: null,
+                        textPoster: true
+                    });
+                });
+
+                save();
+                render();
+            }
+        );
+
+        return;
+    }
+
     openModal(
         "Add Multiple Movies",
         `<textarea id="multipleMovieInput" placeholder='Enter titles separated by commas or new lines — add "(tv)" after any title to force it as a TV show'></textarea>`,
@@ -1814,11 +2657,13 @@ addMultipleMoviesButton.onclick = function () {
 
 deleteMoviesButton.onclick = function () {
 
+    const modalTitleText = activeListType === "general" ? "Delete Items" : "Delete Movies";
+
     if (data.movies.length === 0) {
 
         openModal(
-            "Delete Movies",
-            `<p>You don't have any movies yet.</p>`,
+            modalTitleText,
+            `<p>You don't have any ${noun("movies", "items")} yet.</p>`,
             "OK",
             function () {}
         );
@@ -1837,7 +2682,7 @@ deleteMoviesButton.onclick = function () {
         .join("");
 
     openModal(
-        "Delete Movies",
+        modalTitleText,
         `
         <label class="delete-movie-row select-all-row">
             <input type="checkbox" id="selectAllMoviesCheckbox">
