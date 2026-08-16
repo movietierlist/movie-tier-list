@@ -306,6 +306,10 @@ if (!appStore.tournaments) {
     appStore.tournaments = [];
 }
 
+if (!appStore.settings) {
+    appStore.settings = { bracketViewMode: "single" };
+}
+
 function saveAppStore() {
     localStorage.setItem("movieTierListApp", JSON.stringify(appStore));
 }
@@ -948,48 +952,89 @@ function openTournament(id) {
     renderTournamentPlay(tournament);
 }
 
-function renderTournamentPlay(tournament) {
+function advanceTournamentState(tournament) {
 
     while (true) {
 
         const roundMatches = tournament.matches[tournament.currentRound];
+        const nextIndex = roundMatches.findIndex(m => !m.winner);
 
-        while (tournament.currentMatch < roundMatches.length && roundMatches[tournament.currentMatch].winner) {
-            tournament.currentMatch++;
-        }
-
-        if (tournament.currentMatch < roundMatches.length) {
-            break;
+        if (nextIndex !== -1) {
+            tournament.currentMatch = nextIndex;
+            return { complete: false, roundMatches: roundMatches, matchIndex: nextIndex };
         }
 
         if (roundMatches.length === 1) {
             tournament.status = "complete";
             tournament.winnerId = roundMatches[0].winner;
             saveAppStore();
-            renderTournamentComplete(tournament);
-            return;
+            return { complete: true };
         }
 
         tournament.matches.push(buildNextRound(roundMatches));
         tournament.currentRound++;
-        tournament.currentMatch = 0;
+    }
+}
+
+function renderTournamentPlay(tournament) {
+
+    const state = advanceTournamentState(tournament);
+
+    if (state.complete) {
+        renderTournamentComplete(tournament);
+        return;
     }
 
     saveAppStore();
 
-    const roundMatches = tournament.matches[tournament.currentRound];
-    const match = roundMatches[tournament.currentMatch];
+    if (appStore.settings.bracketViewMode === "tree") {
+        renderBracketTree(tournament);
+    } else {
+        renderSingleMatchup(tournament, state);
+    }
+}
+
+function wireTournamentHeaderButtons(tournament) {
+
+    document.getElementById("tournamentExitButton").onclick = function () {
+        goHome();
+    };
+
+    const singleBtn = document.getElementById("viewModeSingleBtn");
+    const treeBtn = document.getElementById("viewModeTreeBtn");
+
+    singleBtn.onclick = function () {
+        appStore.settings.bracketViewMode = "single";
+        saveAppStore();
+        renderTournamentPlay(tournament);
+    };
+
+    treeBtn.onclick = function () {
+        appStore.settings.bracketViewMode = "tree";
+        saveAppStore();
+        renderTournamentPlay(tournament);
+    };
+}
+
+function renderSingleMatchup(tournament, state) {
+
+    const match = state.roundMatches[state.matchIndex];
 
     const participantA = findParticipant(tournament, match.a);
     const participantB = findParticipant(tournament, match.b);
 
-    const roundLabel = roundMatches.length === 1 ? "Final" : "Round of " + (roundMatches.length * 2);
+    const roundLabel = state.roundMatches.length === 1 ? "Final" : "Round of " + (state.roundMatches.length * 2);
+    const isTreeMode = appStore.settings.bracketViewMode === "tree";
 
     tournamentPlayView.innerHTML = `
         <div class="tournament-header">
             <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
             <h2>${tournament.name}</h2>
-            <p>${roundLabel} — Match ${tournament.currentMatch + 1} of ${roundMatches.length}</p>
+            <p>${roundLabel} — Match ${state.matchIndex + 1} of ${state.roundMatches.length}</p>
+            <div class="type-toggle view-mode-toggle">
+                <button type="button" id="viewModeSingleBtn" class="type-toggle-option ${isTreeMode ? "" : "selected"}">🎯 Single Match</button>
+                <button type="button" id="viewModeTreeBtn" class="type-toggle-option ${isTreeMode ? "selected" : ""}">🌳 Full Tree</button>
+            </div>
         </div>
         <div class="matchup">
             <div class="matchup-card" data-pick="a">
@@ -1004,9 +1049,7 @@ function renderTournamentPlay(tournament) {
         </div>
     `;
 
-    document.getElementById("tournamentExitButton").onclick = function () {
-        goHome();
-    };
+    wireTournamentHeaderButtons(tournament);
 
     tournamentPlayView.querySelectorAll(".matchup-card").forEach(card => {
 
@@ -1017,10 +1060,98 @@ function renderTournamentPlay(tournament) {
     });
 }
 
+function renderBracketTree(tournament) {
+
+    const bracketSize = tournament.matches[0].length * 2;
+    const totalRounds = Math.log2(bracketSize);
+    const isTreeMode = appStore.settings.bracketViewMode === "tree";
+
+    let columnsHTML = "";
+
+    for (let roundIndex = 0; roundIndex < totalRounds; roundIndex++) {
+
+        const roundMatches = tournament.matches[roundIndex];
+        const expectedMatchCount = bracketSize / Math.pow(2, roundIndex + 1);
+        const roundLabel = expectedMatchCount === 1 ? "Final" : "Round of " + (expectedMatchCount * 2);
+
+        let matchesHTML = "";
+
+        for (let matchIndex = 0; matchIndex < expectedMatchCount; matchIndex++) {
+
+            const match = roundMatches && roundMatches[matchIndex];
+
+            if (!match) {
+
+                matchesHTML += `
+                    <div class="tree-match tree-match-tbd">
+                        <div class="tree-slot">TBD</div>
+                        <div class="tree-slot">TBD</div>
+                    </div>
+                `;
+
+                continue;
+            }
+
+            const participantA = findParticipant(tournament, match.a);
+            const participantB = match.b ? findParticipant(tournament, match.b) : null;
+            const isDecided = !!match.winner;
+            const isClickable = !isDecided && participantB;
+
+            const slotClass = (participant, id) => {
+                if (!isDecided) return "";
+                return match.winner === id ? "tree-slot-winner" : "tree-slot-loser";
+            };
+
+            matchesHTML += `
+                <div class="tree-match ${isClickable ? "tree-match-active" : ""}" data-round="${roundIndex}" data-match="${matchIndex}">
+                    <div class="tree-slot ${slotClass(participantA, match.a)}" data-pick="a">${participantA.title}</div>
+                    <div class="tree-slot ${participantB ? slotClass(participantB, match.b) : ""}" data-pick="b">${participantB ? participantB.title : "(bye)"}</div>
+                </div>
+            `;
+        }
+
+        columnsHTML += `
+            <div class="tree-round">
+                <div class="tree-round-label">${roundLabel}</div>
+                <div class="tree-round-matches">${matchesHTML}</div>
+            </div>
+        `;
+    }
+
+    tournamentPlayView.innerHTML = `
+        <div class="tournament-header">
+            <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
+            <h2>${tournament.name}</h2>
+            <div class="type-toggle view-mode-toggle">
+                <button type="button" id="viewModeSingleBtn" class="type-toggle-option ${isTreeMode ? "" : "selected"}">🎯 Single Match</button>
+                <button type="button" id="viewModeTreeBtn" class="type-toggle-option ${isTreeMode ? "selected" : ""}">🌳 Full Tree</button>
+            </div>
+        </div>
+        <div class="bracket-tree">${columnsHTML}</div>
+    `;
+
+    wireTournamentHeaderButtons(tournament);
+
+    tournamentPlayView.querySelectorAll(".tree-match-active").forEach(matchEl => {
+
+        matchEl.querySelectorAll(".tree-slot").forEach(slotEl => {
+
+            slotEl.onclick = function () {
+
+                const roundIndex = Number(matchEl.dataset.round);
+                const matchIndex = Number(matchEl.dataset.match);
+                const match = tournament.matches[roundIndex][matchIndex];
+                const pick = slotEl.dataset.pick === "a" ? match.a : match.b;
+
+                pickWinner(tournament, match, pick);
+            };
+        });
+    });
+}
+
 function pickWinner(tournament, match, winnerId) {
 
     match.winner = winnerId;
-    tournament.currentMatch++;
 
     saveAppStore();
     renderTournamentPlay(tournament);
