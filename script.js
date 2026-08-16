@@ -307,7 +307,7 @@ if (!appStore.tournaments) {
 }
 
 if (!appStore.settings) {
-    appStore.settings = { bracketViewMode: "single" };
+    appStore.settings = { bracketViewMode: "single", treeDisplayMode: "text" };
 }
 
 function saveAppStore() {
@@ -616,6 +616,21 @@ function renderParticipantPoster(participant) {
     }
 
     return `<div class="poster">🎬</div>`;
+}
+
+function renderTreeSlotContent(participant) {
+
+    const mode = appStore.settings.treeDisplayMode || "text";
+
+    if (mode === "poster") {
+        return renderParticipantPoster(participant);
+    }
+
+    if (mode === "both") {
+        return renderParticipantPoster(participant) + `<span class="tree-slot-title">${participant.title}</span>`;
+    }
+
+    return `<span class="tree-slot-title">${participant.title}</span>`;
 }
 
 function buildFirstRound(participants, byeIds) {
@@ -1104,8 +1119,8 @@ function renderBracketTree(tournament) {
 
             matchesHTML += `
                 <div class="tree-match ${isClickable ? "tree-match-active" : ""}" data-round="${roundIndex}" data-match="${matchIndex}">
-                    <div class="tree-slot ${slotClass(participantA, match.a)}" data-pick="a">${participantA.title}</div>
-                    <div class="tree-slot ${participantB ? slotClass(participantB, match.b) : ""}" data-pick="b">${participantB ? participantB.title : "(bye)"}</div>
+                    <div class="tree-slot ${slotClass(participantA, match.a)}" data-pick="a">${renderTreeSlotContent(participantA)}</div>
+                    <div class="tree-slot ${participantB ? slotClass(participantB, match.b) : ""}" data-pick="b">${participantB ? renderTreeSlotContent(participantB) : "(bye)"}</div>
                 </div>
             `;
         }
@@ -1118,6 +1133,8 @@ function renderBracketTree(tournament) {
         `;
     }
 
+    const treeDisplayMode = appStore.settings.treeDisplayMode || "text";
+
     tournamentPlayView.innerHTML = `
         <div class="tournament-header">
             <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
@@ -1126,11 +1143,34 @@ function renderBracketTree(tournament) {
                 <button type="button" id="viewModeSingleBtn" class="type-toggle-option ${isTreeMode ? "" : "selected"}">🎯 Single Match</button>
                 <button type="button" id="viewModeTreeBtn" class="type-toggle-option ${isTreeMode ? "selected" : ""}">🌳 Full Tree</button>
             </div>
+            <div class="type-toggle display-mode-toggle">
+                <button type="button" id="displayTextBtn" class="type-toggle-option ${treeDisplayMode === "text" ? "selected" : ""}">🔤 Text Only</button>
+                <button type="button" id="displayBothBtn" class="type-toggle-option ${treeDisplayMode === "both" ? "selected" : ""}">🖼️ Text + Poster</button>
+                <button type="button" id="displayPosterBtn" class="type-toggle-option ${treeDisplayMode === "poster" ? "selected" : ""}">🎬 Poster Only</button>
+            </div>
         </div>
         <div class="bracket-tree">${columnsHTML}</div>
     `;
 
     wireTournamentHeaderButtons(tournament);
+
+    document.getElementById("displayTextBtn").onclick = function () {
+        appStore.settings.treeDisplayMode = "text";
+        saveAppStore();
+        renderTournamentPlay(tournament);
+    };
+
+    document.getElementById("displayBothBtn").onclick = function () {
+        appStore.settings.treeDisplayMode = "both";
+        saveAppStore();
+        renderTournamentPlay(tournament);
+    };
+
+    document.getElementById("displayPosterBtn").onclick = function () {
+        appStore.settings.treeDisplayMode = "poster";
+        saveAppStore();
+        renderTournamentPlay(tournament);
+    };
 
     tournamentPlayView.querySelectorAll(".tree-match-active").forEach(matchEl => {
 
