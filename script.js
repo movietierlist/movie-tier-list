@@ -89,10 +89,20 @@ modalCancel.onclick = function () {
 };
 
 modalConfirm.onclick = function () {
-    if (modalAction) {
-        modalAction();
+
+    const actionToRun = modalAction;
+
+    if (actionToRun) {
+        actionToRun();
     }
-    closeModal();
+
+    // If the action opened a NEW modal (common when one step leads
+    // into another, like Tournament setup), modalAction now points
+    // at that new step's callback instead of the one we just ran —
+    // in that case, leave the new modal open instead of closing it.
+    if (modalAction === actionToRun) {
+        closeModal();
+    }
 };
 
 document.addEventListener("keydown", function (event) {
