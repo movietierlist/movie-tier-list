@@ -299,6 +299,105 @@ main {
 
 
 /* ==================================
+   VIEW MODE TOGGLE (in tournament header)
+================================== */
+
+.view-mode-toggle {
+    max-width: 320px;
+    margin: 14px auto 0 auto;
+}
+
+
+/* ==================================
+   BRACKET TREE VIEW
+   Every round is a column; the whole thing scrolls both
+   ways using the browser's native scrolling, so mouse wheel,
+   trackpad, and touch-drag all just work without any custom
+   drag/pan code — and it behaves the same on PC, mobile, and
+   tablets as a result.
+================================== */
+
+.bracket-tree {
+    display: flex;
+    align-items: stretch;
+    gap: 28px;
+    overflow: auto;
+    padding: 10px 6px 24px 6px;
+    max-height: 65vh;
+    text-align: left;
+}
+
+.tree-round {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 190px;
+}
+
+.tree-round-label {
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 12px;
+    position: sticky;
+    top: 0;
+}
+
+.tree-round-matches {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 14px;
+}
+
+.tree-match {
+    background: #1f2937;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.tree-match-tbd {
+    opacity: 0.35;
+}
+
+.tree-slot {
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    word-break: break-word;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tree-slot:last-child {
+    border-bottom: none;
+}
+
+.tree-match-active .tree-slot {
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tree-match-active .tree-slot:hover {
+    background: #374151;
+}
+
+.tree-slot-winner {
+    color: #22c55e;
+}
+
+.tree-slot-winner::before {
+    content: "🏆 ";
+}
+
+.tree-slot-loser {
+    color: rgba(255, 255, 255, 0.35);
+    text-decoration: line-through;
+}
+
+
+/* ==================================
    BUTTONS
 ================================== */
 
@@ -963,6 +1062,28 @@ html {
 
     .modal-buttons button {
         width: 100%;
+    }
+
+    .matchup {
+        gap: 12px;
+    }
+
+    .matchup-card {
+        width: 140px;
+    }
+
+    .matchup-title {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .tree-round {
+        width: 150px;
+    }
+
+    .bracket-tree {
+        max-height: 55vh;
+        gap: 18px;
     }
 }
 
