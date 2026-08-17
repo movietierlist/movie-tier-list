@@ -605,6 +605,13 @@ function findParticipant(tournament, id) {
     return tournament.participants.find(p => p.id === id);
 }
 
+function undoButtonHTML(tournament) {
+
+    const isDisabled = !tournament.history || tournament.history.length === 0;
+
+    return `<button id="tournamentUndoButton" class="tournament-undo" ${isDisabled ? "disabled" : ""}>↩ Undo</button>`;
+}
+
 function renderParticipantPoster(participant) {
 
     if (participant.poster) {
@@ -612,7 +619,10 @@ function renderParticipantPoster(participant) {
     }
 
     if (participant.textPoster) {
-        return `<div class="poster"><div class="text-poster">${participant.title}</div></div>`;
+
+        const colorStyle = participant.posterColor ? ` style="background:${participant.posterColor}"` : "";
+
+        return `<div class="poster"><div class="text-poster"${colorStyle}>${participant.title}</div></div>`;
     }
 
     return `<div class="poster">🎬</div>`;
@@ -765,7 +775,8 @@ function proceedWithParticipantsFromList(name, list) {
         id: Date.now() + Math.random(),
         title: movie.title,
         poster: movie.poster || null,
-        textPoster: movie.textPoster || false
+        textPoster: movie.textPoster || false,
+        posterColor: movie.posterColor || null
     }));
 
     if (participants.length < 2) {
@@ -795,11 +806,16 @@ function openTournamentFreshEntry(name) {
             <button type="button" id="freshTypeGeneralBtn" class="type-toggle-option">📝 Text Only</button>
         </div>
         <textarea id="tournamentParticipantsInput" placeholder="Enter names separated by commas or new lines"></textarea>
+        <label class="color-picker-label">
+            Background Colour (Text Only)
+            <input type="color" id="posterColorInput" value="#2563eb">
+        </label>
         `,
         "Next",
         function () {
 
             const text = document.getElementById("tournamentParticipantsInput").value;
+            const posterColor = document.getElementById("posterColorInput").value;
 
             const titles = text
                 .split(/[\n,]+/)
@@ -822,7 +838,8 @@ function openTournamentFreshEntry(name) {
                 id: Date.now() + Math.random(),
                 title: title,
                 poster: null,
-                textPoster: selectedType === "general"
+                textPoster: selectedType === "general",
+                posterColor: selectedType === "general" ? posterColor : null
             }));
 
             beginTournamentSetup(name, participants);
@@ -936,7 +953,8 @@ function finalizeNewTournament(name, participants, byeIds) {
         currentRound: 0,
         currentMatch: 0,
         status: "active",
-        winnerId: null
+        winnerId: null,
+        history: []
     };
 
     tournament.matches.push(buildFirstRound(participants, byeIds));
@@ -1002,11 +1020,15 @@ function renderTournamentPlay(tournament) {
 
     saveAppStore();
 
+    const scrollY = window.scrollY;
+
     if (appStore.settings.bracketViewMode === "tree") {
         renderBracketTree(tournament);
     } else {
         renderSingleMatchup(tournament, state);
     }
+
+    window.scrollTo(0, scrollY);
 }
 
 function wireTournamentHeaderButtons(tournament) {
@@ -1015,20 +1037,31 @@ function wireTournamentHeaderButtons(tournament) {
         goHome();
     };
 
+    const undoButton = document.getElementById("tournamentUndoButton");
+
+    if (undoButton) {
+        undoButton.onclick = function () {
+            undoLastPick(tournament);
+        };
+    }
+
     const singleBtn = document.getElementById("viewModeSingleBtn");
     const treeBtn = document.getElementById("viewModeTreeBtn");
 
-    singleBtn.onclick = function () {
-        appStore.settings.bracketViewMode = "single";
-        saveAppStore();
-        renderTournamentPlay(tournament);
-    };
+    if (singleBtn && treeBtn) {
 
-    treeBtn.onclick = function () {
-        appStore.settings.bracketViewMode = "tree";
-        saveAppStore();
-        renderTournamentPlay(tournament);
-    };
+        singleBtn.onclick = function () {
+            appStore.settings.bracketViewMode = "single";
+            saveAppStore();
+            renderTournamentPlay(tournament);
+        };
+
+        treeBtn.onclick = function () {
+            appStore.settings.bracketViewMode = "tree";
+            saveAppStore();
+            renderTournamentPlay(tournament);
+        };
+    }
 }
 
 function renderSingleMatchup(tournament, state) {
@@ -1044,6 +1077,7 @@ function renderSingleMatchup(tournament, state) {
     tournamentPlayView.innerHTML = `
         <div class="tournament-header">
             <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
+            ${undoButtonHTML(tournament)}
             <h2>${tournament.name}</h2>
             <p>${roundLabel} — Match ${state.matchIndex + 1} of ${state.roundMatches.length}</p>
             <div class="type-toggle view-mode-toggle">
@@ -1076,6 +1110,10 @@ function renderSingleMatchup(tournament, state) {
 }
 
 function renderBracketTree(tournament) {
+
+    const previousTree = tournamentPlayView.querySelector(".bracket-tree");
+    const previousScrollLeft = previousTree ? previousTree.scrollLeft : 0;
+    const previousScrollTop = previousTree ? previousTree.scrollTop : 0;
 
     const bracketSize = tournament.matches[0].length * 2;
     const totalRounds = Math.log2(bracketSize);
@@ -1138,6 +1176,7 @@ function renderBracketTree(tournament) {
     tournamentPlayView.innerHTML = `
         <div class="tournament-header">
             <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
+            ${undoButtonHTML(tournament)}
             <h2>${tournament.name}</h2>
             <div class="type-toggle view-mode-toggle">
                 <button type="button" id="viewModeSingleBtn" class="type-toggle-option ${isTreeMode ? "" : "selected"}">🎯 Single Match</button>
@@ -1151,6 +1190,10 @@ function renderBracketTree(tournament) {
         </div>
         <div class="bracket-tree">${columnsHTML}</div>
     `;
+
+    const newTree = tournamentPlayView.querySelector(".bracket-tree");
+    newTree.scrollLeft = previousScrollLeft;
+    newTree.scrollTop = previousScrollTop;
 
     wireTournamentHeaderButtons(tournament);
 
@@ -1191,7 +1234,35 @@ function renderBracketTree(tournament) {
 
 function pickWinner(tournament, match, winnerId) {
 
+    if (!tournament.history) {
+        tournament.history = [];
+    }
+
+    tournament.history.push({
+        matches: JSON.parse(JSON.stringify(tournament.matches)),
+        currentRound: tournament.currentRound,
+        status: tournament.status,
+        winnerId: tournament.winnerId
+    });
+
     match.winner = winnerId;
+
+    saveAppStore();
+    renderTournamentPlay(tournament);
+}
+
+function undoLastPick(tournament) {
+
+    if (!tournament.history || tournament.history.length === 0) {
+        return;
+    }
+
+    const snapshot = tournament.history.pop();
+
+    tournament.matches = snapshot.matches;
+    tournament.currentRound = snapshot.currentRound;
+    tournament.status = snapshot.status;
+    tournament.winnerId = snapshot.winnerId;
 
     saveAppStore();
     renderTournamentPlay(tournament);
@@ -1204,6 +1275,7 @@ function renderTournamentComplete(tournament) {
     tournamentPlayView.innerHTML = `
         <div class="tournament-header">
             <button id="tournamentExitButton" class="tournament-exit">🏠 Home</button>
+            ${undoButtonHTML(tournament)}
             <h2>${tournament.name}</h2>
             <p>🏆 Winner!</p>
         </div>
@@ -1217,9 +1289,7 @@ function renderTournamentComplete(tournament) {
         </div>
     `;
 
-    document.getElementById("tournamentExitButton").onclick = function () {
-        goHome();
-    };
+    wireTournamentHeaderButtons(tournament);
 
     document.getElementById("tournamentDoneButton").onclick = function () {
         goHome();
@@ -1316,7 +1386,8 @@ function promptAddWinnerToTier(winner, list) {
                 tier: tier.id,
                 order: list.data.movies.filter(m => m.tier === tier.id).length,
                 poster: winner.poster || null,
-                textPoster: winner.textPoster || false
+                textPoster: winner.textPoster || false,
+                posterColor: winner.posterColor || null
             };
 
             list.data.movies.push(newItem);
@@ -2015,7 +2086,8 @@ function createMovie(movie) {
     if (movie.poster) {
         posterContent = `<img src="${movie.poster}" alt="${movie.title} poster" draggable="false">`;
     } else if (movie.textPoster) {
-        posterContent = `<div class="text-poster">${movie.title}</div>`;
+        const colorStyle = movie.posterColor ? ` style="background:${movie.posterColor}"` : "";
+        posterContent = `<div class="text-poster"${colorStyle}>${movie.title}</div>`;
     } else {
         posterContent = "🎬";
     }
@@ -2528,16 +2600,31 @@ function openMovieMenu(movie, button) {
             label: "Edit " + singular,
             action: function () {
 
+                const colorFieldHTML = movie.textPoster
+                    ? `
+                    <label class="color-picker-label">
+                        Background Colour
+                        <input type="color" id="editPosterColorInput" value="${movie.posterColor || "#2563eb"}">
+                    </label>
+                    `
+                    : "";
+
                 openModal(
                     "Edit " + singular,
-                    `<input id="movieNameInput" value="${movie.title}">`,
+                    `<input id="movieNameInput" value="${movie.title}">${colorFieldHTML}`,
                     "Save",
                     function () {
 
                         const name = document.getElementById("movieNameInput").value.trim();
 
                         if (name) {
+
                             movie.title = name;
+
+                            if (movie.textPoster) {
+                                movie.posterColor = document.getElementById("editPosterColorInput").value;
+                            }
+
                             save();
                             render();
                         }
@@ -2625,7 +2712,13 @@ addMovieButton.onclick = function () {
 
         openModal(
             "Add Item",
-            `<input id="movieNameInput" placeholder="Item name">`,
+            `
+            <input id="movieNameInput" placeholder="Item name">
+            <label class="color-picker-label">
+                Background Colour
+                <input type="color" id="posterColorInput" value="#2563eb">
+            </label>
+            `,
             "Add",
             function () {
 
@@ -2635,13 +2728,16 @@ addMovieButton.onclick = function () {
                     return;
                 }
 
+                const posterColor = document.getElementById("posterColorInput").value;
+
                 data.movies.push({
                     id: Date.now(),
                     title: title,
                     tier: null,
                     order: data.movies.length,
                     poster: null,
-                    textPoster: true
+                    textPoster: true,
+                    posterColor: posterColor
                 });
 
                 save();
@@ -2721,7 +2817,13 @@ addTextPosterMovieButton.onclick = function () {
 
     openModal(
         "Add Movie (Text Poster)",
-        `<input id="movieNameInput" placeholder="Movie name">`,
+        `
+        <input id="movieNameInput" placeholder="Movie name">
+        <label class="color-picker-label">
+            Background Colour
+            <input type="color" id="posterColorInput" value="#2563eb">
+        </label>
+        `,
         "Add",
         function () {
 
@@ -2731,13 +2833,16 @@ addTextPosterMovieButton.onclick = function () {
                 return;
             }
 
+            const posterColor = document.getElementById("posterColorInput").value;
+
             data.movies.push({
                 id: Date.now(),
                 title: title,
                 tier: null,
                 order: data.movies.length,
                 poster: null,
-                textPoster: true
+                textPoster: true,
+                posterColor: posterColor
             });
 
             save();
@@ -2757,11 +2862,18 @@ addMultipleMoviesButton.onclick = function () {
 
         openModal(
             "Bulk Import",
-            `<textarea id="multipleMovieInput" placeholder="Enter item names separated by commas or new lines"></textarea>`,
+            `
+            <textarea id="multipleMovieInput" placeholder="Enter item names separated by commas or new lines"></textarea>
+            <label class="color-picker-label">
+                Background Colour (applies to all)
+                <input type="color" id="posterColorInput" value="#2563eb">
+            </label>
+            `,
             "Add Items",
             function () {
 
                 const text = document.getElementById("multipleMovieInput").value;
+                const posterColor = document.getElementById("posterColorInput").value;
 
                 const titles = text
                     .split(/[\n,]+/)
@@ -2778,7 +2890,8 @@ addMultipleMoviesButton.onclick = function () {
                         tier: null,
                         order: startingOrder + index,
                         poster: null,
-                        textPoster: true
+                        textPoster: true,
+                        posterColor: posterColor
                     });
                 });
 
