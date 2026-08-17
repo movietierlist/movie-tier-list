@@ -2194,7 +2194,7 @@ async function fetchPosterUrl(title, mediaType) {
 
 async function fetchPostersWithThrottle(items, workerFn) {
 
-    const BATCH_SIZE = 5;
+    const BATCH_SIZE = 10;
     const BATCH_DELAY_MS = 400;
 
     for (let i = 0; i < items.length; i += BATCH_SIZE) {
