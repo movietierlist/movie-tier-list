@@ -845,7 +845,7 @@ function openTournamentFreshEntry(name) {
             beginTournamentSetup(name, participants);
 
             if (selectedType === "movie") {
-                participants.forEach(attachTournamentPoster);
+                fetchPostersWithThrottle(participants, attachTournamentPoster);
             }
         }
     );
@@ -2183,6 +2183,31 @@ async function fetchPosterUrl(title, mediaType) {
     return null;
 }
 
+/* ==================================
+   THROTTLED BULK POSTER FETCHING
+   TMDb doesn't publish a hard rate limit, but it does throttle
+   bursts of traffic — firing 100+ lookups in the same instant
+   (like a big bulk import) risks some silently failing. This
+   processes a small batch at a time with a short pause between
+   batches instead of firing everything at once.
+================================== */
+
+async function fetchPostersWithThrottle(items, workerFn) {
+
+    const BATCH_SIZE = 5;
+    const BATCH_DELAY_MS = 400;
+
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+
+        const batch = items.slice(i, i + BATCH_SIZE);
+        await Promise.all(batch.map(workerFn));
+
+        if (i + BATCH_SIZE < items.length) {
+            await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+        }
+    }
+}
+
 async function attachPoster(movie) {
 
     const posterUrl = await fetchPosterUrl(movie.title, movie.mediaType);
@@ -2939,7 +2964,7 @@ addMultipleMoviesButton.onclick = function () {
             save();
             render();
 
-            newMovies.forEach(attachPoster);
+            fetchPostersWithThrottle(newMovies, attachPoster);
         }
     );
 };
