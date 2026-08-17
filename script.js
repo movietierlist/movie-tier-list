@@ -673,7 +673,15 @@ function buildNextRound(previousRoundMatches) {
     const matches = [];
 
     for (let i = 0; i < winners.length; i += 2) {
-        matches.push({ a: winners[i], b: winners[i + 1], winner: null });
+
+        if (i + 1 < winners.length) {
+            matches.push({ a: winners[i], b: winners[i + 1], winner: null });
+        } else {
+            // Shouldn't normally happen, but if a round ever ends up with an
+            // odd number of winners, auto-advance the leftover instead of
+            // creating a broken match with no real opponent.
+            matches.push({ a: winners[i], b: null, winner: winners[i] });
+        }
     }
 
     return matches;
@@ -895,6 +903,8 @@ function openByeSelectionModal(name, participants, byesNeeded) {
         "Choose Byes",
         `
         <p class="bye-instructions">Your bracket needs ${byesNeeded} bye${byesNeeded === 1 ? "" : "s"} — pick exactly ${byesNeeded} to automatically skip Round 1.</p>
+        <p class="bye-counter" id="byeCounter">0 of ${byesNeeded} selected</p>
+        <button type="button" id="randomizeByesButton" class="randomize-byes-button">🎲 Randomize</button>
         <div id="byeCheckboxList" class="delete-movie-list"></div>
         `,
         "Start Tournament",
@@ -913,6 +923,21 @@ function openByeSelectionModal(name, participants, byesNeeded) {
     );
 
     const listContainer = document.getElementById("byeCheckboxList");
+    const byeCounter = document.getElementById("byeCounter");
+
+    function updateByeUI() {
+
+        const checkedCount = listContainer.querySelectorAll(".byeCheckbox:checked").length;
+        const allCheckboxes = listContainer.querySelectorAll(".byeCheckbox");
+
+        byeCounter.textContent = checkedCount + " of " + byesNeeded + " selected";
+
+        allCheckboxes.forEach(box => {
+            if (!box.checked) {
+                box.disabled = checkedCount >= byesNeeded;
+            }
+        });
+    }
 
     participants.forEach(participant => {
 
@@ -924,23 +949,31 @@ function openByeSelectionModal(name, participants, byesNeeded) {
         checkbox.className = "byeCheckbox";
         checkbox.dataset.participantId = participant.id;
 
-        checkbox.onchange = function () {
-
-            const checkedCount = listContainer.querySelectorAll(".byeCheckbox:checked").length;
-            const allCheckboxes = listContainer.querySelectorAll(".byeCheckbox");
-
-            allCheckboxes.forEach(box => {
-                if (!box.checked) {
-                    box.disabled = checkedCount >= byesNeeded;
-                }
-            });
-        };
+        checkbox.onchange = updateByeUI;
 
         row.appendChild(checkbox);
         row.appendChild(document.createTextNode(participant.title));
 
         listContainer.appendChild(row);
     });
+
+    document.getElementById("randomizeByesButton").onclick = function () {
+
+        const allCheckboxes = Array.from(listContainer.querySelectorAll(".byeCheckbox"));
+
+        allCheckboxes.forEach(box => {
+            box.checked = false;
+            box.disabled = false;
+        });
+
+        shuffleArray(allCheckboxes)
+            .slice(0, byesNeeded)
+            .forEach(box => {
+                box.checked = true;
+            });
+
+        updateByeUI();
+    };
 }
 
 function finalizeNewTournament(name, participants, byeIds) {
@@ -949,6 +982,7 @@ function finalizeNewTournament(name, participants, byeIds) {
         id: Date.now() + Math.random(),
         name: name,
         participants: participants,
+        bracketSize: nextPowerOfTwo(participants.length),
         matches: [],
         currentRound: 0,
         currentMatch: 0,
@@ -990,6 +1024,17 @@ function advanceTournamentState(tournament) {
     while (true) {
 
         const roundMatches = tournament.matches[tournament.currentRound];
+
+        // Self-heal: a match with no real opponent should always have
+        // already been auto-won. If one slipped through as undecided
+        // (from a version of this code with the round-pairing bug),
+        // fix it in place instead of getting stuck forever.
+        roundMatches.forEach(m => {
+            if (!m.winner && !m.b) {
+                m.winner = m.a;
+            }
+        });
+
         const nextIndex = roundMatches.findIndex(m => !m.winner);
 
         if (nextIndex !== -1) {
@@ -1115,8 +1160,8 @@ function renderBracketTree(tournament) {
     const previousScrollLeft = previousTree ? previousTree.scrollLeft : 0;
     const previousScrollTop = previousTree ? previousTree.scrollTop : 0;
 
-    const bracketSize = tournament.matches[0].length * 2;
-    const totalRounds = Math.log2(bracketSize);
+    const bracketSize = tournament.bracketSize || (tournament.matches[0].length * 2);
+    const totalRounds = Math.round(Math.log2(bracketSize));
     const isTreeMode = appStore.settings.bracketViewMode === "tree";
 
     let columnsHTML = "";
@@ -1574,9 +1619,10 @@ newListButton.onclick = function () {
 exportListsButton.onclick = function () {
 
     const exportPayload = {
-        exportVersion: 1,
+        exportVersion: 2,
         exportedAt: new Date().toISOString(),
-        lists: appStore.lists
+        lists: appStore.lists,
+        tournaments: appStore.tournaments
     };
 
     const blob = new Blob(
@@ -1650,16 +1696,41 @@ importFileInput.onchange = function () {
             appStore.lists.push({
                 id: Date.now() + Math.random(),
                 name: list.name || "Imported List",
+                type: list.type || "movie",
                 data: list.data || getDefaultListData()
+            });
+        });
+
+        const importedTournaments = Array.isArray(parsed.tournaments) ? parsed.tournaments : [];
+
+        importedTournaments.forEach(tournament => {
+
+            appStore.tournaments.push({
+                id: Date.now() + Math.random(),
+                name: tournament.name || "Imported Tournament",
+                participants: tournament.participants || [],
+                bracketSize: tournament.bracketSize || nextPowerOfTwo((tournament.participants || []).length),
+                matches: tournament.matches || [],
+                currentRound: tournament.currentRound || 0,
+                currentMatch: tournament.currentMatch || 0,
+                status: tournament.status || "active",
+                winnerId: tournament.winnerId || null,
+                history: []
             });
         });
 
         saveAppStore();
         renderHome();
 
+        const summaryParts = [importedLists.length + " tier list" + (importedLists.length === 1 ? "" : "s")];
+
+        if (importedTournaments.length > 0) {
+            summaryParts.push(importedTournaments.length + " tournament" + (importedTournaments.length === 1 ? "" : "s"));
+        }
+
         openModal(
             "Import Complete",
-            `<p>Imported ${importedLists.length} tier list${importedLists.length === 1 ? "" : "s"}.</p>`,
+            `<p>Imported ${summaryParts.join(" and ")}.</p>`,
             "OK",
             function () {}
         );
@@ -2930,11 +3001,23 @@ addMultipleMoviesButton.onclick = function () {
 
     openModal(
         "Add Multiple Movies",
-        `<textarea id="multipleMovieInput" placeholder='Enter titles separated by commas or new lines — add "(tv)" after any title to force it as a TV show'></textarea>`,
+        `
+        <textarea id="multipleMovieInput" placeholder='Enter titles separated by commas or new lines — add "(tv)" after any title to force it as a TV show'></textarea>
+        <label class="checkbox-row">
+            <input type="checkbox" id="bulkTextPosterToggle">
+            Use Text Posters Instead (skip TMDb, no images)
+        </label>
+        <label class="color-picker-label hidden" id="bulkColorRow">
+            Background Colour (applies to all)
+            <input type="color" id="posterColorInput" value="#2563eb">
+        </label>
+        `,
         "Add Movies",
         function () {
 
             const text = document.getElementById("multipleMovieInput").value;
+            const useTextPoster = document.getElementById("bulkTextPosterToggle").checked;
+            const posterColor = document.getElementById("posterColorInput").value;
 
             const rawTitles = text
                 .split(/[\n,]+/)
@@ -2942,6 +3025,26 @@ addMultipleMoviesButton.onclick = function () {
                 .filter(title => title.length);
 
             const startingOrder = data.movies.length;
+
+            if (useTextPoster) {
+
+                rawTitles.forEach((title, index) => {
+
+                    data.movies.push({
+                        id: Date.now() + Math.random(),
+                        title: title,
+                        tier: null,
+                        order: startingOrder + index,
+                        poster: null,
+                        textPoster: true,
+                        posterColor: posterColor
+                    });
+                });
+
+                save();
+                render();
+                return;
+            }
 
             const newMovies = rawTitles.map((rawTitle, index) => {
 
@@ -2967,6 +3070,13 @@ addMultipleMoviesButton.onclick = function () {
             fetchPostersWithThrottle(newMovies, attachPoster);
         }
     );
+
+    const bulkTextPosterToggle = document.getElementById("bulkTextPosterToggle");
+    const bulkColorRow = document.getElementById("bulkColorRow");
+
+    bulkTextPosterToggle.onchange = function () {
+        bulkColorRow.classList.toggle("hidden", !bulkTextPosterToggle.checked);
+    };
 };
 
 
