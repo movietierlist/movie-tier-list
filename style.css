@@ -209,6 +209,23 @@ main {
     font-size: 14px;
 }
 
+.tournament-undo {
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: #7c2d12;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.tournament-undo:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
 .matchup {
     display: flex;
     align-items: center;
@@ -912,6 +929,21 @@ button:focus-visible {
     padding: 4px;
 }
 
+.color-picker-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.color-picker-label input[type="color"] {
+    width: 70px;
+    flex-shrink: 0;
+}
+
 .type-toggle {
     display: flex;
     gap: 8px;
@@ -1105,6 +1137,12 @@ html {
     .bracket-tree {
         max-height: 55vh;
         gap: 18px;
+    }
+
+    .tournament-exit,
+    .tournament-undo {
+        padding: 8px 10px;
+        font-size: 12px;
     }
 }
 
